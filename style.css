@@ -1,0 +1,143 @@
+@font-face {
+    font-family: OpenSansLight;
+    src: url("font/OpenSans-Light.ttf");
+}
+
+@font-face {
+    font-family: OpenSansRegular;
+    src: url("font/OpenSans-Regular.ttf");
+}
+
+@font-face {
+    font-family: OpenSansBold;
+    src: url("font/OpenSans-SemiBold.ttf");
+}
+
+* {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    box-sizing: border-box;
+}
+
+html {
+    height: 100%;
+    font-family: OpenSansRegular, sans-serif;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+body {
+}
+
+header {
+    width: 100%;
+    height: 40px;
+    color: rgba(255,255,255,0.9);
+    position: fixed;
+    background: #254053;
+    -webkit-app-region: drag;
+}
+
+#window-title {
+    font-size: 0.9rem;
+    line-height: 40px;
+    padding-left: 15px;
+}
+
+#window-controls {
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: grid;
+    position: absolute;
+    grid-template-columns: repeat(3, 45px);
+    -webkit-app-region: no-drag;
+}
+
+#window-controls .button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#min-button {
+    grid-column: 1;
+}
+
+#max-button {
+    grid-column: 2;
+}
+
+#close-button {
+    grid-column: 3;
+}
+
+#window-controls .button:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+#window-controls .button:active {
+    background: rgba(255,255,255,0.2);
+}
+
+#close-button:hover {
+    background: #E81123 !important;
+}
+#close-button:active {
+    background: #F1707A !important;
+}
+#close-button:active .icon {
+    filter: invert(1);
+}
+
+main {
+    padding: 50px 25px 10px 25px;
+}
+
+.title {
+    margin: 10px 0 25px 0;
+    font-size: 1.5rem;
+}
+
+#components {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    height: 100%;
+}
+
+.component {
+    height: 225px;
+    background-color: #f5f5f5;
+    padding: 25px;
+    margin: 10px;
+    width: 225px;
+    text-decoration: none;
+    transition: 0.5s ease-in-out;
+}
+
+.component:hover {
+    background-color: #e5e5e5;
+}
+
+.component img {
+    height: 125px;
+    margin: auto;
+    display: block;
+    -webkit-user-drag: none;
+}
+
+.component h3 {
+    margin: 20px auto;
+    text-align: center;
+    font-size: 1.2rem;
+    color: black;
+}
+
+#chart {
+    width: 75%;
+    height: 55%;
+}
