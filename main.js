@@ -1,7 +1,6 @@
 const {app, BrowserWindow, Menu, ipcMain} = require('electron')
 const path = require('path')
 const ipc = require('electron').ipcMain;
-const remote = require('electron').remote;
 const contextMenu = require('electron-context-menu');
 
 app.commandLine.appendSwitch('remote-debugging-port', '9222')
@@ -12,6 +11,7 @@ function createWindow () {
     height: 720,
     frame: false,
     backgroundColor: '#FFF',
+    icon: __dirname + '/icons/icon.png',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,

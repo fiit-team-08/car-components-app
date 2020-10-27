@@ -1,70 +1,73 @@
 <!DOCTYPE html>
-<html>
+<html lang="sk-SK">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
     <link rel="stylesheet" href="style.css">
+    <script src='chart.js'></script>
     <title>CarComp</title>
 </head>
 <body>
 <header>
     <div id="window-title">
-        <p>CarComp&nbsp;&nbsp;|&nbsp;&nbsp;Komponenty</p>
+        <p>CarComp</p>
     </div>
     <div id="window-controls">
-        <div class="button" id="min-button">
-            <img srcset="icons/min-w-10.png" />
-        </div>
-        <div class="button" id="max-button">
-            <img srcset="icons/max-w-10.png" />
-        </div>
-        <div class="button" id="close-button">
-            <img srcset="icons/close-w-10.png" />
-        </div>
+        <button id="min-button">
+            <img srcset="icon/min-w-10.png" />
+        </button>
+        <button id="max-button">
+            <img srcset="icon/max-w-10.png" />
+        </button>
+        <button id="close-button">
+            <img srcset="icon/close-w-10.png" />
+        </button>
     </div>
 </header>
 <main>
-    <div id="components">
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
-        <a class="component" href="chart.html">
-            <img src="img/steering-wheel.png">
-            <h3>Volant</h3>
-        </a>
+    <div id="w1">
+        <div class="center">
+            <h1 id="title">Vyberte súbor a komponent na analýzu</h1>
+            <div class="select">
+                <div>
+                    <div id="open-button">
+                        <p>Vybrať súbor</p>
+                    </div>
+                    <p id="file-name"></p>
+                </div>
+                <div class="flex">
+                    <div id="c1" class="component">
+                        <img srcset="img/wheel.png" />
+                        <p>Koleso</p>
+                    </div>
+                    <div id="c2" class="component">
+                        <img srcset="img/steering-wheel.png" />
+                        <p>Volant</p>
+                    </div>
+                    <div id="c3" class="component">
+                        <img srcset="img/brake.png" />
+                        <p>Brzdy</p>
+                    </div>
+                </div>
+            </div>
+            <div id="ok-button">
+                <p>Analyzovať</p>
+            </div>
+        </div>
+    </div>
+    <div id="w2">
+        <div class="flex">
+            <button id="back-button">
+                <img srcset="icon/back.png" />
+            </button>
+            <h1 id="name"></h1>
+        </div>
+        <div class="chart">
+            <canvas id="chart"></canvas>
+        </div>
     </div>
 </main>
 
-<script src="./renderer.js"></script>
+<script src="renderer.js"></script>
+
 </body>
 </html>
