@@ -5,13 +5,90 @@ const win = remote.BrowserWindow.getFocusedWindow();
 let file = false;
 let component = 0;
 
-let d = [15,59,80,81,56,55,40];
-let dd = [65,59,80,81,56,55,40];
+let lines1 = new Chart(document.getElementById("chart1"),{
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'Dráha',
+            showLine: true,
+            fill: false,
+            "borderColor":"#254053e6",
+            data: [{
+                x: 0,
+                y: -4
+            }, {
+                x: 5,
+                y: 0
+            }, {
+                x: 0,
+                y: 0
+            }, {
+                x: 5,
+                y: 5
+            }, {
+                x: 0,
+                y: 6
+            }, {
+                x: -5,
+                y: 0
+            }, {
+                x: -3,
+                y: -2
+            }, {
+                x: 0,
+                y: -4
+            }]
+        }]
+    },
+    options: {
+        legend: {
+            display: false
+        },
+        tooltips: {
+            enabled: false
+        },
+        elements: {
+            point:{
+                radius: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display:false
+                },
+                ticks: {
+                    fontColor: "white"
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false
+                },
+                ticks: {
+                    fontColor: "white"
+                }
+            }]
+        }
+    }
+});
 
-let lines = new Chart(document.getElementById("chart"), {
+let lines2 = new Chart(document.getElementById("chart2"), {
     "type":"line","data": {
         "labels":["1","2","3","4","5","6","7"],
-        "datasets":[{"label":"Namerané dáta","data":d,"fill":false,"borderColor":"#254053e6","lineTension":0.1}, {"label":"Simulované dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
+        "datasets":[{"label":"Namerané dáta","data":[15,59,80,81,56,55,40],"fill":false,"borderColor":"#254053e6","lineTension":0.1}, {"label":"Simulované dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
+    },
+    "options": {
+        legend: {
+            display: true
+        }
+    }
+});
+
+let lines3 = new Chart(document.getElementById("chart3"), {
+    "type":"line","data": {
+        "labels":["1","2","3","4","5","6","7"],
+        "datasets":[{"label":"Rozdielne dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
     },
     "options": {
         legend: {
@@ -41,11 +118,11 @@ document.getElementById('open-button').addEventListener("click", event => {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-            { name: 'Log File (.csv)', extensions: ['csv'] },
+            { name: 'Log File (.log)', extensions: ['log'] },
         ]
     }).then(result => {
         if (!result.canceled) {
-            document.getElementById('file-name').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.csv$/)[0];
+            document.getElementById('file-name').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
             file = true;
             if (component > 0) {
                 document.getElementById('ok-button').style.background = null;
@@ -101,11 +178,8 @@ document.getElementById('ok-button').addEventListener("click", event => {
     if (component > 0 && file) {
         document.getElementById('w1').style.display = "none";
         document.getElementById('w2').style.display = "block";
-        if(Math.floor(Math.random() * 11) > 4)
-            lines.data.datasets[0].data = dd;
-        else
-            lines.data.datasets[0].data = d;
-        lines.update();
+        //lines1.data.datasets[0].data = d;
+        //lines1.update();
     }
 });
 
@@ -113,5 +187,21 @@ document.getElementById('back-button').addEventListener("click", event => {
     if (component > 0 && file) {
         document.getElementById('w1').style.display = "block";
         document.getElementById('w2').style.display = "none";
+    }
+});
+
+document.getElementById('print-button').addEventListener("click", event => {
+    lines1.canvas.parentNode.style.width = '185mm';
+    lines2.canvas.parentNode.style.width = '185mm';
+    lines3.canvas.parentNode.style.width = '185mm';
+    for (let id in Chart.instances) {
+        Chart.instances[id].resize();
+    }
+    window.print();
+    lines1.canvas.parentNode.style.width = '95%';
+    lines2.canvas.parentNode.style.width = '95%';
+    lines3.canvas.parentNode.style.width = '95%';
+    for (let id in Chart.instances) {
+        Chart.instances[id].resize();
     }
 });

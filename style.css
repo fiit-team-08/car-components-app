@@ -54,6 +54,7 @@ body {
 }
 
 header {
+    z-index: 1;
     height: 40px;
     background: #254053;
     -webkit-app-region: drag;
@@ -110,7 +111,7 @@ main {
 }
 
 .center {
-    top: 40%;
+    top: 45%;
     left: 50%;
     position: absolute;
     transform: translate(-50%, -50%);
@@ -226,6 +227,7 @@ main {
     padding: 10px 0;
     border-radius: 50%;
     background: #f5f5f5;
+    transition: 0.5s ease-in-out;
 }
 
 #back-button:hover {
@@ -250,11 +252,104 @@ main {
     font-family: OpenSansLight, serif;
 }
 
-.chart {
-    width: 95%;
-    margin: 20px auto 0 auto;
+#print-button {
+    width: 40px;
+    height: 40px;
+    display: block;
+    cursor: pointer;
+    padding: 10px 0;
+    margin-left: auto;
+    border-radius: 50%;
+    background: #f5f5f5;
+    transition: 0.5s ease-in-out;
 }
 
-ul {
-    margin: 0 0 25px 25px;
+#print-button:hover {
+    background: #e5e5e5;
+}
+
+#print-button:active {
+    background: #dddddd;
+}
+
+#print-button img {
+    height: 20px;
+    margin: auto;
+    display: block;
+}
+
+.info {
+    background: #f5f5f5;
+    margin: auto;
+    padding: 20px 25px;
+    text-align: center;
+    width: 300px;
+    border-radius: 2px;
+}
+
+.info-number {
+    margin: auto;
+}
+
+.info h1 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+
+.info p {
+    margin-top: 5px;
+}
+
+.chart {
+    width: 95%;
+    margin: 50px auto;
+}
+
+@page {
+    size: A4;
+    margin: 20mm 10mm;
+}
+
+@media print {
+    html, body, main {
+        margin: 0;
+        padding: 0;
+        width: 190mm;
+        height: 400mm;
+    }
+
+    header {
+        display: none;
+    }
+
+    #name {
+        font-family: OpenSansBold, serif;
+        font-size: 1.5rem;
+        margin: auto;
+        color: black;
+    }
+
+    .info {
+        margin-top: -15px;
+    }
+
+    .info h1 {
+        font-size: 1rem;
+    }
+
+    #back-button {
+        display: none;
+    }
+
+    #print-button {
+        display: none;
+    }
+
+    .chart {
+        margin: 25px auto;
+    }
+
+    #chart1, #chart4, #chart3 {
+        margin: auto;
+    }
 }

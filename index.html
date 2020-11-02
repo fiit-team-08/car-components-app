@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style.css">
     <script src='chart.js'></script>
+    <script src='jspdf.js'></script>
     <title>CarComp</title>
 </head>
 <body>
@@ -60,9 +61,48 @@
                 <img srcset="icon/back.png" />
             </button>
             <h1 id="name"></h1>
+            <div id="print-button">
+                <img srcset="icon/print.png" />
+            </div>
         </div>
         <div class="chart">
-            <canvas id="chart"></canvas>
+            <div class="flex">
+                <div class="info">
+                    <h1>Obodovanie trasy</h1>
+                    <div class="flex">
+                        <div class="info-number">
+                            <p>Referenčná</p>
+                            <p>22</p>
+                        </div>
+                        <div class="info-number">
+                            <p>Analyzovaná</p>
+                            <p>25</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info">
+                    <h1>Podobnosť trasy</h1>
+                    <div class="flex">
+                        <div class="info-number">
+                            <p>Referenčná</p>
+                            <p>100%</p>
+                        </div>
+                        <div class="info-number">
+                            <p>Analyzovaná</p>
+                            <p>90%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chart">
+            <canvas id="chart1"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="chart2"></canvas>
+        </div>
+        <div class="chart">
+            <canvas id="chart3"></canvas>
         </div>
     </div>
 </main>

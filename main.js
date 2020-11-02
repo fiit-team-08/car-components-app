@@ -9,9 +9,11 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
+    minWidth: 800,
+    minHeight: 500,
     frame: false,
     backgroundColor: '#FFF',
-    icon: __dirname + '/icons/icon.png',
+    icon: __dirname + '/icon/icon.png',
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
