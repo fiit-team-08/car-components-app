@@ -9,8 +9,8 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
-    minWidth: 800,
-    minHeight: 500,
+    minWidth: 1280,
+    minHeight: 720,
     frame: false,
     backgroundColor: '#FFF',
     icon: __dirname + '/icon/icon.png',
@@ -20,7 +20,7 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
     }
   })
-  mainWindow.loadFile('index.html')
+  mainWindow.loadFile('index.html');
 }
 
 app.whenReady().then(() => {
