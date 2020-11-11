@@ -24,24 +24,25 @@
     </div>
 </header>
 <main>
-    <div id="w1">
-        <div class="center">
-            <h1 class="title">Vyberte súbory na analýzu</h1>
+    <div id="w0">
+        <div class="center1">
             <div class="flex">
                 <div class="insert">
-                    <div class="button" id="open-button1">
-                        <p>Vložiť LOG súbor</p>
+                    <div class="button" id="draha">
+                        <p>Analýza dráhy</p>
                     </div>
-                    <p class="file-name" id="file-name1"></p>
                 </div>
                 <div class="insert">
-                    <div class="button" id="open-button2">
-                        <p>Vložiť referenčnú dráhu</p>
+                    <div class="button" id="komponent">
+                        <p>Optimalizácia komponentov</p>
                     </div>
-                    <p class="file-name" id="file-name2"></p>
                 </div>
             </div>
-            <h1 class="title">Analyzujte komponenty a dráhu</h1>
+        </div>
+    </div>
+    <div id="w1">
+        <div class="center2">
+            <h1 class="title">Výber komponentov</h1>
             <div class="flex">
                 <div id="c1" class="component">
                     <img srcset="img/wheel.png" />
@@ -54,11 +55,6 @@
                 <div id="c3" class="component">
                     <img srcset="img/brake.png" />
                     <p>Brzdy</p>
-                </div>
-                <div id="line"></div>
-                <div id="c4" class="component">
-                    <img srcset="img/circuit.png" />
-                    <p>Dráha</p>
                 </div>
             </div>
         </div>
@@ -78,6 +74,20 @@
         </div>
         <div id="ww1">
             <div class="left">
+                <div class="flex">
+                    <div class="insert">
+                        <div class="button" id="open-button1">
+                            <p>Vložiť LOG súbor</p>
+                        </div>
+                        <p class="file-name" id="file-name1"></p>
+                    </div>
+                    <div class="insert">
+                        <div class="button" id="open-button2">
+                            <p>Vložiť referenčnú dráhu</p>
+                        </div>
+                        <p class="file-name" id="file-name2"></p>
+                    </div>
+                </div>
                     <div class="flex">
                         <div class="info">
                             <h1>Obodovanie trasy</h1>
@@ -112,7 +122,7 @@
             </div>
             <div class="right">
                 <div class="list">
-                    <h1>Podobnosť trasy</h1>
+                    <h1>List</h1>
                     <ul>
                         <li>1. Kolo</li>
                         <li>2. Kolo</li>
@@ -125,6 +135,12 @@
             </div>
         </div>
         <div id="ww2">
+            <div class="insert2">
+                <div class="button" id="open-button0">
+                    <p>Vložiť LOG súbor</p>
+                </div>
+                <p class="file-name" id="file-name0"></p>
+            </div>
             <div class="flex-row">
                 <div class="charts">
                     <canvas id="chart2"></canvas>
