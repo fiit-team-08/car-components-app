@@ -172,6 +172,7 @@ document.getElementById('open-button1').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name1').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
+            eel.getpath(result.filePaths.toString());
         }
     }).catch(err => {
         console.log(err)
@@ -187,6 +188,7 @@ document.getElementById('open-button2').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name2').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
+            eel.getpath(result.filePaths.toString());
         }
     }).catch(err => {
         console.log(err)

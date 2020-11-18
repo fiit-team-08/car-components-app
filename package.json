@@ -1,24 +1,25 @@
 {
-  "name": "eelectron",
-  "version": "1.0.1",
-  "description": "A minimal Eelectron application",
+  "name": "main",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
-    "test": "electron ."
+    "start": "electron ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nicofilliol/eelectron.git"
-  },
+  "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
-    "electron",
-    "eel",
-    "python"
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
   ],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/nicofilliol/eelectron/issues"
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^11.0.0"
   },
-  "homepage": "https://github.com/nicofilliol/eelectron#readme"
+  "dependencies": {
+    "electron-context-menu": "^2.3.0"
+  }
 }
