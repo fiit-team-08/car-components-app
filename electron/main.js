@@ -1,9 +1,7 @@
-const {app, BrowserWindow, Menu, ipcMain} = require('electron')
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+const {app, BrowserWindow} = require('electron')
 const path = require('path')
-const ipc = require('electron').ipcMain;
 const contextMenu = require('electron-context-menu');
-
-app.commandLine.appendSwitch('remote-debugging-port', '9222')
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
@@ -20,26 +18,22 @@ function createWindow () {
       preload: path.join(__dirname, 'preload.js'),
     }
   })
-  mainWindow.loadFile('index.html');
+  mainWindow.loadURL('http://localhost:8000/index.html');
 }
 
 app.whenReady().then(() => {
   createWindow()
   app.on('activate', function () {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    if (BrowserWindow.getAllWindows().length === 0)
+      createWindow()
   })
 })
 
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit()
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })
-
-ipc.on('invokeAction', function(event, data){
-  const result = processData(data);
-  event.sender.send('actionReply', result);
-});
 
 contextMenu({
 });
-
-

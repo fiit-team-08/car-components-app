@@ -1,5 +1,5 @@
 {
-  "name": "eelectron",
+  "name": "electron",
   "version": "1.0.1",
   "description": "A minimal Eelectron application",
   "main": "main.js",

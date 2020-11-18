@@ -1,9 +1,14 @@
-const remote = require('electron').remote;
-const dialog = require('electron').remote.dialog;
+const remote = nodeRequire('electron').remote;
+const dialog = nodeRequire('electron').remote.dialog;
 const win = remote.BrowserWindow.getFocusedWindow();
 
 let file1 = false;
 let file2 = false;
+let data = [];
+
+eel.getdata()().then((r) => {
+    data = r;
+});
 
 let lines1 = new Chart(document.getElementById("chart1"),{
     type: 'scatter',
@@ -80,7 +85,7 @@ let lines1 = new Chart(document.getElementById("chart1"),{
 let lines2 = new Chart(document.getElementById("chart2"), {
     "type":"line","data": {
         "labels":["1","2","3","4","5","6","7"],
-        "datasets":[{"label":"Namerané dáta","data":[15,59,80,81,56,55,40],"fill":false,"borderColor":"#254053e6","lineTension":0.1}, {"label":"Simulované dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
+        "datasets":[{"label":"Namerané dáta","data":[1,2,3,4,5,6,7],"fill":false,"borderColor":"#254053e6","lineTension":0.1}, {"label":"Simulované dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
     },
     "options": {
         legend: {
@@ -151,6 +156,7 @@ document.getElementById('open-button0').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name0').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
+            eel.getpath(result.filePaths.toString());
         }
     }).catch(err => {
         console.log(err)
@@ -200,6 +206,8 @@ document.getElementById('c1').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "none";
     document.getElementById('ww2').style.display = "block";
+    lines2.data.datasets[0].data = data;
+    lines2.update();
 });
 
 document.getElementById('c2').addEventListener("click", event => {
@@ -209,6 +217,7 @@ document.getElementById('c2').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "none";
     document.getElementById('ww2').style.display = "block";
+    lines2.update();
 });
 
 document.getElementById('c3').addEventListener("click", event => {
@@ -218,6 +227,7 @@ document.getElementById('c3').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "none";
     document.getElementById('ww2').style.display = "block";
+    lines2.update();
 });
 
 document.getElementById('print-button').addEventListener("click", event => {
