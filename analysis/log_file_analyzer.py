@@ -68,7 +68,7 @@ def drop_unnecessary_columns(logs):
     logs.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'], inplace=True)
 
 
-def drop_logs_where_car_stayed(logs):
+def drop_logs_where_car_stayed(logs : DataFrame):
     """
         Drops rows from the logs dataframe where the LAT and LON are not changing.
         Resets indices of a dataframe in the end.
@@ -86,14 +86,12 @@ def drop_logs_where_car_stayed(logs):
     for index, row in logs.iterrows():
         if row['LAT'] == last_lat and row['LON'] == last_lon:
             dropped_rows.append(index)
-            logs.drop(index, inplace=True)
         else:
             last_lat = row['LAT']
             last_lon = row['LON']
 
-    print('Dropped {} rows'.format(len(dropped_rows)))
+    logs.drop(dropped_rows, inplace=True)
     logs.reset_index(drop=True, inplace=True)
-    return dropped_rows
 
 
 def create_columns_with_future_position(logs):
