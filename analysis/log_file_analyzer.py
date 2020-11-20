@@ -96,7 +96,7 @@ def drop_logs_where_car_stayed(logs : DataFrame):
 
 def create_columns_with_future_position(logs):
     """
-        Creates columns NLAT, NLON and NCRS which the next position of a car.
+        Creates columns NLAT, NLON and NCRS which are the next position of a car.
 
         Parameters
         --------
@@ -144,7 +144,6 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
     """
 
     points = list()
-
     for i in range(len(traces)):
         points.append([traces['LON'][i], traces['LAT'][i]])
 
@@ -191,3 +190,28 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
     # tha last circuit (lap) was not saved yet so save that one
     lap_df = traces.iloc[laps[-1]:]
     lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, len(laps) - 1), index=False)
+
+
+def get_raw_data(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    return log_df
+
+
+def get_essential_data(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    drop_unnecessary_columns(log_df)
+    drop_logs_where_car_stayed(log_df)
+    return log_df
+
+
+def get_raw_data_json(file_path) -> str:
+    data = get_raw_data(file_path)
+    return data.to_json(orient="records")
+
+
+def get_essential_data_json(file_path) -> str:
+    data = get_essential_data(file_path)
+    return data.to_json(orient="records")
+
