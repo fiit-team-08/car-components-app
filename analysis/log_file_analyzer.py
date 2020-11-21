@@ -1,8 +1,10 @@
 import pandas as pd
+from pandas import DataFrame
 import numpy as np
 import math
 from sympy import Point, Segment
 from scipy.spatial import distance
+
 
 
 def log_to_dataFrame(file_path):
@@ -19,11 +21,18 @@ def log_to_dataFrame(file_path):
             2020-06-29 13:06:24,595 - INFO - ;LAT;480492306;LON;175678507;UTMX;69136106;UTMY;532496222;HMSL;126112;GSPEED;0;CRS;0;HACC;66720;NXPT;1139
             2020-06-29 13:06:24,648 - INFO - ;LAT;480492313;LON;175678494;UTMX;69136096;UTMY;532496230;HMSL;126121;GSPEED;4;CRS;0;HACC;52510;NXPT;1139
             2020-06-29 13:06:24,698 - INFO - ;LAT;480492305;LON;175678495;UTMX;69136097;UTMY;532496221;HMSL;126146;GSPEED;1;CRS;0;HACC;49421;NXPT;1140
+
+        Returns
+        --------
+        A dataframe with all the logs. 
     """
 
-    logs = pd.read_csv(file_path, header=None, sep=';')
-    logs = logs.drop(columns=[0, 1, 3, 5, 7, 9, 11, 13, 15, 17])
-    logs.columns = ['LAT', 'LON', 'UTMX', 'UTMY', 'HMSL', 'GSPEED', 'CRS', 'HACC', 'NXPT']
+    logs = pd.read_csv(file_path, header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', 
+                                                            '9', 'HMSL', '11','GSPEED', '13', 'CRS', '15', 'HACC', 
+                                                            '17', 'NXPT'])
+    
+    logs = logs.drop(columns=['0', '1', '3', '5', '7', '9', '11', '13', '15', '17'])
+    logs = logs.dropna()
     return logs
 
 
@@ -59,7 +68,7 @@ def drop_unnecessary_columns(logs):
     logs.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'], inplace=True)
 
 
-def drop_logs_where_car_stayed(logs):
+def drop_logs_where_car_stayed(logs : DataFrame):
     """
         Drops rows from the logs dataframe where the LAT and LON are not changing.
         Resets indices of a dataframe in the end.
@@ -77,19 +86,17 @@ def drop_logs_where_car_stayed(logs):
     for index, row in logs.iterrows():
         if row['LAT'] == last_lat and row['LON'] == last_lon:
             dropped_rows.append(index)
-            logs.drop(index, inplace=True)
         else:
             last_lat = row['LAT']
             last_lon = row['LON']
 
-    print('Dropped {} rows'.format(len(dropped_rows)))
+    logs.drop(dropped_rows, inplace=True)
     logs.reset_index(drop=True, inplace=True)
-    return dropped_rows
 
 
 def create_columns_with_future_position(logs):
     """
-        Creates columns NLAT, NLON and NCRS which the next position of a car.
+        Creates columns NLAT, NLON and NCRS which are the next position of a car.
 
         Parameters
         --------
@@ -137,7 +144,6 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
     """
 
     points = list()
-
     for i in range(len(traces)):
         points.append([traces['LON'][i], traces['LAT'][i]])
 
@@ -184,3 +190,28 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
     # tha last circuit (lap) was not saved yet so save that one
     lap_df = traces.iloc[laps[-1]:]
     lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, len(laps) - 1), index=False)
+
+
+def get_raw_data(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    return log_df
+
+
+def get_essential_data(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    drop_unnecessary_columns(log_df)
+    drop_logs_where_car_stayed(log_df)
+    return log_df
+
+
+def get_raw_data_json(file_path) -> str:
+    data = get_raw_data(file_path)
+    return data.to_json(orient="records")
+
+
+def get_essential_data_json(file_path) -> str:
+    data = get_essential_data(file_path)
+    return data.to_json(orient="records")
+
