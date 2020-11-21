@@ -1,5 +1,4 @@
-npm install electron
-npm install electron-context-menu
+npm install
 pip install eel
 pip install obspy
 pip install numpy
