@@ -1,8 +1,6 @@
 # CarComp
 
-npm install electron
-
-npm install electron-context-menu
+npm install
 
 pip install eel
 
