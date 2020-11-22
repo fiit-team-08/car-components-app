@@ -10,39 +10,21 @@ eel.getdata()().then((r) => {
     data = r;
 });
 
-let lines1 = new Chart(document.getElementById("chart1"),{
+let lines1 = new Chart(document.getElementById("chart1"), {
     type: 'scatter',
     data: {
         datasets: [{
+            label: 'Referenčná dráha',
+            showLine: true,
+            fill: false,
+            "borderColor": "#f56b00",
+            data: []
+        }, {
             label: 'Dráha',
             showLine: true,
             fill: false,
-            "borderColor":"#254053e6",
-            data: [{
-                x: 0,
-                y: -4
-            }, {
-                x: 5,
-                y: 0
-            }, {
-                x: 0,
-                y: 0
-            }, {
-                x: 5,
-                y: 5
-            }, {
-                x: 0,
-                y: 6
-            }, {
-                x: -5,
-                y: 0
-            }, {
-                x: -3,
-                y: -2
-            }, {
-                x: 0,
-                y: -4
-            }]
+            "borderColor": "#254053e6",
+            data: []
         }]
     },
     options: {
@@ -57,14 +39,14 @@ let lines1 = new Chart(document.getElementById("chart1"),{
             enabled: false
         },
         elements: {
-            point:{
+            point: {
                 radius: 0
             }
         },
         scales: {
             xAxes: [{
                 gridLines: {
-                    display:false
+                    display: false
                 },
                 ticks: {
                     fontColor: "white"
@@ -72,7 +54,7 @@ let lines1 = new Chart(document.getElementById("chart1"),{
             }],
             yAxes: [{
                 gridLines: {
-                    display:false
+                    display: false
                 },
                 ticks: {
                     fontColor: "white"
@@ -83,9 +65,21 @@ let lines1 = new Chart(document.getElementById("chart1"),{
 });
 
 let lines2 = new Chart(document.getElementById("chart2"), {
-    "type":"line","data": {
-        "labels":["1","2","3","4","5","6","7"],
-        "datasets":[{"label":"Namerané dáta","data":[1,2,3,4,5,6,7],"fill":false,"borderColor":"#254053e6","lineTension":0.1}, {"label":"Simulované dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
+    "type": "line", "data": {
+        "labels": ["1", "2", "3", "4", "5", "6", "7"],
+        "datasets": [{
+            "label": "Namerané dáta",
+            "data": [1, 2, 3, 4, 5, 6, 7],
+            "fill": false,
+            "borderColor": "#254053e6",
+            "lineTension": 0.1
+        }, {
+            "label": "Simulované dáta",
+            "data": [82, 54, 43, 65, 56, 55, 70],
+            "fill": false,
+            "borderColor": "rgba(107,151,177,0.9)",
+            "lineTension": 0.1
+        }]
     },
     "options": {
         legend: {
@@ -99,9 +93,15 @@ let lines2 = new Chart(document.getElementById("chart2"), {
 });
 
 let lines3 = new Chart(document.getElementById("chart3"), {
-    "type":"line","data": {
-        "labels":["1","2","3","4","5","6","7"],
-        "datasets":[{"label":"Rozdielne dáta","data":[82,54,43,65,56,55,70],"fill":false,"borderColor":"rgba(107,151,177,0.9)","lineTension":0.1}]
+    "type": "line", "data": {
+        "labels": ["1", "2", "3", "4", "5", "6", "7"],
+        "datasets": [{
+            "label": "Rozdielne dáta",
+            "data": [82, 54, 43, 65, 56, 55, 70],
+            "fill": false,
+            "borderColor": "rgba(107,151,177,0.9)",
+            "lineTension": 0.1
+        }]
     },
     "options": {
         legend: {
@@ -114,10 +114,20 @@ let lines3 = new Chart(document.getElementById("chart3"), {
     }
 });
 
-//win.maximize();
+/**
+ * Load data from main.py file using eel mapping and parse them to according fields
+ */
+function loadChartForFile(result, index) {
+    eel.get_track_data(result.filePaths.toString())().then((r) => {
+        lines1.data.datasets[index].data = JSON.parse(r);
+        lines1.update()
+    });
+}
+
+win.maximize();
 
 document.getElementById('max-button').addEventListener("click", event => {
-    if(win.isMaximized())
+    if (win.isMaximized())
         win.unmaximize();
     else
         win.maximize();
@@ -146,12 +156,11 @@ document.getElementById('draha').addEventListener("click", event => {
     document.getElementById('ww2').style.display = "none";
 });
 
-
 document.getElementById('open-button0').addEventListener("click", event => {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-            { name: 'Log File (.log)', extensions: ['log'] },
+            {name: 'Log File (.log)', extensions: ['log']},
         ]
     }).then(result => {
         if (!result.canceled) {
@@ -167,12 +176,12 @@ document.getElementById('open-button1').addEventListener("click", event => {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-            { name: 'Log File (.log)', extensions: ['log'] },
+            {name: 'Log File (.log)', extensions: ['log']},
         ]
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name1').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            eel.getpath(result.filePaths.toString());
+            loadChartForFile(result, 1)
         }
     }).catch(err => {
         console.log(err)
@@ -183,12 +192,12 @@ document.getElementById('open-button2').addEventListener("click", event => {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
-            { name: 'Log File (.log)', extensions: ['log'] },
+            {name: 'Log File (.log)', extensions: ['log']},
         ]
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name2').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            eel.getpath(result.filePaths.toString());
+            loadChartForFile(result, 0)
         }
     }).catch(err => {
         console.log(err)
@@ -243,8 +252,7 @@ document.getElementById('print-button').addEventListener("click", event => {
         lines3.canvas.parentNode.style.width = '98%';
         Chart.instances[1].resize();
         Chart.instances[2].resize();
-    }
-    else {
+    } else {
         lines1.canvas.parentNode.style.width = '185mm';
         Chart.instances[0].resize();
         window.print();
