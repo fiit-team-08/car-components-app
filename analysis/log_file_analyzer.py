@@ -6,7 +6,6 @@ from sympy import Point, Segment
 from scipy.spatial import distance
 
 
-
 def log_to_dataFrame(file_path):
     """
         Converts a log file of a ride to a Pandas dataframe.
@@ -27,10 +26,10 @@ def log_to_dataFrame(file_path):
         A dataframe with all the logs. 
     """
 
-    logs = pd.read_csv(file_path, header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', 
-                                                            '9', 'HMSL', '11','GSPEED', '13', 'CRS', '15', 'HACC', 
-                                                            '17', 'NXPT'])
-    
+    logs = pd.read_csv(file_path, header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
+                                                               '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC',
+                                                               '17', 'NXPT'])
+
     logs = logs.drop(columns=['0', '1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()
     return logs
@@ -53,6 +52,7 @@ def normalize_logs(logs):
     logs['LON'] = logs['LON'].apply(lambda x: x * 0.0000001)
     logs['GSPEED'] = logs['GSPEED'].apply(lambda x: x * 0.01)
     logs['CRS'] = logs['CRS'].apply(lambda x: x * 0.00001)
+    return logs
 
 
 def drop_unnecessary_columns(logs):
@@ -68,7 +68,7 @@ def drop_unnecessary_columns(logs):
     logs.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'], inplace=True)
 
 
-def drop_logs_where_car_stayed(logs : DataFrame):
+def drop_logs_where_car_stayed(logs: DataFrame):
     """
         Drops rows from the logs dataframe where the LAT and LON are not changing.
         Resets indices of a dataframe in the end.
@@ -192,6 +192,19 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
     lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, len(laps) - 1), index=False)
 
 
+def normalize_for_graph(logs):
+    """
+        Drops all columns except LAT, and LON
+
+        Parameters
+        --------
+            logs : DataFrame
+                A dataframe with logs of a ride.
+    """
+    logs.drop(columns=['UTMX', 'UTMY', 'HMSL', 'GSPEED', 'CRS', 'HACC', 'NXPT'], inplace=True)
+    logs.rename(columns={"LAT": "y", "LON": "x"}, inplace=True)
+
+
 def get_raw_data(file_path) -> DataFrame:
     log_df = log_to_dataFrame(file_path)
     normalize_logs(log_df)
@@ -206,6 +219,13 @@ def get_essential_data(file_path) -> DataFrame:
     return log_df
 
 
+def get_graph_data(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    normalize_for_graph(log_df)
+    return log_df
+
+
 def get_raw_data_json(file_path) -> str:
     data = get_raw_data(file_path)
     return data.to_json(orient="records")
@@ -215,3 +235,7 @@ def get_essential_data_json(file_path) -> str:
     data = get_essential_data(file_path)
     return data.to_json(orient="records")
 
+
+def get_track_graph_data(file_path) -> str:
+    data = get_graph_data(file_path)
+    return data.to_json(orient="records")
