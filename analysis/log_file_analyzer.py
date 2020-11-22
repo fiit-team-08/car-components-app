@@ -52,7 +52,6 @@ def normalize_logs(logs):
     logs['LON'] = logs['LON'].apply(lambda x: x * 0.0000001)
     logs['GSPEED'] = logs['GSPEED'].apply(lambda x: x * 0.01)
     logs['CRS'] = logs['CRS'].apply(lambda x: x * 0.00001)
-    return logs
 
 
 def drop_unnecessary_columns(logs):
