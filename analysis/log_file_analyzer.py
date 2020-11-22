@@ -125,7 +125,7 @@ def create_columns_with_future_position(logs):
     logs = logs.dropna()  # Drop the last row which contains NaN values.
 
 
-def separate_laps(ref_lap, traces, traces_id, store_path):
+def separate_laps(traces, traces_id, store_path, ref_lap = None):
     """
         Separate all the log dataframe into several laps.
         In the end laps are stored to files. 
@@ -133,7 +133,9 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
         Parameters
         --------
             ref_lap : DataFrame
-                A dataframe with logs of a a reference ride.
+                A dataframe with logs of a reference ride.
+                It is used to define finish line.
+                It is Optional parameter. Default value is None.
             traces : DataFrame
                 A dataframe with logs of a ride.
             traces_id : int
@@ -142,6 +144,7 @@ def separate_laps(ref_lap, traces, traces_id, store_path):
                 A path where all the laps will be be stored.
     """
 
+    ref_lap = traces if ref_lap == None else ref_lap
     points = list()
     for i in range(len(traces)):
         points.append([traces['LON'][i], traces['LAT'][i]])
