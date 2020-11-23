@@ -17,6 +17,11 @@ def get_track_data(path):
     return json
 
 
+def get_tracks(path):
+    json = get_track_graph_data(path)
+    return json
+
+
 data = [69,59,80,81,56,55,40]
 
 
