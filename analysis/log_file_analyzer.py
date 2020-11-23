@@ -4,6 +4,7 @@ import numpy as np
 import math
 from sympy import Point, Segment
 from scipy.spatial import distance
+import json
 
 
 def log_to_dataFrame(file_path):
@@ -23,7 +24,7 @@ def log_to_dataFrame(file_path):
 
         Returns
         --------
-        A dataframe with all the logs. 
+        A dataframe with all the logs.
     """
 
     logs = pd.read_csv(file_path, header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
@@ -128,7 +129,7 @@ def create_columns_with_future_position(logs):
 def separate_laps(traces, traces_id, store_path, ref_lap = None):
     """
         Separate all the log dataframe into several laps.
-        In the end laps are stored to files. 
+        In the end laps are stored to files.
 
         Parameters
         --------
@@ -185,6 +186,7 @@ def separate_laps(traces, traces_id, store_path, ref_lap = None):
             print('Lap ending at index: {}'.format(i))
 
     # save the circuits (laps)
+
     for i in range(len(laps) - 1):
         lap_df = traces.iloc[laps[i]: laps[i + 1]]
         lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, i), index=False)
@@ -225,8 +227,15 @@ def get_graph_data(file_path) -> DataFrame:
     log_df = log_to_dataFrame(file_path)
     normalize_logs(log_df)
     normalize_for_graph(log_df)
+    # get_laps_json(log_df)
     return log_df
 
+def get_graph_data_json(file_path) -> DataFrame:
+    log_df = log_to_dataFrame(file_path)
+    normalize_logs(log_df)
+    normalize_for_graph(log_df)
+    json_laps = get_laps_json(log_df)
+    return json_laps
 
 def get_raw_data_json(file_path) -> str:
     data = get_raw_data(file_path)
@@ -241,3 +250,70 @@ def get_essential_data_json(file_path) -> str:
 def get_track_graph_data(file_path) -> str:
     data = get_graph_data(file_path)
     return data.to_json(orient="records")
+
+
+def get_laps_json(traces, ref_lap = None):
+    """
+        Separate all the log dataframe into several laps.
+        In the end laps are stored to files.
+
+        Parameters
+        --------
+            ref_lap : DataFrame
+                A dataframe with logs of a reference ride.
+                It is used to define finish line.
+                It is Optional parameter. Default value is None.
+            traces : DataFrame
+                A dataframe with logs of a ride.
+            traces_id : int
+                An ID of a ride. It is only used for naming of files.
+            store_path : string
+                A path where all the laps will be be stored.
+    """
+
+    ref_lap = traces if ref_lap == None else ref_lap
+    points = list()
+
+    for i in range(len(traces)):
+        points.append([traces['x'][i], traces['y'][i]])
+
+    # use last points to determine normal vector
+    last_point1 = [ref_lap['x'].iloc[-1], ref_lap['y'].iloc[-1]]
+    last_point2 = [ref_lap['x'].iloc[-2], ref_lap['y'].iloc[-2]]
+
+    a = last_point2[0] - last_point1[0]
+    b = last_point2[1] - last_point1[1]
+
+    dst = distance.euclidean(last_point1, last_point2)
+    distance_multiplier = math.ceil(0.0001 / (2 * dst))
+
+    v_normal = np.array([-b, a])
+    start_point = np.array(last_point1)
+
+    point_top = Point(start_point + distance_multiplier * v_normal, evaluate=False)
+    point_bottom = Point(start_point - distance_multiplier * v_normal, evaluate=False)
+    start_line = Segment(point_top, point_bottom, evaluate=False)
+
+    laps = []
+    lapNumber = 1
+    lastIndexEnd = 0
+    for i in range(len(points) - 1):
+        point1 = Point(points[i][0], points[i][1], evaluate=False)
+        point2 = Point(points[i + 1][0], points[i + 1][1], evaluate=False)
+
+        if point1 == point2:
+            continue
+
+        # segment between point1 and point2
+        segment = Segment(point1, point2, evaluate=False)
+        intersection = segment.intersection(start_line)
+
+        # add start of a new lap
+        if intersection:
+            # laps.append(json.dumps({'lap{}'.format(lapNumber):{"numberOfPointsInLap":i - lastIndexEnd}}))
+            laps.append({"numberOfPointsInLap": i - lastIndexEnd})
+            lastIndexEnd = i
+            print('Lap ending at index: {}'.format(i))
+            lapNumber += 1
+
+    return json.dumps(laps)
