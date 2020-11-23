@@ -16,9 +16,9 @@ def get_track_data(path):
     json = get_track_graph_data(path)
     return json
 
-
-def get_tracks(path):
-    json = get_track_graph_data(path)
+@eel.expose
+def get_laps_data(path):
+    json = get_graph_data_json(path)
     return json
 
 

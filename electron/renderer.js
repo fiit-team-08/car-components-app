@@ -114,19 +114,11 @@ let lines3 = new Chart(document.getElementById("chart3"), {
     }
 });
 
-function makeUL(array) {
-    let list = document.createElement('ul');
-    for(let i = 0; i < array.length; i++) {
-        let item = document.createElement('li');
-        item.appendChild(document.createTextNode(array[i]));
-        list.appendChild(item);
-    }
-    return list;
-}
-
 /**
  * Load data from main.py file using eel mapping and parse them to according fields
  */
+
+//tototototototototo
 function loadChartForFile(result, index) {
     eel.get_track_data(result.filePaths.toString())().then((r) => {
         lines1.data.datasets[index].data = JSON.parse(r);
@@ -135,14 +127,34 @@ function loadChartForFile(result, index) {
 }
 
 function loadTracks(result) {
-    let set0 = ['Option 1','Option 2'];
-    document.getElementById('trasy').appendChild(makeUL(set0));
-    eel.get_tracks(result.filePaths.toString())().then((r) => {
-
+    eel.get_laps_data(result.filePaths.toString())().then((r) => {
+        document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
     });
 }
 
-//win.maximize();
+function makeUL(array) {
+    // Create the list element:
+    var list = document.createElement('ul');
+
+    for (var i = 0; i < array.length; i++) {
+        // Create the list item:
+        var item = document.createElement('li');
+
+        // Set its contents:
+        let lapSteps = "Kolo " + (i + 1) + " : " + array[i]["numberOfPointsInLap"] + " bodov";
+
+        item.appendChild(document.createTextNode(lapSteps));
+        // item.appendChild(document.createTextNode(array[i][1]));
+
+        // Add it to the list:
+        list.appendChild(item);
+    }
+
+    // Finally, return the constructed list:
+    return list;
+}
+
+win.maximize();
 
 document.getElementById('max-button').addEventListener("click", event => {
     if (win.isMaximized())
@@ -199,8 +211,8 @@ document.getElementById('open-button1').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name1').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            loadChartForFile(result, 1);
-            loadTracks(result);
+            loadChartForFile(result, 1)
+            loadTracks(result)
         }
     }).catch(err => {
         console.log(err)
@@ -216,7 +228,7 @@ document.getElementById('open-button2').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             document.getElementById('file-name2').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            loadChartForFile(result, 0);
+            loadChartForFile(result, 0)
         }
     }).catch(err => {
         console.log(err)
