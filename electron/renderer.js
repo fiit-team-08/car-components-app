@@ -6,6 +6,9 @@ let file1 = false;
 let file2 = false;
 let data = [];
 
+let referenceFileName = undefined
+let tracesFileName = undefined
+
 eel.getdata()().then((r) => {
     data = r;
 });
@@ -117,31 +120,29 @@ let lines3 = new Chart(document.getElementById("chart3"), {
 /**
  * Load data from main.py file using eel mapping and parse them to according fields
  */
-
-//tototototototototo
-function loadChartForFile(result, index) {
-    eel.get_track_data(result.filePaths.toString())().then((r) => {
+function loadChartForFile(name, index) {
+    eel.get_track_data(name)().then((r) => {
         lines1.data.datasets[index].data = JSON.parse(r);
         lines1.update()
     });
 }
 
-function loadTracks(result) {
-    eel.get_laps_data(result.filePaths.toString())().then((r) => {
+function loadTrackAnalysis() {
+    eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
         document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
     });
 }
 
 function makeUL(array) {
     // Create the list element:
-    var list = document.createElement('ul');
+    let list = document.createElement('ul');
 
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         // Create the list item:
-        var item = document.createElement('li');
+        let item = document.createElement('li');
 
         // Set its contents:
-        let lapSteps = "Kolo " + (i + 1) + " : " + array[i]["numberOfPointsInLap"] + " bodov";
+        let lapSteps = `Kolo ${i + 1} - ${array[i]["pointsPerLap"]} bodov, dĺžka trasy: ${array[i]['curveLength']}m`;
 
         item.appendChild(document.createTextNode(lapSteps));
         // item.appendChild(document.createTextNode(array[i][1]));
@@ -154,7 +155,7 @@ function makeUL(array) {
     return list;
 }
 
-win.maximize();
+// win.maximize();
 
 document.getElementById('max-button').addEventListener("click", event => {
     if (win.isMaximized())
@@ -210,9 +211,13 @@ document.getElementById('open-button1').addEventListener("click", event => {
         ]
     }).then(result => {
         if (!result.canceled) {
-            document.getElementById('file-name1').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            loadChartForFile(result, 1)
-            loadTracks(result)
+            referenceFileName = result.filePaths.toString()
+            document.getElementById('file-name1').innerHTML = referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+            loadChartForFile(referenceFileName, 0)
+
+            if (tracesFileName !== undefined) {
+                loadTrackAnalysis()
+            }
         }
     }).catch(err => {
         console.log(err)
@@ -227,8 +232,14 @@ document.getElementById('open-button2').addEventListener("click", event => {
         ]
     }).then(result => {
         if (!result.canceled) {
-            document.getElementById('file-name2').innerHTML = result.filePaths.toString().split(/(.*)\\/)[2].split(/\.log$/)[0];
-            loadChartForFile(result, 0)
+            tracesFileName = result.filePaths.toString()
+            document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+            loadChartForFile(tracesFileName, 1)
+
+            if (referenceFileName !== undefined) {
+                loadTrackAnalysis()
+            }
+
         }
     }).catch(err => {
         console.log(err)
@@ -291,3 +302,14 @@ document.getElementById('print-button').addEventListener("click", event => {
         Chart.instances[0].resize();
     }
 });
+
+document.getElementById('save-button').addEventListener("click", event => {
+    dialog.showOpenDialog({
+        title: "Select a folder",
+        properties: ["openDirectory"]
+    }).then(result => {
+        if (!result.canceled) {
+            eel.export_data(result.filePaths.toString(), "dump")
+        }
+    });
+})

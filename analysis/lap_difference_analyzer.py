@@ -3,7 +3,6 @@ import pandas as pd
 import math
 from numpy.linalg import norm
 from similaritymeasures import curve_length_measure, frechet_dist
-from similaritymeasures import area_between_two_curves
 from obspy.geodetics import degrees2kilometers
 
 
@@ -12,6 +11,31 @@ def create_curve(dataframe):
     curve[:, 0] = dataframe.LON
     curve[:, 1] = dataframe.LAT
     return curve
+
+
+def earth_distance(point1, point2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+
+    All args must be of equal length.
+
+    """
+    lon1, lat1, lon2, lat2 = map(np.radians, [point1[1], point1[0], point2[1], point2[0]])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6367 * c
+    return km
+
+
+def distance_of_curve(lap):
+    return sum(earth_distance(pt1, pt2)
+                        for pt1, pt2 in zip(lap, lap[1:]))
 
 
 def find_out_difference(ref_lap, laps):

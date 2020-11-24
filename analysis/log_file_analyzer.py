@@ -5,6 +5,7 @@ import math
 from sympy import Point, Segment
 from scipy.spatial import distance
 import json
+from analysis.lap_difference_analyzer import *
 
 
 def log_to_dataFrame(file_path):
@@ -126,10 +127,9 @@ def create_columns_with_future_position(logs):
     logs = logs.dropna()  # Drop the last row which contains NaN values.
 
 
-def separate_laps(traces, traces_id, store_path, ref_lap = None):
+def separate_laps(traces, ref_lap=None):
     """
         Separate all the log dataframe into several laps.
-        In the end laps are stored to files.
 
         Parameters
         --------
@@ -145,7 +145,7 @@ def separate_laps(traces, traces_id, store_path, ref_lap = None):
                 A path where all the laps will be be stored.
     """
 
-    ref_lap = traces if ref_lap == None else ref_lap
+    ref_lap = traces if ref_lap is None else ref_lap
     points = list()
     for i in range(len(traces)):
         points.append([traces['LON'][i], traces['LAT'][i]])
@@ -185,15 +185,7 @@ def separate_laps(traces, traces_id, store_path, ref_lap = None):
             laps.append(i + 1)
             print('Lap ending at index: {}'.format(i))
 
-    # save the circuits (laps)
-
-    for i in range(len(laps) - 1):
-        lap_df = traces.iloc[laps[i]: laps[i + 1]]
-        lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, i), index=False)
-
-    # tha last circuit (lap) was not saved yet so save that one
-    lap_df = traces.iloc[laps[-1]:]
-    lap_df.to_csv('{}/lap{}-{}.csv'.format(store_path, traces_id, len(laps) - 1), index=False)
+    return laps
 
 
 def normalize_for_graph(logs):
@@ -230,12 +222,18 @@ def get_graph_data(file_path) -> DataFrame:
     # get_laps_json(log_df)
     return log_df
 
-def get_graph_data_json(file_path) -> DataFrame:
-    log_df = log_to_dataFrame(file_path)
-    normalize_logs(log_df)
-    normalize_for_graph(log_df)
-    json_laps = get_laps_json(log_df)
-    return json_laps
+
+def get_lap_data(reference_file_path, traces_file_path):
+    reference_df = log_to_dataFrame(reference_file_path)
+    normalize_logs(reference_df)
+
+    traces_df = log_to_dataFrame(traces_file_path)
+    normalize_logs(traces_df)
+
+    laps = separate_laps(traces_df, reference_df)
+    analyzed_laps = analyze_laps(traces_df, reference_df, laps)
+    return analyzed_laps
+
 
 def get_raw_data_json(file_path) -> str:
     data = get_raw_data(file_path)
@@ -252,68 +250,49 @@ def get_track_graph_data(file_path) -> str:
     return data.to_json(orient="records")
 
 
-def get_laps_json(traces, ref_lap = None):
-    """
-        Separate all the log dataframe into several laps.
-        In the end laps are stored to files.
+def average(lst):
+    return sum(lst) / len(lst)
 
-        Parameters
-        --------
-            ref_lap : DataFrame
-                A dataframe with logs of a reference ride.
-                It is used to define finish line.
-                It is Optional parameter. Default value is None.
-            traces : DataFrame
-                A dataframe with logs of a ride.
-            traces_id : int
-                An ID of a ride. It is only used for naming of files.
-            store_path : string
-                A path where all the laps will be be stored.
-    """
 
-    ref_lap = traces if ref_lap == None else ref_lap
-    points = list()
+def analyze_laps(traces, reference_lap, laps):
+    data_frame = pd.DataFrame(data={
+        'pointsPerLap': [],
+        'curveLength': [],
+        'averagePerpendicularDistance': [],
+        'lapData': []
+    })
 
-    for i in range(len(traces)):
-        points.append([traces['x'][i], traces['y'][i]])
+    for i in range(len(laps) - 1):
+        lap_data = traces.iloc[laps[i]: laps[i + 1]]
+        drop_unnecessary_columns(lap_data)
+        # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
+        lap = {
+            'pointsPerLap': len(lap_data),
+            'curveLength': 0,
+            'averagePerpendicularDistance': 0,
+            'lapData': json.loads(lap_data.to_json(orient="records"))
+        }
+        data_frame = data_frame.append(lap, ignore_index=True)
 
-    # use last points to determine normal vector
-    last_point1 = [ref_lap['x'].iloc[-1], ref_lap['y'].iloc[-1]]
-    last_point2 = [ref_lap['x'].iloc[-2], ref_lap['y'].iloc[-2]]
+    # tha last circuit (lap) was not saved yet so save that one
+    lap_data = traces.iloc[laps[-1:]]
+    drop_unnecessary_columns(lap_data)
+    # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
+    lap = {
+        'pointsPerLap': len(lap_data),
+        'curveLength': 0,
+        'averagePerpendicularDistance': 0,
+        'lapData': json.loads(lap_data.to_json(orient="records"))
+    }
+    data_frame = data_frame.append(lap, ignore_index=True)
+    return data_frame
 
-    a = last_point2[0] - last_point1[0]
-    b = last_point2[1] - last_point1[1]
 
-    dst = distance.euclidean(last_point1, last_point2)
-    distance_multiplier = math.ceil(0.0001 / (2 * dst))
+def save_laps_to_files(file_path, file_name, laps):
+    laps.sort_values(by=['curveLength'])
+    laps.to_csv('{}/{}.csv'.format(file_path, file_name), index=False,
+                columns=['pointsPerLap', 'curveLength', 'averagePerpendicularDistance'])
 
-    v_normal = np.array([-b, a])
-    start_point = np.array(last_point1)
 
-    point_top = Point(start_point + distance_multiplier * v_normal, evaluate=False)
-    point_bottom = Point(start_point - distance_multiplier * v_normal, evaluate=False)
-    start_line = Segment(point_top, point_bottom, evaluate=False)
-
-    laps = []
-    lapNumber = 1
-    lastIndexEnd = 0
-    for i in range(len(points) - 1):
-        point1 = Point(points[i][0], points[i][1], evaluate=False)
-        point2 = Point(points[i + 1][0], points[i + 1][1], evaluate=False)
-
-        if point1 == point2:
-            continue
-
-        # segment between point1 and point2
-        segment = Segment(point1, point2, evaluate=False)
-        intersection = segment.intersection(start_line)
-
-        # add start of a new lap
-        if intersection:
-            # laps.append(json.dumps({'lap{}'.format(lapNumber):{"numberOfPointsInLap":i - lastIndexEnd}}))
-            laps.append({"numberOfPointsInLap": i - lastIndexEnd})
-            lastIndexEnd = i
-            print('Lap ending at index: {}'.format(i))
-            lapNumber += 1
-
-    return json.dumps(laps)
+def put_laps_to_json(laps):
+    return laps.to_json(orient="records")
