@@ -4,6 +4,8 @@ from analysis.log_file_analyzer import *
 eel.init('electron')
 eel.browsers.set_path('electron', 'node_modules/electron/dist/electron')
 
+laps = None
+
 
 @eel.expose
 def getpath(path):
@@ -16,9 +18,12 @@ def get_track_data(path):
     json = get_track_graph_data(path)
     return json
 
+
 @eel.expose
-def get_laps_data(path):
-    json = get_graph_data_json(path)
+def get_laps_data(reference_file_path, traces_file_path):
+    global laps
+    laps = get_lap_data(reference_file_path, traces_file_path)
+    json = put_laps_to_json(laps)
     return json
 
 

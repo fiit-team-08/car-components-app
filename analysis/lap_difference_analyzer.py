@@ -3,7 +3,6 @@ import pandas as pd
 import math
 from numpy.linalg import norm
 from similaritymeasures import curve_length_measure, frechet_dist
-from similaritymeasures import area_between_two_curves
 from obspy.geodetics import degrees2kilometers
 
 
