@@ -257,52 +257,41 @@ def average(lst):
 def analyze_laps(traces, reference_lap, laps):
     data_frame = pd.DataFrame(data={
         'pointsPerLap': [],
-        'lapData': [],
-        'fretchetDistance': [],
         'curveLength': [],
-        'averagePerpendicularDistance': []
+        'averagePerpendicularDistance': [],
+        'lapData': []
     })
 
     for i in range(len(laps) - 1):
         lap_data = traces.iloc[laps[i]: laps[i + 1]]
         drop_unnecessary_columns(lap_data)
-        difference = find_out_difference(reference_lap, [lap_data])
-        perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
+        # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
         lap = {
             'pointsPerLap': len(lap_data),
-            'lapData': json.load(lap_data.to_json(orient="records")),
-            'fretchetDistance': difference['Frechet distance'][0],
-            'curveLength': difference['Curve length measure'][0],
-            'averagePerpendicularDistance': average(perpendicular_distance)
+            'curveLength': 0,
+            'averagePerpendicularDistance': 0,
+            'lapData': json.loads(lap_data.to_json(orient="records"))
         }
-        print(lap)
         data_frame = data_frame.append(lap, ignore_index=True)
 
     # tha last circuit (lap) was not saved yet so save that one
     lap_data = traces.iloc[laps[-1:]]
     drop_unnecessary_columns(lap_data)
-    difference = find_out_difference(reference_lap, [lap_data])
-    perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
+    # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
     lap = {
         'pointsPerLap': len(lap_data),
-        'lapData': json.load(lap_data.to_json(orient="records")),
-        'fretchetDistance': difference['Frechet distance'][0],
-        'curveLength': difference['Curve length measure'][0],
-        'averagePerpendicularDistance': average(perpendicular_distance)
+        'curveLength': 0,
+        'averagePerpendicularDistance': 0,
+        'lapData': json.loads(lap_data.to_json(orient="records"))
     }
-    print(lap)
     data_frame = data_frame.append(lap, ignore_index=True)
     return data_frame
 
 
-def save_laps_to_files(traces_file_path, file_path, laps):
-    traces = log_to_dataFrame(traces_file_path)
-    for i in range(len(laps) - 1):
-        lap_df = traces.iloc[laps[i]: laps[i + 1]]
-        lap_df.to_csv('{}/lap{}.csv'.format(file_path, i), index=False)
-    # tha last circuit (lap) was not saved yet so save that one
-    lap_df = traces.iloc[laps[-1]:]
-    lap_df.to_csv('{}/lap{}.csv'.format(file_path, len(laps) - 1), index=False)
+def save_laps_to_files(file_path, file_name, laps):
+    laps.sort_values(by=['curveLength'])
+    laps.to_csv('{}/{}.csv'.format(file_path, file_name), index=False,
+                columns=['pointsPerLap', 'curveLength', 'averagePerpendicularDistance'])
 
 
 def put_laps_to_json(laps):

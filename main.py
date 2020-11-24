@@ -27,7 +27,15 @@ def get_laps_data(reference_file_path, traces_file_path):
     return json
 
 
-data = [69,59,80,81,56,55,40]
+@eel.expose
+def export_data(path, file_name):
+    print("Exporting to: {}\{}".format(path, file_name))
+    if laps is None:
+        return
+    save_laps_to_files(path, file_name, laps)
+
+
+data = [69, 59, 80, 81, 56, 55, 40]
 
 
 @eel.expose
@@ -36,6 +44,3 @@ def getdata():
 
 
 eel.start('index.html', mode='electron', cmdline_args=['electron'])
-
-
-

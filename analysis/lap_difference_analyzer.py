@@ -13,6 +13,31 @@ def create_curve(dataframe):
     return curve
 
 
+def earth_distance(point1, point2):
+    """
+    Calculate the great circle distance between two points
+    on the earth (specified in decimal degrees)
+
+    All args must be of equal length.
+
+    """
+    lon1, lat1, lon2, lat2 = map(np.radians, [point1[1], point1[0], point2[1], point2[0]])
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+
+    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+
+    c = 2 * np.arcsin(np.sqrt(a))
+    km = 6367 * c
+    return km
+
+
+def distance_of_curve(lap):
+    return sum(earth_distance(pt1, pt2)
+                        for pt1, pt2 in zip(lap, lap[1:]))
+
+
 def find_out_difference(ref_lap, laps):
     """
         With the usage of several curve metrics, finds out differences between 

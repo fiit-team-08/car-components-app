@@ -135,14 +135,14 @@ function loadTrackAnalysis() {
 
 function makeUL(array) {
     // Create the list element:
-    var list = document.createElement('ul');
+    let list = document.createElement('ul');
 
-    for (var i = 0; i < array.length; i++) {
+    for (let i = 0; i < array.length; i++) {
         // Create the list item:
-        var item = document.createElement('li');
+        let item = document.createElement('li');
 
         // Set its contents:
-        let lapSteps = "Kolo " + (i + 1) + " : " + array[i]["pointsPerLap"] + " bodov";
+        let lapSteps = `Kolo ${i + 1} - ${array[i]["pointsPerLap"]} bodov, dĺžka trasy: ${array[i]['curveLength']}m`;
 
         item.appendChild(document.createTextNode(lapSteps));
         // item.appendChild(document.createTextNode(array[i][1]));
@@ -302,3 +302,14 @@ document.getElementById('print-button').addEventListener("click", event => {
         Chart.instances[0].resize();
     }
 });
+
+document.getElementById('save-button').addEventListener("click", event => {
+    dialog.showOpenDialog({
+        title: "Select a folder",
+        properties: ["openDirectory"]
+    }).then(result => {
+        if (!result.canceled) {
+            eel.export_data(result.filePaths.toString(), "dump")
+        }
+    });
+})
