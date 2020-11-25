@@ -1,0 +1,7 @@
+eel
+obspy
+numpy
+sympy
+pandas
+similaritymeasures
+pyinstaller
