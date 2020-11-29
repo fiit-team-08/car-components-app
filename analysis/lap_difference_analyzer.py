@@ -1,13 +1,18 @@
-import numpy as np
 import pandas as pd
 import math
-from numpy.linalg import norm
+from math import sqrt
+from math import atan2
+from numpy.linalg import norm, det
+from numpy import cross, dot
+from numpy import radians
+from numpy import array, zeros
+from numpy import cos, sin, arcsin
 from similaritymeasures import curve_length_measure, frechet_dist
 from obspy.geodetics import degrees2kilometers
 
 
 def create_curve(dataframe):
-    curve = np.zeros((dataframe.shape[0], 2))
+    curve = zeros((dataframe.shape[0], 2))
     curve[:, 0] = dataframe.LON
     curve[:, 1] = dataframe.LAT
     return curve
@@ -21,14 +26,14 @@ def earth_distance(point1, point2):
     All args must be of equal length.
 
     """
-    lon1, lat1, lon2, lat2 = map(np.radians, [point1[1], point1[0], point2[1], point2[0]])
+    lon1, lat1, lon2, lat2 = map(radians, [point1[1], point1[0], point2[1], point2[0]])
 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+    a = sin(dlat/2.0)**2 + cos(lat1) * cos(lat2) * sin(dlon/2.0)**2
 
-    c = 2 * np.arcsin(np.sqrt(a))
+    c = 2 * arcsin(sqrt(a))
     km = 6367 * c
     return km
 
@@ -84,17 +89,26 @@ def find_out_difference(ref_lap, laps):
 
 
 def line_length(x1, y1, x2, y2):
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-def find_closest_point(point, lap):
+def find_closest_point(point, lap, locality=None):
+    OFFSET = 10
     minIndex = 0
     minLength = math.inf
-    for i in lap.index:
-        lat = lap.loc[i].LAT
-        lon = lap.loc[i].LON
+    index_range = range(len(lap)) if locality == None \
+        else range(locality - OFFSET, locality + OFFSET)
 
-        length = line_length(lat, lon, point.LAT, point.LON)
+    for i in index_range:
+        if i >= len(lap):
+            i -= len(lap)
+        elif i < 0:
+            i += len(lap)
+
+        lat = lap[i][0]
+        lon = lap[i][1]
+
+        length = line_length(lat, lon, point[0], point[1])
         if length < minLength:
             minIndex = i
             minLength = length
@@ -102,31 +116,28 @@ def find_closest_point(point, lap):
     return minIndex
 
 
-def find_angle_between_vectors(vector_A, vector_B):
-    unit_vector_A = vector_A / np.linalg.norm(vector_A)
-    unit_vector_B = vector_B / np.linalg.norm(vector_B)
-    dot_product = np.dot(unit_vector_A, unit_vector_B)
-    return np.arccos(dot_product)  # return angle in radians
+def find_angle_between_vectors(v1, v2):
+    return atan2(det([v1,v2]), dot(v1,v2)) # return angle in radians
 
 
 def create_vector(point_A, point_B):
-    return [point_B.LAT - point_A.LAT, point_B.LON - point_A.LON]
+    return [point_B[0] - point_A[0], point_B[1] - point_A[1]]
 
 
 # Perdendicular from p1 to line (p2,p3)
 def shortest_distance(p1, p2, p3):
-    dist = norm(np.cross(p2 - p3, p3 - p1)) / norm(p3 - p2)
+    dist = norm(cross(p2 - p3, p3 - p1)) / norm(p3 - p2)
     return dist
 
 
 def find_shortest_distance(p1, p2, p3):
-    x = np.array([p1.LAT, p1.LON])
-    y = np.array([p2.LAT, p2.LON])
-    z = np.array([p3.LAT, p3.LON])
+    x = array((p1[0], p1[1]))
+    y = array((p2[0], p2[1]))
+    z = array((p3[0], p3[1]))
     return shortest_distance(x, y, z)
 
 
-def find_out_difference_perpendiculars(lap, ref_lap):
+def find_out_difference_perpendiculars(lap : pd.DataFrame, ref_lap : pd.DataFrame):
     """
         Calculates perpendiculars from every point of a lap to a ref_lap.
 
@@ -142,18 +153,21 @@ def find_out_difference_perpendiculars(lap, ref_lap):
             A list of perpendiculars from lap to ref_lap.
     """
 
+    lap_list = lap[["LAT", "LON"]].values.tolist()
+    ref_lap_list = ref_lap[["LAT", "LON"]].values.tolist()
     distances = []
+    prev_i = -1
+    for i in range(len(lap_list)):
+        point = lap_list[i]
 
-    for i in lap.index:
-        point = lap.loc[i]
-
-        closest_index = find_closest_point(point, ref_lap)
-        closest_point = ref_lap.loc[closest_index]
+        closest_index = find_closest_point(point, ref_lap_list, prev_i)
+        closest_point = ref_lap_list[closest_index]
+        prev_i = closest_index
 
         neighbor_i = len(ref_lap) - 1 if closest_index == 0 else closest_index - 1
-        neighbor1 = ref_lap.loc[neighbor_i]
+        neighbor1 = ref_lap_list[neighbor_i]
         neighbor_i = 0 if len(ref_lap) == closest_index + 1 else closest_index + 1
-        neighbor2 = ref_lap.loc[neighbor_i]
+        neighbor2 = ref_lap_list[neighbor_i]
 
         v1 = create_vector(closest_point, point)
         v2 = create_vector(closest_point, neighbor1)
@@ -165,7 +179,7 @@ def find_out_difference_perpendiculars(lap, ref_lap):
         degrees90 = math.pi / 2
         min_dist = -1
         if angle1 > degrees90 and angle2 > degrees90:
-            min_dist = line_length(point.LAT, point.LON, closest_point.LAT, closest_point.LON)
+            min_dist = line_length(point[0], point[1], closest_point[0], closest_point[1])
         elif angle1 < degrees90 and angle2 < degrees90:
             dist1 = find_shortest_distance(point, closest_point, neighbor1)
             dist2 = find_shortest_distance(point, closest_point, neighbor2)

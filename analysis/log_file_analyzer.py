@@ -2,7 +2,6 @@ import pandas as pd
 from pandas import DataFrame
 import numpy as np
 import math
-from sympy import Point, Segment
 from scipy.spatial import distance
 import json
 from analysis.lap_difference_analyzer import *
@@ -34,6 +33,31 @@ def log_to_dataFrame(file_path):
 
     logs = logs.drop(columns=['0', '1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()
+    return logs
+
+
+def read_csv_ref_lap(file_path):
+    """
+        Creates a dataframe of a reference lap from a csv file.
+
+        Parameters
+        --------
+            file_path : str
+                A path to a csv file.
+
+        Example of a log file
+        --------
+            LAT,LON,GSPEED,CRS,NLAT,NLON,NCRS
+            48.049214299999996,17.5678361,1.08,219.10375000000002,48.0492134,17.567835199999998,215.70312
+            48.0492134,17.567835199999998,1.03,215.70312,48.0492127,17.567834299999998,215.56731000000002
+            48.0492127,17.567834299999998,1.11,215.56731000000002,48.049211899999996,17.567833399999998,216.61797
+
+        Returns
+        --------
+        A dataframe with a reference lap.
+    """
+
+    logs = pd.read_csv(file_path)
     return logs
 
 
@@ -127,28 +151,56 @@ def create_columns_with_future_position(logs):
     logs = logs.dropna()  # Drop the last row which contains NaN values.
 
 
+def segment(p1, p2):
+    """
+        Parameters
+        ===========
+
+        p1 : list
+            The first point.
+        p2 : list
+            The second point.
+
+        Returns
+        ==========
+            A line segment of points represented in a quadruple.
+    """
+
+    return (p1[0], p1[1], p2[0], p2[1])
+
+
+def ccw(a, b, c):
+    '''
+        Determines whether three points are located in a counterclockwise way.
+    '''
+
+    return (c[1] - a[1]) * (b[0] - a[0]) > (b[1] - a[1]) * (c[0] - a[0])
+
+
+def intersection(s1, s2):
+    a = (s1[0], s1[1])
+    b = (s1[2], s1[3])
+    c = (s2[0], s2[1]) 
+    d = (s2[2], s2[3])
+    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, d, b) != ccw(a, b, d)
+
+
 def separate_laps(traces, ref_lap=None):
     """
         Separate all the log dataframe into several laps.
 
         Parameters
         --------
+            traces : DataFrame
+                A dataframe with logs of a ride.
             ref_lap : DataFrame
                 A dataframe with logs of a reference ride.
                 It is used to define finish line.
-                It is Optional parameter. Default value is None.
-            traces : DataFrame
-                A dataframe with logs of a ride.
-            traces_id : int
-                An ID of a ride. It is only used for naming of files.
-            store_path : string
-                A path where all the laps will be be stored.
+                It is and optional parameter. Default value is None.
     """
 
     ref_lap = traces if ref_lap is None else ref_lap
-    points = list()
-    for i in range(len(traces)):
-        points.append([traces['LON'][i], traces['LAT'][i]])
+    points = traces[['LON', 'LAT']].values.tolist()
 
     # use last points to determine normal vector
     last_point1 = [ref_lap['LON'].iloc[-1], ref_lap['LAT'].iloc[-1]]
@@ -163,25 +215,22 @@ def separate_laps(traces, ref_lap=None):
     v_normal = np.array([-b, a])
     start_point = np.array(last_point1)
 
-    point_top = Point(start_point + distance_multiplier * v_normal, evaluate=False)
-    point_bottom = Point(start_point - distance_multiplier * v_normal, evaluate=False)
-    start_line = Segment(point_top, point_bottom, evaluate=False)
+    point_top = start_point + distance_multiplier * v_normal
+    point_bottom = start_point - distance_multiplier * v_normal
+    start_segment = segment(point_top, point_bottom)
 
     laps = [0]
-
     for i in range(len(points) - 1):
-        point1 = Point(points[i][0], points[i][1], evaluate=False)
-        point2 = Point(points[i + 1][0], points[i + 1][1], evaluate=False)
-
-        if point1 == point2:
+        if points[i] == points[i + 1]:
             continue
 
         # segment between point1 and point2
-        segment = Segment(point1, point2, evaluate=False)
-        intersection = segment.intersection(start_line)
+        seg = segment(points[i], points[i + 1])
+        has_intersection = intersection(seg, start_segment)
 
         # add start of a new lap
-        if intersection:
+        if has_intersection:
+            intersection(seg, start_segment)
             laps.append(i + 1)
             print('Lap ending at index: {}'.format(i))
 
@@ -255,24 +304,24 @@ def average(lst):
 
 
 def analyze_laps(traces, reference_lap, laps):
-    data_frame = pd.DataFrame(data={
+    data_dict = {
         'pointsPerLap': [],
         'curveLength': [],
         'averagePerpendicularDistance': [],
         'lapData': []
-    })
+    }
 
     for i in range(len(laps) - 1):
         lap_data = traces.iloc[laps[i]: laps[i + 1]]
         drop_unnecessary_columns(lap_data)
         # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
-        lap = {
-            'pointsPerLap': len(lap_data),
-            'curveLength': 0,
-            'averagePerpendicularDistance': 0,
-            'lapData': json.loads(lap_data.to_json(orient="records"))
-        }
-        data_frame = data_frame.append(lap, ignore_index=True)
+
+        data_dict['pointsPerLap'].append(len(lap_data))
+        data_dict['curveLength'].append(0)
+        data_dict['averagePerpendicularDistance'].append(0)
+        data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
+
+    data_frame = pd.DataFrame(data=data_dict)
 
     # tha last circuit (lap) was not saved yet so save that one
     lap_data = traces.iloc[laps[-1:]]
