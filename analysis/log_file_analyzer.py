@@ -36,6 +36,31 @@ def log_to_dataFrame(file_path):
     return logs
 
 
+def read_csv_ref_lap(file_path):
+    """
+        Creates a dataframe of a reference lap from a csv file.
+
+        Parameters
+        --------
+            file_path : str
+                A path to a csv file.
+
+        Example of a log file
+        --------
+            LAT,LON,GSPEED,CRS,NLAT,NLON,NCRS
+            48.049214299999996,17.5678361,1.08,219.10375000000002,48.0492134,17.567835199999998,215.70312
+            48.0492134,17.567835199999998,1.03,215.70312,48.0492127,17.567834299999998,215.56731000000002
+            48.0492127,17.567834299999998,1.11,215.56731000000002,48.049211899999996,17.567833399999998,216.61797
+
+        Returns
+        --------
+        A dataframe with a reference lap.
+    """
+
+    logs = pd.read_csv(file_path)
+    return logs
+
+
 def normalize_logs(logs):
     """
         Normalizes data of the logs dataframe.
@@ -166,22 +191,16 @@ def separate_laps(traces, ref_lap=None):
 
         Parameters
         --------
+            traces : DataFrame
+                A dataframe with logs of a ride.
             ref_lap : DataFrame
                 A dataframe with logs of a reference ride.
                 It is used to define finish line.
-                It is Optional parameter. Default value is None.
-            traces : DataFrame
-                A dataframe with logs of a ride.
-            traces_id : int
-                An ID of a ride. It is only used for naming of files.
-            store_path : string
-                A path where all the laps will be be stored.
+                It is and optional parameter. Default value is None.
     """
 
     ref_lap = traces if ref_lap is None else ref_lap
-    points = list()
-    for i in range(len(traces)):
-        points.append([traces['LON'][i], traces['LAT'][i]])
+    points = traces[['LON', 'LAT']].values.tolist()
 
     # use last points to determine normal vector
     last_point1 = [ref_lap['LON'].iloc[-1], ref_lap['LAT'].iloc[-1]]
@@ -285,24 +304,24 @@ def average(lst):
 
 
 def analyze_laps(traces, reference_lap, laps):
-    data_frame = pd.DataFrame(data={
+    data_dict = {
         'pointsPerLap': [],
         'curveLength': [],
         'averagePerpendicularDistance': [],
         'lapData': []
-    })
+    }
 
     for i in range(len(laps) - 1):
         lap_data = traces.iloc[laps[i]: laps[i + 1]]
         drop_unnecessary_columns(lap_data)
         # perpendicular_distance = find_out_difference_perpendiculars(lap_data, reference_lap)
-        lap = {
-            'pointsPerLap': len(lap_data),
-            'curveLength': 0,
-            'averagePerpendicularDistance': 0,
-            'lapData': json.loads(lap_data.to_json(orient="records"))
-        }
-        data_frame = data_frame.append(lap, ignore_index=True)
+
+        data_dict['pointsPerLap'].append(len(lap_data))
+        data_dict['curveLength'].append(0)
+        data_dict['averagePerpendicularDistance'].append(0)
+        data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
+
+    data_frame = pd.DataFrame(data=data_dict)
 
     # tha last circuit (lap) was not saved yet so save that one
     lap_data = traces.iloc[laps[-1:]]
