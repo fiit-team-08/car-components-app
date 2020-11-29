@@ -1,13 +1,18 @@
-import numpy as np
 import pandas as pd
 import math
-from numpy.linalg import norm
+from math import sqrt
+from math import atan2
+from numpy.linalg import norm, det
+from numpy import cross, dot
+from numpy import radians
+from numpy import array, zeros
+from numpy import cos, sin, arcsin
 from similaritymeasures import curve_length_measure, frechet_dist
 from obspy.geodetics import degrees2kilometers
 
 
 def create_curve(dataframe):
-    curve = np.zeros((dataframe.shape[0], 2))
+    curve = zeros((dataframe.shape[0], 2))
     curve[:, 0] = dataframe.LON
     curve[:, 1] = dataframe.LAT
     return curve
@@ -21,14 +26,14 @@ def earth_distance(point1, point2):
     All args must be of equal length.
 
     """
-    lon1, lat1, lon2, lat2 = map(np.radians, [point1[1], point1[0], point2[1], point2[0]])
+    lon1, lat1, lon2, lat2 = map(radians, [point1[1], point1[0], point2[1], point2[0]])
 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = np.sin(dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon/2.0)**2
+    a = sin(dlat/2.0)**2 + cos(lat1) * cos(lat2) * sin(dlon/2.0)**2
 
-    c = 2 * np.arcsin(np.sqrt(a))
+    c = 2 * arcsin(sqrt(a))
     km = 6367 * c
     return km
 
@@ -84,7 +89,7 @@ def find_out_difference(ref_lap, laps):
 
 
 def line_length(x1, y1, x2, y2):
-    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
+    return sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
 def find_closest_point(point, lap):
@@ -102,11 +107,8 @@ def find_closest_point(point, lap):
     return minIndex
 
 
-def find_angle_between_vectors(vector_A, vector_B):
-    unit_vector_A = vector_A / np.linalg.norm(vector_A)
-    unit_vector_B = vector_B / np.linalg.norm(vector_B)
-    dot_product = np.dot(unit_vector_A, unit_vector_B)
-    return np.arccos(dot_product)  # return angle in radians
+def find_angle_between_vectors(v1, v2):
+    return atan2(det([v1,v2]), dot(v1,v2)) # return angle in radians
 
 
 def create_vector(point_A, point_B):
@@ -115,7 +117,7 @@ def create_vector(point_A, point_B):
 
 # Perdendicular from p1 to line (p2,p3)
 def shortest_distance(p1, p2, p3):
-    dist = norm(np.cross(p2 - p3, p3 - p1)) / norm(p3 - p2)
+    dist = norm(cross(p2 - p3, p3 - p1)) / norm(p3 - p2)
     return dist
 
 
