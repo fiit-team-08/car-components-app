@@ -2,7 +2,6 @@ import pandas as pd
 from pandas import DataFrame
 import numpy as np
 import math
-from sympy import Point, Segment
 from scipy.spatial import distance
 import json
 from analysis.lap_difference_analyzer import *
@@ -127,6 +126,40 @@ def create_columns_with_future_position(logs):
     logs = logs.dropna()  # Drop the last row which contains NaN values.
 
 
+def segment(p1, p2):
+    """
+        Parameters
+        ===========
+
+        p1 : list
+            The first point.
+        p2 : list
+            The second point.
+
+        Returns
+        ==========
+            A line segment of points represented in a quadruple.
+    """
+
+    return (p1[0], p1[1], p2[0], p2[1])
+
+
+def ccw(a, b, c):
+    '''
+        Determines whether three points are located in a counterclockwise way.
+    '''
+
+    return (c[1] - a[1]) * (b[0] - a[0]) > (b[1] - a[1]) * (c[0] - a[0])
+
+
+def intersection(s1, s2):
+    a = (s1[0], s1[1])
+    b = (s1[2], s1[3])
+    c = (s2[0], s2[1]) 
+    d = (s2[2], s2[3])
+    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, d, b) != ccw(a, b, d)
+
+
 def separate_laps(traces, ref_lap=None):
     """
         Separate all the log dataframe into several laps.
@@ -163,25 +196,22 @@ def separate_laps(traces, ref_lap=None):
     v_normal = np.array([-b, a])
     start_point = np.array(last_point1)
 
-    point_top = Point(start_point + distance_multiplier * v_normal, evaluate=False)
-    point_bottom = Point(start_point - distance_multiplier * v_normal, evaluate=False)
-    start_line = Segment(point_top, point_bottom, evaluate=False)
+    point_top = start_point + distance_multiplier * v_normal
+    point_bottom = start_point - distance_multiplier * v_normal
+    start_segment = segment(point_top, point_bottom)
 
     laps = [0]
-
     for i in range(len(points) - 1):
-        point1 = Point(points[i][0], points[i][1], evaluate=False)
-        point2 = Point(points[i + 1][0], points[i + 1][1], evaluate=False)
-
-        if point1 == point2:
+        if points[i] == points[i + 1]:
             continue
 
         # segment between point1 and point2
-        segment = Segment(point1, point2, evaluate=False)
-        intersection = segment.intersection(start_line)
+        seg = segment(points[i], points[i + 1])
+        has_intersection = intersection(seg, start_segment)
 
         # add start of a new lap
-        if intersection:
+        if has_intersection:
+            intersection(seg, start_segment)
             laps.append(i + 1)
             print('Lap ending at index: {}'.format(i))
 
