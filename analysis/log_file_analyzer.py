@@ -182,7 +182,7 @@ def intersection(s1, s2):
     b = (s1[2], s1[3])
     c = (s2[0], s2[1]) 
     d = (s2[2], s2[3])
-    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, d, b) != ccw(a, b, d)
+    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, b, c) != ccw(a, b, d)
 
 
 def separate_laps(traces, ref_lap=None):
@@ -233,6 +233,7 @@ def separate_laps(traces, ref_lap=None):
             intersection(seg, start_segment)
             laps.append(i + 1)
             print('Lap ending at index: {}'.format(i))
+            print(seg, start_segment)
 
     return laps
 
