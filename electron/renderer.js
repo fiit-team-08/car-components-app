@@ -5,12 +5,69 @@ const win = remote.BrowserWindow.getFocusedWindow();
 let file1 = false;
 let file2 = false;
 let data = [];
+//let numberoflaps = 0;
 
 let referenceFileName = undefined
 let tracesFileName = undefined
 
 eel.getdata()().then((r) => {
     data = r;
+});
+
+
+
+let lines0 = new Chart(document.getElementById("chart0"), {
+    type: 'scatter',
+    data: {
+        datasets: [{
+            label: 'Referenčná dráha',
+            showLine: true,
+            fill: false,
+            "borderColor": "#f56b00",
+            data: []
+        }, {
+            label: 'Dráha',
+            showLine: true,
+            fill: false,
+            "borderColor": "#254053e6",
+            data: []
+        }]
+    },
+    options: {
+        legend: {
+            display: false,
+            labels: {
+                fontColor: '#000000',
+                fontSize: 15
+            }
+        },
+        tooltips: {
+            enabled: false
+        },
+        elements: {
+            point: {
+                radius: 0
+            }
+        },
+        scales: {
+            xAxes: [{
+                gridLines: {
+                    display: false
+                },
+                ticks: {
+                    fontColor: "white"
+                }
+            }],
+            yAxes: [{
+                gridLines: {
+                    display: false
+                },
+                ticks: {
+                    fontColor: "white"
+                }
+            }]
+        }
+    }
 });
 
 let lines1 = new Chart(document.getElementById("chart1"), {
@@ -136,7 +193,7 @@ function loadTrackAnalysis() {
 function makeUL(array) {
     // Create the list element:
     let list = document.createElement('ul');
-
+    let l = 0;
     for (let i = 0; i < array.length; i++) {
         // Create the list item:
         let item = document.createElement('li');
@@ -149,9 +206,10 @@ function makeUL(array) {
 
         // Add it to the list:
         list.appendChild(item);
+        l = i+1;
     }
 
-    // Finally, return the constructed list:
+    document.getElementById('numeroflaps').innerHTML = l.toString();
     return list;
 }
 
@@ -213,8 +271,10 @@ document.getElementById('open-button1').addEventListener("click", event => {
         if (!result.canceled) {
             referenceFileName = result.filePaths.toString()
             document.getElementById('file-name1').innerHTML = referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
-            loadChartForFile(referenceFileName, 0)
-
+            eel.get_reference_laps(referenceFileName)().then((r) => {
+                document.getElementById('referencenumber').innerHTML = r;
+            });
+            loadChartForFile(referenceFileName, 0);
             if (tracesFileName !== undefined) {
                 loadTrackAnalysis()
             }

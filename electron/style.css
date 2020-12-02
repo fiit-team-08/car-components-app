@@ -351,7 +351,7 @@ main {
     margin: auto;
     padding: 20px 25px;
     text-align: center;
-    width: 300px;
+    width: 800px;
     border-radius: 2px;
 }
 
@@ -411,6 +411,7 @@ ul {
         margin: 0;
         padding: 0;
         width: 190mm;
+        height: 500mm;
     }
 
     header {
@@ -446,5 +447,13 @@ ul {
 
     .road {
         padding: 0;
+    }
+
+    .left {
+        float: inherit;
+    }
+
+    .right {
+        float: inherit;
     }
 }
