@@ -13,6 +13,8 @@ eel.getdata()().then((r) => {
     data = r;
 });
 
+win.maximize();
+
 let lines1 = new Chart(document.getElementById("chart1"), {
     type: 'scatter',
     data: {
@@ -142,7 +144,7 @@ function makeUL(array) {
         let item = document.createElement('li');
 
         // Set its contents:
-        let lapSteps = `Kolo ${i + 1} - ${array[i]["pointsPerLap"]} bodov, dĺžka trasy: ${array[i]['curveLength']}m`;
+        let lapSteps = `Kolo ${i + 1} - ${array[i]["pointsPerLap"]} bodov, priemerná odchýlka: ${array[i]['averagePerpendicularDistance']}m`;
 
         item.appendChild(document.createTextNode(lapSteps));
         // item.appendChild(document.createTextNode(array[i][1]));
