@@ -357,3 +357,10 @@ def save_laps_to_files(file_path, file_name, laps):
 
 def put_laps_to_json(laps):
     return laps.to_json(orient="records")
+
+
+def get_number_of_lines(file_path):
+    with open(file_path) as f:
+        for i, l in enumerate(f):
+            pass
+    return i + 1
