@@ -345,11 +345,11 @@ def analyze_laps(traces, reference_lap, laps):
 
 def save_laps_to_files(file_path, file_name, laps):
     laps.sort_values(by=['averagePerpendicularDistance'], inplace=True)
-    laps.to_csv('{}/{}-stats.csv'.format(file_path, file_name),
+    laps.to_csv('{}/{}_lap-stats.csv'.format(file_path, file_name),
                 index=False,
                 header=['Lap number', 'Points per lap', 'Avg. perp. diff. (cm)'],
                 columns=['lapNumber', 'pointsPerLap', 'averagePerpendicularDistance'])
-    laps.to_csv('{}/{}-laps.csv'.format(file_path, file_name),
+    laps.to_csv('{}/{}_lap-data.csv'.format(file_path, file_name),
                 index=False,
                 header=['Lap number', 'Lap data'],
                 columns=['lapNumber', 'lapData'])

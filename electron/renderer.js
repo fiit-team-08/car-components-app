@@ -311,7 +311,7 @@ document.getElementById('save-button').addEventListener("click", event => {
         properties: ["openDirectory"]
     }).then(result => {
         if (!result.canceled) {
-            eel.export_data(result.filePaths.toString(), "dump")
+            eel.export_data(result.filePaths.toString(), referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0])
         }
     });
 })
