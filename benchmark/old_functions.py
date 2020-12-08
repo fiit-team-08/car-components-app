@@ -1,6 +1,5 @@
 import sys
 sys.path.append(".")
-
 import pandas as pd
 import numpy as np
 import math
@@ -11,6 +10,7 @@ from similaritymeasures import curve_length_measure, frechet_dist
 from obspy.geodetics import degrees2kilometers
 from analysis.log_file_analyzer import drop_unnecessary_columns
 from analysis.lap_difference_analyzer import shortest_distance
+
 
 def analyze_laps(traces, reference_lap, laps):
     data_frame = pd.DataFrame(data={
@@ -44,6 +44,7 @@ def analyze_laps(traces, reference_lap, laps):
     }
     data_frame = data_frame.append(lap, ignore_index=True)
     return data_frame
+
 
 def separate_laps(traces, ref_lap=None):
     """
@@ -105,6 +106,7 @@ def separate_laps(traces, ref_lap=None):
 
     return laps
 
+
 def find_closest_point(point, lap):
     minIndex = 0
     minLength = math.inf
@@ -119,23 +121,28 @@ def find_closest_point(point, lap):
 
     return minIndex
 
+
 def find_angle_between_vectors(vector_A, vector_B):
     unit_vector_A = vector_A / np.linalg.norm(vector_A)
     unit_vector_B = vector_B / np.linalg.norm(vector_B)
     dot_product = np.dot(unit_vector_A, unit_vector_B)
     return np.arccos(dot_product)  # return angle in radians
 
+
 def line_length(x1, y1, x2, y2):
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
+
 def create_vector(point_A, point_B):
     return [point_B.LAT - point_A.LAT, point_B.LON - point_A.LON]
+
 
 def find_shortest_distance(p1, p2, p3):
     x = np.array([p1.LAT, p1.LON])
     y = np.array([p2.LAT, p2.LON])
     z = np.array([p3.LAT, p3.LON])
     return shortest_distance(x, y, z)
+
 
 def find_out_difference_perpendiculars(lap, ref_lap):
     """

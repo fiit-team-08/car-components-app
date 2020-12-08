@@ -35,6 +35,12 @@ def export_data(path, file_name):
     save_laps_to_files(path, file_name, laps)
 
 
+
+@eel.expose
+def get_reference_laps(path):
+    return get_number_of_lines(path)
+
+
 data = [69, 59, 80, 81, 56, 55, 40]
 
 

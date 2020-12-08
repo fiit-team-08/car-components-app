@@ -31,7 +31,7 @@ def earth_distance(point1, point2):
     dlon = lon2 - lon1
     dlat = lat2 - lat1
 
-    a = sin(dlat/2.0)**2 + cos(lat1) * cos(lat2) * sin(dlon/2.0)**2
+    a = sin(dlat / 2.0) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2.0) ** 2
 
     c = 2 * arcsin(sqrt(a))
     km = 6367 * c
@@ -40,7 +40,7 @@ def earth_distance(point1, point2):
 
 def distance_of_curve(lap):
     return sum(earth_distance(pt1, pt2)
-                        for pt1, pt2 in zip(lap, lap[1:]))
+               for pt1, pt2 in zip(lap, lap[1:]))
 
 
 def find_out_difference(ref_lap, laps):
@@ -117,7 +117,7 @@ def find_closest_point(point, lap, locality=None):
 
 
 def find_angle_between_vectors(v1, v2):
-    return atan2(det([v1,v2]), dot(v1,v2)) # return angle in radians
+    return atan2(det([v1, v2]), dot(v1, v2))  # return angle in radians
 
 
 def create_vector(point_A, point_B):
@@ -137,9 +137,9 @@ def find_shortest_distance(p1, p2, p3):
     return shortest_distance(x, y, z)
 
 
-def find_out_difference_perpendiculars(lap : pd.DataFrame, ref_lap : pd.DataFrame):
+def find_out_difference_perpendiculars(lap: pd.DataFrame, ref_lap: pd.DataFrame):
     """
-        Calculates perpendiculars from every point of a lap to a ref_lap.
+        Calculates average perpendicular distance from every point of a lap to a ref_lap.
 
         Parameters
         --------
@@ -155,7 +155,8 @@ def find_out_difference_perpendiculars(lap : pd.DataFrame, ref_lap : pd.DataFram
 
     lap_list = lap[["LAT", "LON"]].values.tolist()
     ref_lap_list = ref_lap[["LAT", "LON"]].values.tolist()
-    distances = []
+    distances = 0
+    distances_count = 0
     prev_i = -1
     for i in range(len(lap_list)):
         point = lap_list[i]
@@ -198,6 +199,7 @@ def find_out_difference_perpendiculars(lap : pd.DataFrame, ref_lap : pd.DataFram
             print("Negative value!!!\nIndices: {} {}\nAngles: {} {}".format(i, closest_index, angle1, angle2))
         else:
             min_dist = degrees2kilometers(min_dist) * 100000  # in centimeters
-            distances.append(min_dist)
+            distances += min_dist
+            distances_count += 1
 
-    return distances
+    return distances / distances_count
