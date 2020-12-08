@@ -1,0 +1,13 @@
+shapely
+obspy
+matlab
+scipy
+matplotlib
+scikit-learn
+keras
+tensorflow
+h5py
+numpy
+pandas
+sympy
+gym
