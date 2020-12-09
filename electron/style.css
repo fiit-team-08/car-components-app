@@ -384,7 +384,7 @@ main {
 
 .road {
     width: 98%;
-    margin: 40px auto 0 auto;
+    margin: 0 auto;
 }
 
 .list {
@@ -401,6 +401,10 @@ ul {
     margin-left: 25px;
 }
 
+#chart0 {
+    display: none !important;
+}
+
 @page {
     size: A4;
     margin: 20mm 10mm;
@@ -411,7 +415,7 @@ ul {
         margin: 0;
         padding: 0;
         width: 190mm;
-        height: 500mm;
+        height: max-content;
     }
 
     header {
@@ -427,6 +431,7 @@ ul {
 
     .info {
         margin-top: -10px;
+        width: 690px;
     }
 
     .info h1 {
@@ -445,6 +450,10 @@ ul {
         display: none;
     }
 
+    .insert {
+        display: none;
+    }
+
     .road {
         padding: 0;
     }
@@ -455,5 +464,7 @@ ul {
 
     .right {
         float: inherit;
+        width: 100%;
+        padding: 0;
     }
 }

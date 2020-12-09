@@ -5,7 +5,6 @@ const win = remote.BrowserWindow.getFocusedWindow();
 let file1 = false;
 let file2 = false;
 let data = [];
-//let numberoflaps = 0;
 
 let referenceFileName = undefined
 let tracesFileName = undefined
@@ -358,10 +357,10 @@ document.getElementById('print-button').addEventListener("click", event => {
         Chart.instances[2].resize();
     } else {
         lines1.canvas.parentNode.style.width = '185mm';
-        Chart.instances[0].resize();
+        Chart.instances[1].resize();
         window.print();
         lines1.canvas.parentNode.style.width = '98%';
-        Chart.instances[0].resize();
+        Chart.instances[1].resize();
     }
 });
 
