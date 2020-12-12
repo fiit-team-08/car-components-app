@@ -231,6 +231,11 @@ main {
     margin-bottom: -30px;
 }
 
+li {
+    cursor: pointer;
+    color: rgb(0, 0, 0);
+}
+
 .flex {
     display: flex;
 }
@@ -402,7 +407,7 @@ ul {
 }
 
 #chart0 {
-    display: none !important;
+
 }
 
 @page {
@@ -466,5 +471,9 @@ ul {
         float: inherit;
         width: 100%;
         padding: 0;
+    }
+
+    .list {
+        margin-top: 100px;
     }
 }
