@@ -5,17 +5,16 @@ const win = remote.BrowserWindow.getFocusedWindow();
 let file1 = false;
 let file2 = false;
 let data = [];
+let trackdata = undefined;
 
-let referenceFileName = undefined
-let tracesFileName = undefined
+let referenceFileName = undefined;
+let tracesFileName = undefined;
 
 eel.getdata()().then((r) => {
     data = r;
 });
 
 win.maximize();
-
-
 
 let lines0 = new Chart(document.getElementById("chart0"), {
     type: 'scatter',
@@ -25,12 +24,6 @@ let lines0 = new Chart(document.getElementById("chart0"), {
             showLine: true,
             fill: false,
             "borderColor": "#f56b00",
-            data: []
-        }, {
-            label: 'Dráha',
-            showLine: true,
-            fill: false,
-            "borderColor": "#254053e6",
             data: []
         }]
     },
@@ -175,46 +168,67 @@ let lines3 = new Chart(document.getElementById("chart3"), {
     }
 });
 
-/**
- * Load data from main.py file using eel mapping and parse them to according fields
- */
 function loadChartForFile(name, index) {
     eel.get_track_data(name)().then((r) => {
         lines1.data.datasets[index].data = JSON.parse(r);
         lines1.update()
+        if (index === 0) {
+            lines0.data.datasets[index].data = JSON.parse(r);
+            lines0.update()
+        }
     });
 }
 
 function loadTrackAnalysis() {
     eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
         document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+        trackdata = JSON.parse(r);
     });
 }
 
+function trackAdd(id) {
+    let newDataset = [];
+    if (document.getElementById(id).style.color === "rgb(0, 0, 0)") {
+        document.getElementById(id).style.color = "#0048b5";
+        trackdata[Number(id)].lapData.forEach(function(item, index) {
+            newDataset[index]  = {
+                "x": trackdata[Number(id)].lapData[index].LON,
+                "y": trackdata[Number(id)].lapData[index].LAT
+            }
+        });
+        lines0.data.datasets[Number(id)+1].data = newDataset;
+    } else  {
+        document.getElementById(id).style.color = "#000000";
+        lines0.data.datasets[Number(id)+1].data = [];
+    }
+    lines0.update();
+}
+
 function makeUL(array) {
-    // Create the list element:
     let list = document.createElement('ul');
     let l = 0;
     for (let i = 0; i < array.length; i++) {
-        // Create the list item:
         let item = document.createElement('li');
-
-        // Set its contents:
         let lapSteps = `Kolo ${i + 1} - ${array[i]["pointsPerLap"]} bodov, priemerná odchýlka: ${array[i]['averagePerpendicularDistance']}m`;
-
+        item.setAttribute('id', (i).toString());
+        item.setAttribute('onclick','trackAdd(this.id)');
         item.appendChild(document.createTextNode(lapSteps));
-        // item.appendChild(document.createTextNode(array[i][1]));
-
-        // Add it to the list:
+        item.style.color = "rgb(0, 0, 0)";
         list.appendChild(item);
         l = i+1;
+        let newDataset = {
+            label: "",
+            showLine: true,
+            fill: false,
+            "borderColor": "#254053e6",
+            data: []
+        }
+        lines0.data.datasets.push(newDataset);
+        lines0.update();
     }
-
     document.getElementById('numeroflaps').innerHTML = l.toString();
     return list;
 }
-
-// win.maximize();
 
 document.getElementById('max-button').addEventListener("click", event => {
     if (win.isMaximized())
@@ -296,7 +310,6 @@ document.getElementById('open-button2').addEventListener("click", event => {
             tracesFileName = result.filePaths.toString()
             document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
             loadChartForFile(tracesFileName, 1)
-
             if (referenceFileName !== undefined) {
                 loadTrackAnalysis()
             }
@@ -356,11 +369,15 @@ document.getElementById('print-button').addEventListener("click", event => {
         Chart.instances[1].resize();
         Chart.instances[2].resize();
     } else {
+        lines0.canvas.parentNode.style.width = '185mm';
         lines1.canvas.parentNode.style.width = '185mm';
         Chart.instances[1].resize();
+        Chart.instances[0].resize();
         window.print();
+        lines0.canvas.parentNode.style.width = '98%';
         lines1.canvas.parentNode.style.width = '98%';
         Chart.instances[1].resize();
+        Chart.instances[0].resize();
     }
 });
 
