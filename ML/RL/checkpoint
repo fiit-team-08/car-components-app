@@ -1,0 +1,2 @@
+model_checkpoint_path: "dqn_400kit_rn4_maior2_mem20k_20acleme_target1000_epsgr1_weights.h5f"
+all_model_checkpoint_paths: "dqn_400kit_rn4_maior2_mem20k_20acleme_target1000_epsgr1_weights.h5f"

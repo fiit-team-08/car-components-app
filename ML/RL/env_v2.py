@@ -1,28 +1,37 @@
 # https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html
-import math
-
 import gym
+from Box2D import Box2D
 from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
 from obspy.geodetics import degrees2kilometers
-
-from ml.RL.bicycle_model import BicycleKinematicModel
+from ML.RL.bicycle_model import BicycleKinematicModel
+from gym.envs.box2d.car_racing import FrictionDetector
 from gym.envs.classic_control import rendering
+import random
+
+# 0.01 radians is about 6 degrees
+# +/-0.05 is speed change
+
+ACTIONS = np.array(
+    [[0.0, 0.0], [0.0, 0.05], [0.0, -0.05],
+     [0.01, 0.0], [0.01, 0.05], [0.01, -0.05],
+     [-0.01, 0.0], [-0.01, 0.05], [-0.01, -0.05]]
+)
 
 WINDOW_W = 1000
 WINDOW_H = 1000
 
-SCALE = 8  # Track scale in the viewing window
+SCALE = 8   # Track scale in the viewing window
 
 CAR_WIDTH = 20.0
 CAR_LENGTH = 50.0
 CAR_COLOR = [1, 0, 0]
 WINDOW_COLOR = [0, 0, 1]
-WHEEL_COLOR = [0, 0, 0]
 
 
+# environment with discrete observation space
 class CarEnv(gym.Env):
     """
     Environment class containing all the methods necessary for reinforcement
@@ -79,28 +88,25 @@ class CarEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, filename='../data/ref1_v2.csv', type='continuous',
-                 action_dim=1, verbose=1):
+    def __init__(self, filename='../data/ref1.csv', type='discrete',
+                 action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
         self.type = type
         self.action_dim = action_dim
         self.verbose = verbose
         self.df = self._read_df(filename)
-
         self.road = self._create_road()
+
         # 130 km/h ~= 36 m/s
         self.observation_space = spaces.Box(
-            low=np.array([-np.inf, -np.inf, -np.pi, 0., -(np.pi/4)]),
-            high=np.array([np.inf, np.inf, np.pi, 36., np.pi/4])
+            low=np.array([-np.inf, -np.inf, -np.pi, 0., -(np.pi / 4)]),
+            high=np.array([np.inf, np.inf, np.pi, 36., np.pi / 4])
         )
 
         # steering cmd a.k.a. psi and velocity
         # delta speed limit per 0.1s - 10km/h in 2s
-        self.action_space = spaces.Box(
-            low=np.array([-(np.pi/4), -0.14]),
-            high=np.array([np.pi/4, 0.14])
-        )
+        self.action_space = spaces.Discrete(9)
 
         self.viewer = None
         self.init_x = self.df['LON'][0]
@@ -114,7 +120,6 @@ class CarEnv(gym.Env):
         self.state = None
         self.bicycle = None
         self.track = None
-
         self.car_trans = None
         self.left_wheel_trans = None
         self.right_wheel_trans = None
@@ -209,40 +214,47 @@ class CarEnv(gym.Env):
         # action = steering command a.k.a. angle psi in radians
 
         done = False
-        info = {'current_state': {'x': self.state[0],
-                                  'y': self.state[1],
-                                  'theta': self.state[2],
-                                  'v': self.state[3],
-                                  'psi': self.state[4]},
-                'action': action}
+        info = {
+            'current_state_x': self.state[0],
+            'current_state_y': self.state[1],
+            'current_state_theta': self.state[2],
+            'current_state_v': self.state[3],
+            'current_state_psi': self.state[4],
+            'action': action
+        }
 
-        v = self.state[3] + action[1]
-        delta_psi = action[0]
+        # v = self.state[3] + action[1]
+        # delta_psi = action[0]
+        v = self.state[3] + ACTIONS[action][1]
+        delta_psi = ACTIONS[action][0]
 
         self.bicycle.change_state(velocity=v, steering_rate=delta_psi)
         new_x, new_y, new_psi, new_theta = self.bicycle.get_state()
         new_point = geom.Point(new_x, new_y)
         distance = self.road.distance(new_point)
 
+        # TODO: consider modifying the method for reward calculation
         if distance > 0.5:
             reward = -100
             done = True
         else:
-            reward = (0.5 - distance) * 10.0
+            reward = (0.5 - distance) * 100.0
 
         self.state = [new_x, new_y, new_theta, v, new_psi]
 
         info['distance'] = distance
-        info['reward'] = 0
-        info['new_state'] = {'x': self.state[0],
-                             'y': self.state[1],
-                             'theta': self.state[2],
-                             'v': self.state[3],
-                             'psi': self.state[4]}
+        info['reward'] = reward
+        info['new_state_x'] = self.state[0]
+        info['new_state_y'] = self.state[1]
+        info['new_state_theta'] = self.state[2]
+        info['new_state_v'] = self.state[3]
+        info['new_state_psi'] = self.state[4]
 
         # update info (include previous state, new state and reward)
+        observation = self.state
 
-        return self.state, reward, done, info
+        # return observation, reward, done, info
+        return observation, reward, done, info
 
     def reset(self):
         """
@@ -397,14 +409,13 @@ class CarEnv(gym.Env):
 if __name__ == '__main__':
 
     env = CarEnv()
-    d = 0
-    for i_episode in range(100):
-        env.reset()
+    for i_episode in range(10):
+        observation = env.reset()
         for t in range(10000):
             env.render()
-            # with each action just turn the wheel +0.05 rad
-            action = np.array([0.00, 0])
-            observation, r, done, info = env.step(action)
+            action = random.randint(0, 8)
+            # observation, reward, done, info = env.step(ACTIONS[action])
+            observation, reward, done, info = env.step(action)
             print(info)
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
