@@ -2,12 +2,10 @@
 import math
 
 import gym
-from Box2D import Box2D
 from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
-from gym.envs.box2d.car_racing import FrictionDetector
 from obspy.geodetics import degrees2kilometers
 
 from ml.RL.bicycle_model import BicycleKinematicModel
@@ -256,6 +254,7 @@ class CarEnv(gym.Env):
                                              heading_angle=self.state[2],
                                              steering_angle=self.state[4]
                                              )
+        # assigns points of track
         self.track = self._create_track()
 
         return self.init_observation
@@ -274,10 +273,20 @@ class CarEnv(gym.Env):
 
         if self.viewer is None:
             self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
-            left, right, top, bottom = -CAR_WIDTH / 2, CAR_WIDTH / 2, CAR_LENGTH / 2, -CAR_LENGTH / 2
+            left, right, top, bottom = (
+                -CAR_WIDTH / 2,
+                CAR_WIDTH / 2,
+                CAR_LENGTH / 2,
+                -CAR_LENGTH / 2
+            )
 
             # CAR BODY
-            car = rendering.FilledPolygon([(left, bottom), (left, top), (right, top), (right, bottom)])
+            car = rendering.FilledPolygon([
+                (left, bottom),
+                (left, top),
+                (right, top),
+                (right, bottom)
+            ])
             self.car_trans = rendering.Transform()
             car.add_attr(self.car_trans)
             car.set_color(1.0, .0, .0)
@@ -396,7 +405,7 @@ if __name__ == '__main__':
             # with each action just turn the wheel +0.05 rad
             action = np.array([0.00, 0])
             observation, r, done, info = env.step(action)
-            #print(info)
+            print(info)
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
