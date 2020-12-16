@@ -1,11 +1,28 @@
 # https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html
+import math
+
 import gym
+from Box2D import Box2D
 from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
+from gym.envs.box2d.car_racing import FrictionDetector
 from obspy.geodetics import degrees2kilometers
-from RL.bicycle_model import BicycleKinematicModel
+
+from ml.RL.bicycle_model import BicycleKinematicModel
+from gym.envs.classic_control import rendering
+
+WINDOW_W = 1000
+WINDOW_H = 1000
+
+SCALE = 8  # Track scale in the viewing window
+
+CAR_WIDTH = 20.0
+CAR_LENGTH = 50.0
+CAR_COLOR = [1, 0, 0]
+WINDOW_COLOR = [0, 0, 1]
+WHEEL_COLOR = [0, 0, 0]
 
 
 class CarEnv(gym.Env):
@@ -50,6 +67,16 @@ class CarEnv(gym.Env):
         bicycle : BicycleKinematicModel or None
             Instance of BicycleKinematicModel for calculations of the new
             states.
+        viewer : rendering.Viewer()
+            Scene with objects being rendered
+        track : list
+            Coordinates x,y of all points of the track
+        car_trans : rendering.Transformation()
+            Attribute for making transformations with car object
+        track_trans : rendering.Transformation()
+            Attribute for making transformations with track
+        left_wheel_trans, right_wheel_trans : rendering.Transformation()
+            Attribute for making transformations with front wheels
     """
 
     metadata = {'render.modes': ['human']}
@@ -58,13 +85,12 @@ class CarEnv(gym.Env):
                  action_dim=1, verbose=1):
 
         super(CarEnv, self).__init__()
-
         self.type = type
         self.action_dim = action_dim
         self.verbose = verbose
         self.df = self._read_df(filename)
-        self.road = self._create_road()
 
+        self.road = self._create_road()
         # 130 km/h ~= 36 m/s
         self.observation_space = spaces.Box(
             low=np.array([-np.inf, -np.inf, -np.pi, 0., -(np.pi/4)]),
@@ -89,6 +115,14 @@ class CarEnv(gym.Env):
                                           self.init_psi])
         self.state = None
         self.bicycle = None
+        self.track = None
+
+        self.car_trans = None
+        self.left_wheel_trans = None
+        self.right_wheel_trans = None
+        self.left_rearwheel_trans = None
+        self.right_rearwheel_trans = None
+        self.track_trans = None
 
     @staticmethod
     def _read_df(filename: str) -> pd.DataFrame:
@@ -101,14 +135,52 @@ class CarEnv(gym.Env):
         return df
 
     def _create_road(self):
-        points = list()
+        self.points = list()
 
         for index, row in self.df.iterrows():
-            points.append(geom.Point(row['LON'], row['LAT']))
+            self.points.append(geom.Point(row['LON'], row['LAT']))
 
-        road = geom.LineString(points)
+        return geom.LineString(self.points)
 
-        return road
+    def _create_track(self):
+        """
+        Transforms world coordinates into x,y coordinates by finding center
+        and translating points and creates track represented by x,y points
+
+        :returns - list of x,y points representing track in
+        """
+
+        # gets border values of latitude and longitude
+        min_lat = 5342900
+        max_lat = 0
+        min_lon = 1953500
+        max_lon = 0
+        for point in self.points:
+            lon = point.x
+            lat = point.y
+            if lat > max_lat:
+                max_lat = lat
+            if lat < min_lat:
+                min_lat = lat
+            if lon > max_lon:
+                max_lon = lon
+            if lon < min_lon:
+                min_lon = lon
+
+        # gets center of map
+        self.map_center = ((max_lon - min_lon) / 2 + min_lon, (max_lat - min_lat) / 2 + min_lat)
+        center_x, center_y = self.map_center
+
+        # append all x,y points to the track list
+        coordinates = []
+        for point in self.points:
+            x = point.x - center_x
+            y = point.y - center_y
+            coordinates.append((x * SCALE, y * SCALE))
+
+        coordinates.append(((self.points[0].x - center_x) * SCALE, (self.points[0].y - center_y) * SCALE))
+
+        return coordinates
 
     def step(self, action):
         """
@@ -163,7 +235,7 @@ class CarEnv(gym.Env):
         self.state = [new_x, new_y, new_theta, v, new_psi]
 
         info['distance'] = distance
-        info['reward'] = reward
+        info['reward'] = 0
         info['new_state'] = {'x': self.state[0],
                              'y': self.state[1],
                              'theta': self.state[2],
@@ -171,9 +243,8 @@ class CarEnv(gym.Env):
                              'psi': self.state[4]}
 
         # update info (include previous state, new state and reward)
-        observation = self.state
 
-        return observation, reward, done, info
+        return self.state, reward, done, info
 
     def reset(self):
         """
@@ -185,14 +256,124 @@ class CarEnv(gym.Env):
                                              heading_angle=self.state[2],
                                              steering_angle=self.state[4]
                                              )
+        self.track = self._create_track()
 
         return self.init_observation
 
     def render(self, mode='human'):
         """
-        Renders an animation to visualize the state of the car.
+        Renders screen window with road represented by line and actual position of car object.
+
+        :return - viewer with drawn objects
         """
-        pass
+
+        x, y, theta, v, psi = self.state
+        center_x, center_y = self.map_center
+        x = x - center_x
+        y = y - center_y
+
+        if self.viewer is None:
+            self.viewer = rendering.Viewer(WINDOW_W, WINDOW_H)
+            left, right, top, bottom = -CAR_WIDTH / 2, CAR_WIDTH / 2, CAR_LENGTH / 2, -CAR_LENGTH / 2
+
+            # CAR BODY
+            car = rendering.FilledPolygon([(left, bottom), (left, top), (right, top), (right, bottom)])
+            self.car_trans = rendering.Transform()
+            car.add_attr(self.car_trans)
+            car.set_color(1.0, .0, .0)
+            self.viewer.add_geom(car)
+
+            # FRONT WINDOW
+            window_front = rendering.FilledPolygon([
+                (left + 2, bottom + 25),
+                (left + 2, top - 15),
+                (right - 2, top - 15),
+                (right - 2, bottom + 25)
+            ])
+            window_front.add_attr(self.car_trans)
+            window_front.set_color(.5, .5, .8)
+            self.viewer.add_geom(window_front)
+
+            # REAR WINDOW
+            window_rear = rendering.FilledPolygon([
+                (left + 2, bottom + 5),
+                (left + 2, top - 40),
+                (right - 2, top - 40),
+                (right - 2, bottom + 5)
+            ])
+            window_rear.add_attr(self.car_trans)
+            window_rear.set_color(.5, .5, .8)
+            self.viewer.add_geom(window_rear)
+
+            # FRONT WHEELS
+            left_front_wheel = rendering.FilledPolygon([
+                (left - 2, bottom + 40),
+                (left - 2, top - 1),
+                (right - 19, top - 1),
+                (right - 19, bottom + 40)
+            ])
+            self.left_wheel_trans = rendering.Transform()
+            left_front_wheel.add_attr(self.left_wheel_trans)
+            left_front_wheel.set_color(.1, .1, .1)
+            self.viewer.add_geom(left_front_wheel)
+
+            right_front_wheel = rendering.FilledPolygon([
+                (left + 19, bottom + 40),
+                (left + 19, top - 1),
+                (right + 2, top - 1),
+                (right + 2, bottom + 40)
+            ])
+            self.right_wheel_trans = rendering.Transform()
+            right_front_wheel.add_attr(self.right_wheel_trans)
+            right_front_wheel.set_color(.1, .1, .1)
+            self.viewer.add_geom(right_front_wheel)
+
+            # REAR WHEELS
+            left_rear_wheel = rendering.FilledPolygon([
+                (left - 2, bottom + 1),
+                (left - 2, top - 40),
+                (right - 19, top - 40),
+                (right - 19, bottom + 1)
+            ])
+            left_rear_wheel.add_attr(self.car_trans)
+            left_rear_wheel.set_color(.1, .1, .1)
+            self.viewer.add_geom(left_rear_wheel)
+
+            right_rear_wheel = rendering.FilledPolygon([
+                (left + 19, bottom + 1),
+                (left + 19, top - 40),
+                (right + 2, top - 40),
+                (right + 2, bottom + 1)
+            ])
+            right_rear_wheel.add_attr(self.car_trans)
+            right_rear_wheel.set_color(.1, .1, .1)
+            self.viewer.add_geom(right_rear_wheel)
+
+            # centers points of the track to the center of the screen
+            for i in range(len(self.track)):
+                x, y = self.track[i]
+                self.track[i] = x + WINDOW_W/2, y + WINDOW_H/2
+
+            # creates track represented by line
+            track = rendering.PolyLine(self.track, 0)
+            self.track_trans = rendering.Transform()
+            track.add_attr(self.track_trans)
+            self.viewer.add_geom(track)
+
+        if self.state is None:
+            return None
+
+        # Transforms objects with each rendering
+        self.car_trans.set_translation(x + WINDOW_W/2, y + WINDOW_H/2)
+        self.car_trans.set_rotation(-theta)
+
+        self.left_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
+        self.right_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
+
+        self.left_wheel_trans.set_rotation(-theta - psi)
+        self.right_wheel_trans.set_rotation(-theta - psi)
+
+        return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def close(self):
         """
@@ -207,14 +388,15 @@ class CarEnv(gym.Env):
 if __name__ == '__main__':
 
     env = CarEnv()
-    for i_episode in range(10):
-        observation = env.reset()
+    d = 0
+    for i_episode in range(100):
+        env.reset()
         for t in range(10000):
-            # env.render()
+            env.render()
             # with each action just turn the wheel +0.05 rad
-            action = np.array([0.05, 0.0])
-            observation, reward, done, info = env.step(action)
-            print(info)
+            action = np.array([0.00, 0])
+            observation, r, done, info = env.step(action)
+            #print(info)
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))
                 break
