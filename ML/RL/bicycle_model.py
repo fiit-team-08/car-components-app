@@ -3,12 +3,14 @@ from math import cos, sin, tan
 
 class BicycleKinematicModel:
 
-    def __init__(self, x, y, steering_angle, heading_angle, bicycle_len=1.5):
+    def __init__(self, x, y, steering_angle, heading_angle, bicycle_len=1,
+                 time_step=0.1):
         self._x = x                                 # meters
         self._y = y                                 # meters
         self._steering_angle = steering_angle       # radians
         self._heading_angle = heading_angle         # radians
         self.bicycle_len = bicycle_len              # meters
+        self.time_step = time_step  # seconds
 
     def get_state(self):
         return self._x, self._y, self._steering_angle, self._heading_angle
@@ -35,10 +37,10 @@ class BicycleKinematicModel:
 
         delta_x = velocity * cos(self._heading_angle)
         delta_y = velocity * sin(self._heading_angle)
-        delta_theta = rotation_rate 
+        delta_theta = rotation_rate
         delta_sigma = steering_rate
 
-        self._x += delta_x
-        self._y += delta_y
-        self._heading_angle += delta_theta
+        self._x += delta_x * self.time_step
+        self._y += delta_y * self.time_step
+        self._heading_angle += delta_theta * self.time_step
         self._steering_angle += delta_sigma
