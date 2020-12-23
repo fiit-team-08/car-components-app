@@ -10,7 +10,7 @@ from ML.RL.bicycle_model import BicycleKinematicModel
 from gym.envs.box2d.car_racing import FrictionDetector
 from gym.envs.classic_control import rendering
 import random
-from analysis.lap_difference_analyzer import find_closest_point
+from ML.RL.utils import find_closest_point
 
 # 0.01 radians is about 6 degrees
 # +/-0.05 is speed change
@@ -245,12 +245,15 @@ class CarEnv(gym.Env):
         self.reward -= 0.1
         reward = self.reward
 
-        # TODO: somehow get the index of the point from the raf trace, which is
-        #  the closest one to the [new_x, new_y]
-        closest_point = 0
+        closest_point = find_closest_point(
+            [new_x, new_y],
+            self.df[['LAT', 'LON']].values.tolist(),
+            self.last_point
+        )
+        point_diff = closest_point - self.last_point if self.last_point else 0.
         self.last_point = closest_point
 
-        reward += closest_point
+        reward += self.last_point
         # exponential growth changes the range from 0-5 to 0-25
         # based on the distance from the ref trace
         reward += ((0.5 - distance) * 10.0) ** 2
@@ -258,11 +261,16 @@ class CarEnv(gym.Env):
         if distance > 0.5:
             reward = -100
             done = True
-        elif closest_point == len(self.df):
+
+        # either the vehicle has reached the last point of the ref trace or it
+        # has already come past that point, in which case the point_diff would
+        # be negative value
+        elif self.last_point == len(self.df) or point_diff < 0:
             done = True
 
         self.state = [new_x, new_y, new_theta, v, new_psi]
 
+        info['closest_point'] = self.last_point
         info['distance'] = distance
         info['reward'] = reward
         info['new_state_x'] = self.state[0]
