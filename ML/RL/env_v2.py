@@ -10,6 +10,7 @@ from ML.RL.bicycle_model import BicycleKinematicModel
 from gym.envs.box2d.car_racing import FrictionDetector
 from gym.envs.classic_control import rendering
 import random
+from ML.RL.utils import find_closest_point
 
 # 0.01 radians is about 6 degrees
 # +/-0.05 is speed change
@@ -74,6 +75,10 @@ class CarEnv(gym.Env):
         bicycle : BicycleKinematicModel or None
             Instance of BicycleKinematicModel for calculations of the new
             states.
+        reward : float
+            Negative reward accumulated with each step taken.
+        last_point : index
+            Index of last passed point on the ref trace.
         viewer : rendering.Viewer()
             Scene with objects being rendered
         track : list
@@ -117,6 +122,8 @@ class CarEnv(gym.Env):
         self.init_observation = np.array([self.init_x, self.init_y,
                                           self.init_theta, self.init_v,
                                           self.init_psi])
+        self.reward = 0.0
+        self.last_point = None
         self.state = None
         self.bicycle = None
         self.track = None
@@ -171,7 +178,8 @@ class CarEnv(gym.Env):
                 min_lon = lon
 
         # gets center of map
-        self.map_center = ((max_lon - min_lon) / 2 + min_lon, (max_lat - min_lat) / 2 + min_lat)
+        self.map_center = ((max_lon - min_lon) / 2 + min_lon,
+                           (max_lat - min_lat) / 2 + min_lat)
         center_x, center_y = self.map_center
 
         # append all x,y points to the track list
@@ -181,7 +189,8 @@ class CarEnv(gym.Env):
             y = point.y - center_y
             coordinates.append((x * SCALE, y * SCALE))
 
-        coordinates.append(((self.points[0].x - center_x) * SCALE, (self.points[0].y - center_y) * SCALE))
+        coordinates.append(((self.points[0].x - center_x) * SCALE,
+                            (self.points[0].y - center_y) * SCALE))
 
         return coordinates
 
@@ -233,15 +242,35 @@ class CarEnv(gym.Env):
         new_point = geom.Point(new_x, new_y)
         distance = self.road.distance(new_point)
 
-        # TODO: consider modifying the method for reward calculation
+        self.reward -= 0.1
+        reward = self.reward
+
+        closest_point = find_closest_point(
+            [new_x, new_y],
+            self.df[['LAT', 'LON']].values.tolist(),
+            self.last_point
+        )
+        point_diff = closest_point - self.last_point if self.last_point else 0.
+        self.last_point = closest_point
+
+        reward += self.last_point
+        # exponential growth changes the range from 0-5 to 0-25
+        # based on the distance from the ref trace
+        reward += ((0.5 - distance) * 10.0) ** 2
+
         if distance > 0.5:
             reward = -100
             done = True
-        else:
-            reward = (0.5 - distance) * 100.0
+
+        # either the vehicle has reached the last point of the ref trace or it
+        # has already come past that point, in which case the point_diff would
+        # be negative value
+        elif self.last_point == len(self.df) or point_diff < 0:
+            done = True
 
         self.state = [new_x, new_y, new_theta, v, new_psi]
 
+        info['closest_point'] = self.last_point
         info['distance'] = distance
         info['reward'] = reward
         info['new_state_x'] = self.state[0]
@@ -266,6 +295,8 @@ class CarEnv(gym.Env):
                                              heading_angle=self.state[2],
                                              steering_angle=self.state[4]
                                              )
+        self.reward = 0.0
+        self.last_point = None
         # assigns points of track
         self.track = self._create_track()
 
@@ -273,7 +304,8 @@ class CarEnv(gym.Env):
 
     def render(self, mode='human'):
         """
-        Renders screen window with road represented by line and actual position of car object.
+        Renders screen window with road represented by line and actual position
+        of car object.
 
         :return - viewer with drawn objects
         """
@@ -388,8 +420,10 @@ class CarEnv(gym.Env):
         self.car_trans.set_translation(x + WINDOW_W/2, y + WINDOW_H/2)
         self.car_trans.set_rotation(-theta)
 
-        self.left_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
-        self.right_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
+        self.left_wheel_trans.set_translation(x + WINDOW_W / 2,
+                                              y + WINDOW_H / 2)
+        self.right_wheel_trans.set_translation(x + WINDOW_W / 2,
+                                               y + WINDOW_H / 2)
 
         self.left_wheel_trans.set_rotation(-theta - psi)
         self.right_wheel_trans.set_rotation(-theta - psi)
