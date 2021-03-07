@@ -256,7 +256,7 @@ class CarEnv(gym.Env):
         reward += self.last_point
         # exponential growth changes the range from 0-5 to 0-25
         # based on the distance from the ref trace
-        reward += ((0.5 - distance) * 10.0) ** 2
+        reward -= ((0.5 - distance) * 10.0) ** 2
 
         if distance > 0.5:
             reward = -100
