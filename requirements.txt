@@ -3,7 +3,6 @@ eel
 gym
 h5py
 keras
-matlab
 matplotlib
 numpy
 obspy
@@ -16,3 +15,4 @@ similaritymeasures
 sympy
 tensorflow
 rl
+torch
