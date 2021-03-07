@@ -232,8 +232,8 @@ def separate_laps(traces, ref_lap=None):
         if has_intersection:
             intersection(seg, start_segment)
             laps.append(i + 1)
-            print('Lap ending at index: {}'.format(i))
-            print(seg, start_segment)
+            # print('Lap ending at index: {}'.format(i))
+            # print(seg, start_segment)
 
     return laps
 

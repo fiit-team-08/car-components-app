@@ -77,3 +77,4 @@ env.bak/
 venv.bak/
 
 /node_modules/
+/test_data/

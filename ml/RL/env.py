@@ -54,7 +54,7 @@ class CarEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, filename='../data/ref1_v2.csv', type='continuous',
+    def __init__(self, filename='../data/ref1.csv', type='continuous',
                  action_dim=1, verbose=1):
 
         super(CarEnv, self).__init__()
