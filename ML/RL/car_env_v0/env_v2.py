@@ -1,13 +1,11 @@
 # https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html
 import gym
-from Box2D import Box2D
 from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
 from obspy.geodetics import degrees2kilometers
-from ML.RL.bicycle_model import BicycleKinematicModel
-from gym.envs.box2d.car_racing import FrictionDetector
+from ML.RL.car_env_v0.bicycle_model import BicycleKinematicModel
 from gym.envs.classic_control import rendering
 import random
 from ML.RL.utils import find_closest_point
@@ -15,11 +13,13 @@ from ML.RL.utils import find_closest_point
 # 0.01 radians is about 6 degrees
 # +/-0.05 is speed change
 
-ACTIONS = np.array(
-    [[0.0, 0.0], [0.0, 0.05], [0.0, -0.05],
-     [0.01, 0.0], [0.01, 0.05], [0.01, -0.05],
-     [-0.01, 0.0], [-0.01, 0.05], [-0.01, -0.05]]
-)
+# ACTIONS = np.array(
+#     [[0.0, 0.0], [0.0, 0.05], [0.0, -0.05],
+#      [0.01, 0.0], [0.01, 0.05], [0.01, -0.05],
+#      [-0.01, 0.0], [-0.01, 0.05], [-0.01, -0.05]]
+# )
+
+ACTIONS = np.array([[0.0, 0.0], [0.01, 0.0], [-0.01, 0.0]])
 
 WINDOW_W = 1000
 WINDOW_H = 1000
@@ -232,10 +232,10 @@ class CarEnv(gym.Env):
             'action': action
         }
 
-        # v = self.state[3] + action[1]
-        # delta_psi = action[0]
-        v = self.state[3] + ACTIONS[action][1]
-        delta_psi = ACTIONS[action][0]
+        v = self.state[3] + action[1]
+        delta_psi = action[0]
+        # v = self.state[3] + ACTIONS[action][1]
+        # delta_psi = ACTIONS[action][0]
 
         self.bicycle.change_state(velocity=v, steering_rate=delta_psi)
         new_x, new_y, new_psi, new_theta = self.bicycle.get_state()
@@ -256,7 +256,7 @@ class CarEnv(gym.Env):
         reward += self.last_point
         # exponential growth changes the range from 0-5 to 0-25
         # based on the distance from the ref trace
-        reward += ((0.5 - distance) * 10.0) ** 2
+        reward -= ((0.5 - distance) * 10.0) ** 2
 
         if distance > 0.5:
             reward = -100
@@ -289,18 +289,19 @@ class CarEnv(gym.Env):
         """
         Resets the state of the car to the initial state.
         """
-        self.state = self.init_observation
+        self.state = self.state or self.init_observation
         self.bicycle = BicycleKinematicModel(x=self.state[0],
                                              y=self.state[1],
                                              heading_angle=self.state[2],
                                              steering_angle=self.state[4]
                                              )
         self.reward = 0.0
-        self.last_point = None
+        # self.last_point = None
         # assigns points of track
         self.track = self._create_track()
 
-        return self.init_observation
+        # return self.init_observation
+        return self.state
 
     def render(self, mode='human'):
         """
@@ -443,13 +444,13 @@ class CarEnv(gym.Env):
 if __name__ == '__main__':
 
     env = CarEnv()
-    for i_episode in range(10):
+    for i_episode in range(100):
         observation = env.reset()
         for t in range(10000):
             env.render()
-            action = random.randint(0, 8)
+            action = random.randint(0, 2)
             # observation, reward, done, info = env.step(ACTIONS[action])
-            observation, reward, done, info = env.step(action)
+            observation, reward, done, info = env.step(ACTIONS[action])
             print(info)
             if done:
                 print("Episode finished after {} timesteps".format(t + 1))

@@ -1,5 +1,4 @@
 # https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html
-import math
 
 import gym
 from gym import spaces
@@ -7,7 +6,7 @@ import pandas as pd
 import numpy as np
 import shapely.geometry as geom
 from obspy.geodetics import degrees2kilometers
-from ML.RL.bicycle_model import BicycleKinematicModel
+from ML.RL.car_env_v0.bicycle_model import BicycleKinematicModel
 from gym.envs.classic_control import rendering
 
 WINDOW_W = 1000
