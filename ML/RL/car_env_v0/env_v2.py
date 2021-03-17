@@ -8,7 +8,7 @@ from obspy.geodetics import degrees2kilometers
 from ML.RL.car_env_v0.bicycle_model import BicycleKinematicModel
 from gym.envs.classic_control import rendering
 import random
-from ML.RL.utils import find_closest_point
+from ML.RL.car_env_v0.utils import find_closest_point
 
 # 0.01 radians is about 6 degrees
 # +/-0.05 is speed change
