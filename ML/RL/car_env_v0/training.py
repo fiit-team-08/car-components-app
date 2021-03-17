@@ -9,7 +9,7 @@ from tensorflow.keras.optimizers import Adam
 from rl.agents.dqn import DQNAgent
 from rl.policy import BoltzmannQPolicy
 from rl.memory import SequentialMemory
-from ML.RL.env_v2 import CarEnv
+from ML.RL.car_env_v0.env_v2 import CarEnv
 import pickle
 # uncomment this line if you don§'t want to use cuda
 # os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
