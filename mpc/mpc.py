@@ -34,10 +34,10 @@ STOP_SPEED = 0.5 / 3.6  # stop speed
 MAX_TIME = 500.0  # max simulation time
 
 # iterative paramter
-MAX_ITER = 2  # Max iteration
+MAX_ITER = 1  # Max iteration
 DU_TH = 0.1  # iteration finish param
 TARGET_SPEED = 30 / 3.6  # [m/s] target speed
-N_IND_SEARCH = 10  # Search index number
+N_IND_SEARCH = 100  # Search index number
 DT = 0.2  # [s] time tick
 
 # Vehicle parameters
@@ -420,7 +420,7 @@ def do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state):
             plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
             if ox is not None:
                 plt.plot(ox, oy, "xr", label="MPC")
-            plt.plot(loglat, loglon, "-r", label="course")
+            plt.plot(loglon, loglat, "-r", label="course")
             plt.plot(x, y, "-b", label="trajectory")
             plt.plot(xref[0, :], xref[1, :], "xk", label="xref")
             plt.plot(cx[target_ind], cy[target_ind], "xg", label="target")
@@ -435,7 +435,7 @@ def do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state):
             y = [(number * 55) for number in yaw]
             yf = y[0]
             y = [(number - yf) for number in y]
-            plt.plot(t, y, "-b", label="speed")
+            plt.plot(t, convert(y), "-b", label="speed")
             plt.plot(logtime, logcrs, "-r", label="trajectory")
             plt.grid(True)
             plt.xlabel("Time [s]")
@@ -552,21 +552,21 @@ def get_reference(dl):
 
     global firstx
     global firsty
-    firstx = log.LAT[0]
-    firsty = log.LON[0]
+    firstx = log.LON[0]
+    firsty = log.LAT[0]
 
     log.LAT -= log.LAT[0]
     log.LON -= log.LON[0]
-    ax = log.LAT
-    ay = log.LON
+    ax = log.LON
+    ay = log.LAT
 
     cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(ax, ay, ds=dl)
     return cx, cy, cyaw, ck
 
 
 def main():
-    print(find_out_difference(pd.read_csv('log-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
-    print(find_out_difference(pd.read_csv('lap-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
+    #print(find_out_difference(pd.read_csv('log-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
+    #print(find_out_difference(pd.read_csv('lap-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
 
     if reference:
         log = log_to_dataFrame("log.csv")
@@ -581,8 +581,8 @@ def main():
 
     log.LAT = log.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
     log.LON = log.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
-    log.LAT -= firstx
-    log.LON -= firsty
+    log.LON -= firstx
+    log.LAT -= firsty
 
     global loglat
     global loglon
