@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import math
+import cv2
 
 
 WGS84 = (6378137, 298.257223563)
@@ -53,3 +54,17 @@ def find_closest_point(x1: float, y1: float, track: pd.DataFrame,
             min_dist = dist
 
     return min_index
+
+
+def process_state_image(state: np.array) -> np.array:
+    state = cv2.cvtColor(state, cv2.COLOR_BGR2GRAY)
+    state = state.astype(float)
+    state /= 255.0
+    return state
+
+
+def generate_state_frame_stack_from_queue(deque) -> np.array:
+    frame_stack = np.array(deque)
+    # move stack dimension to the channel dimension
+    # (stack, x, y) -> (x, y, stack)
+    return np.transpose(frame_stack, (1, 2, 0))

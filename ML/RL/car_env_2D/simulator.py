@@ -48,6 +48,7 @@ class Simulator:
         self.x += x_dot * self.dt
         self.y += y_dot * self.dt
         self.heading_angle += theta_dot * self.dt
-        self.steering_angle += delta_dot * self.dt
+        # self.steering_angle += delta_dot * self.dt
+        self.steering_angle += delta_dot
 
         return self.x, self.y, self.heading_angle, self.steering_angle

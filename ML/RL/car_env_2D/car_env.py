@@ -7,17 +7,21 @@ import pandas as pd
 import geopandas as gpd
 from gym import Env, spaces
 from shapely.geometry import Polygon, Point
-from ML.RL.car_env_2D.simulator import Simulator
-from ML.RL.car_env_2D.utils import geodetic_to_geocentric
-from ML.RL.car_env_2D.utils import find_closest_point
+from simulator import Simulator
+from utils import geodetic_to_geocentric
+from utils import find_closest_point
 from PIL import Image, ImageDraw
 import random
+import matplotlib.pyplot as plt
+import imageio
+from io import BytesIO
+
 
 WINDOW_W = 1200
 WINDOW_H = 1200
 STATE_W = 96
 STATE_H = 96
-COLOR_GRASS = (65, 152, 10)
+COLOR_GRASS = (102, 204, 102)
 COLOR_TRACK = (102, 102, 102)
 BLACK_MARGIN_SIZE = 50
 GRASS_MARGIN_SIZE = 50
@@ -69,7 +73,7 @@ class CarEnv(Env):
     """
 
     def __init__(self, type='continuous', action_dim=2, actions=None,
-                 tolerance=2.0, filename='../../data/ref1.csv'):
+                 tolerance=1.0, filename='../../data/ref1.csv'):
         self.type = type
         self.action_dim = action_dim
         self.tolerance = tolerance      # meters
@@ -107,7 +111,7 @@ class CarEnv(Env):
         self.init_x = self.df['X'][0]
         self.init_y = self.df['Y'][0]
         self.init_theta = self._get_init_theta()
-        self.init_v = 2.0
+        self.init_v = 3.0
         self.init_psi = 0.0
         # position contains real world values not transformed to WINDOW range
         self.init_position = np.array([self.init_x, self.init_y,
@@ -126,9 +130,15 @@ class CarEnv(Env):
         self.full_window = self._get_full_window()
         self.init_state = self._get_state()
         self.reward = 0.0
+        self.prev_reward = 0.0
         self.last_point = None
         self.state = None
         self.simulator = None
+        # TODO:after real visualization remove gif renderer
+        # start of pseudo rendering
+        self.gif_images = list()
+        self.episode = 1
+        # end of pseudo rendering
 
     @staticmethod
     def _read_df(filename):
@@ -281,25 +291,34 @@ class CarEnv(Env):
         distance = self.track.boundary.distance(new_point)[0]
         closest_point = find_closest_point(new_x, new_y, self.df,
                                            self.last_point)
-        self.last_point = closest_point
 
         self.reward -= 0.1
-        reward = self.reward
-        reward += self.last_point
+        reward = self.reward - self.prev_reward
+        reward += closest_point
 
         # based on the distance from the ref. trace
         if self.tolerance < 1.:
-            reward -= ((self.tolerance - distance) * 10.0) ** 2
+            reward -= distance
+            # reward -= distance * 10
+            # reward += ((self.tolerance - distance) * 10.0) ** 2
         else:
-            reward -= (self.tolerance - distance) ** 2
+            reward -= distance
+            # reward += (self.tolerance - distance) ** 2
 
         if distance > self.tolerance:
             reward = -100
             done = True
 
-        # check if the car reached the last point of the track
-        elif self.last_point == self.df.shape[0] - 1:
+        elif closest_point - self.last_point > 100.:
+            reward = -100
             done = True
+
+        # check if the car reached the last point of the track
+        elif closest_point == self.df.shape[0] - 1:
+            done = True
+
+        self.last_point = closest_point
+        self.prev_reward = reward
 
         # update info (include previous state, new state and reward)
         info['velocity'] = new_v
@@ -347,15 +366,33 @@ class CarEnv(Env):
         self.simulator = Simulator(self.init_x, self.init_y,
                                    self.init_theta, self.init_psi)
         self.reward = 0.0
+        self.prev_reward = 0.0
         self.last_point = 0
+
+        # start of pseudo rendering
+        if self.gif_images:
+            imageio.mimsave('episode{}.gif'.format(self.episode),
+                            self.gif_images, fps=8)
+            self.episode += 1
+            self.gif_images = list()
+        # end of pseudo rendering
 
         return self.state
 
     def render(self, mode='human'):
-        pass
+        # start of pseudo rendering
+        file_path = 'image.png'
+
+        img = Image.fromarray(self.state)
+        img.save(file_path, 'png')
+        self.gif_images.append(imageio.imread(file_path))
+        # end of pseudo rendering
 
     def close(self):
-        pass
+        # start of pseudo rendering
+        imageio.mimsave('episode{}.gif'.format(self.episode),
+                        self.gif_images, fps=16)
+        # end of pseudo rendering
 
 
 if __name__ == '__main__':
@@ -363,7 +400,7 @@ if __name__ == '__main__':
     for i_episode in range(10):
         env.reset()
         for t in range(10000):
-            # env.render()
+            env.render()
             action_i = random.randrange(env.actions.shape[0])
             action = env.actions[action_i]
             observation, reward, done, info = env.step(action)
