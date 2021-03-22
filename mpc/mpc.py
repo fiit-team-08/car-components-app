@@ -1,28 +1,20 @@
-"""
-
-Path tracking simulation with iterative linear model predictive control for speed and steer control
-
-author: Atsushi Sakai (@Atsushi_twi)
-
-"""
-import matplotlib.pyplot as plt
-import cvxpy
 import math
+import cvxpy
 import numpy as np
 import pandas as pd
-from pyproj import Transformer
+from numpy import zeros
 import cubic_spline_planner
-from datetime import datetime, date
-from numpy import array, zeros
+import matplotlib.pyplot as plt
+from analysis.log_file_analyzer import *
 from similaritymeasures import curve_length_measure, frechet_dist
 
 reference = True
 lap = False
-crs = False
 xy = True
+crs = False
 
-logcrs = pd.DataFrame()
 logtime = pd.DataFrame()
+logcrs = pd.DataFrame()
 loglat = pd.DataFrame()
 loglon = pd.DataFrame()
 firstx = 0
@@ -37,18 +29,15 @@ R = np.diag([0.01, 0.01])  # input cost matrix
 Rd = np.diag([0.01, 1.0])  # input difference cost matrix
 Q = np.diag([1.0, 1.0, 0.5, 0.5])  # state cost matrix
 Qf = Q  # state final matrix
-GOAL_DIS = 200  # goal distance
+GOAL_DIS = 100  # goal distance
 STOP_SPEED = 0.5 / 3.6  # stop speed
 MAX_TIME = 500.0  # max simulation time
 
 # iterative paramter
-MAX_ITER = 3  # Max iteration
+MAX_ITER = 2  # Max iteration
 DU_TH = 0.1  # iteration finish param
-
-TARGET_SPEED = 33 / 3.6  # [m/s] target speed
-#TARGET_SPEED = 40 / 3.6  # [m/s] target speed
+TARGET_SPEED = 30 / 3.6  # [m/s] target speed
 N_IND_SEARCH = 10  # Search index number
-
 DT = 0.2  # [s] time tick
 
 # Vehicle parameters
@@ -64,14 +53,7 @@ MAX_STEER = np.deg2rad(30.0)  # maximum steering angle [rad]
 MAX_DSTEER = np.deg2rad(10.0)  # maximum steering speed [rad/s]
 MAX_SPEED = 40.0 / 3.6  # maximum speed [m/s]
 MIN_SPEED = -1.0 / 3.6  # minimum speed [m/s]
-#MAX_SPEED = 60.0 / 3.6  # maximum speed [m/s]
-#MIN_SPEED = -60.0 / 3.6  # minimum speed [m/s]
 MAX_ACCEL = 1.0  # maximum accel [m/ss]
-
-show_animation = False
-show_animation2 = False
-show_animation3 = False
-show_animation4 = False
 
 
 class State:
@@ -98,7 +80,6 @@ def pi_2_pi(angle):
 
 
 def get_linear_model_matrix(v, phi, delta):
-
     A = np.zeros((NX, NX))
     A[0, 0] = 1.0
     A[1, 1] = 1.0
@@ -137,10 +118,8 @@ def plot_car(x, y, yaw, steer=0.0, cabcolor="-r", truckcolor="-k"):  # pragma: n
     rl_wheel = np.copy(rr_wheel)
     rl_wheel[1, :] *= -1
 
-    Rot1 = np.array([[math.cos(yaw), math.sin(yaw)],
-                     [-math.sin(yaw), math.cos(yaw)]])
-    Rot2 = np.array([[math.cos(steer), math.sin(steer)],
-                     [-math.sin(steer), math.cos(steer)]])
+    Rot1 = np.array([[math.cos(yaw), math.sin(yaw)], [-math.sin(yaw), math.cos(yaw)]])
+    Rot2 = np.array([[math.cos(steer), math.sin(steer)], [-math.sin(steer), math.cos(steer)]])
 
     fr_wheel = (fr_wheel.T.dot(Rot2)).T
     fl_wheel = (fl_wheel.T.dot(Rot2)).T
@@ -165,16 +144,11 @@ def plot_car(x, y, yaw, steer=0.0, cabcolor="-r", truckcolor="-k"):  # pragma: n
     rl_wheel[0, :] += x
     rl_wheel[1, :] += y
 
-    plt.plot(np.array(outline[0, :]).flatten(),
-             np.array(outline[1, :]).flatten(), truckcolor)
-    plt.plot(np.array(fr_wheel[0, :]).flatten(),
-             np.array(fr_wheel[1, :]).flatten(), truckcolor)
-    plt.plot(np.array(rr_wheel[0, :]).flatten(),
-             np.array(rr_wheel[1, :]).flatten(), truckcolor)
-    plt.plot(np.array(fl_wheel[0, :]).flatten(),
-             np.array(fl_wheel[1, :]).flatten(), truckcolor)
-    plt.plot(np.array(rl_wheel[0, :]).flatten(),
-             np.array(rl_wheel[1, :]).flatten(), truckcolor)
+    plt.plot(np.array(outline[0, :]).flatten(), np.array(outline[1, :]).flatten(), truckcolor)
+    plt.plot(np.array(fr_wheel[0, :]).flatten(), np.array(fr_wheel[1, :]).flatten(), truckcolor)
+    plt.plot(np.array(rr_wheel[0, :]).flatten(), np.array(rr_wheel[1, :]).flatten(), truckcolor)
+    plt.plot(np.array(fl_wheel[0, :]).flatten(), np.array(fl_wheel[1, :]).flatten(), truckcolor)
+    plt.plot(np.array(rl_wheel[0, :]).flatten(), np.array(rl_wheel[1, :]).flatten(), truckcolor)
     plt.plot(x, y, "*")
 
 
@@ -258,8 +232,6 @@ def iterative_linear_mpc_control(xref, x0, dref, oa, od):
         du = sum(abs(oa - poa)) + sum(abs(od - pod))  # calc u change value
         if du <= DU_TH:
             break
-    else:
-        print("Iterative is max iter")
 
     return oa, od, ox, oy, oyaw, ov
 
@@ -443,29 +415,9 @@ def do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state):
             print("Goal")
             break
 
-        if show_animation:
-            plt.cla()
-            # for stopping simulation with the esc key.
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                    lambda event: [exit(0) if event.key == 'escape' else None])
-            if ox is not None:
-                plt.plot(ox, oy, "xr", label="MPC")
-            plt.plot(cx, cy, "-r", label="course")
-            plt.plot(x, y, "ob", label="trajectory")
-            plt.plot(xref[0, :], xref[1, :], "xk", label="xref")
-            plt.plot(cx[target_ind], cy[target_ind], "xg", label="target")
-            plot_car(state.x, state.y, state.yaw, steer=di)
-            plt.axis("equal")
-            plt.grid(True)
-            plt.title("Time[s]:" + str(round(time, 2))
-                      + ", speed[km/h]:" + str(round(state.v * 3.6, 2)))
-            plt.pause(0.0001)
-
         if xy:
             plt.cla()
-            # for stopping simulation with the esc key.
-            plt.gcf().canvas.mpl_connect('key_release_event',
-                    lambda event: [exit(0) if event.key == 'escape' else None])
+            plt.gcf().canvas.mpl_connect('key_release_event', lambda event: [exit(0) if event.key == 'escape' else None])
             if ox is not None:
                 plt.plot(ox, oy, "xr", label="MPC")
             plt.plot(loglat, loglon, "-r", label="course")
@@ -475,14 +427,15 @@ def do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state):
             plot_car(state.x, state.y, state.yaw, steer=di)
             plt.axis("equal")
             plt.grid(True)
-            plt.title("Time[s]:" + str(round(time, 2))
-                      + ", speed[km/h]:" + str(round(state.v * 3.6, 2)))
+            plt.title("Time[s]:" + str(round(time, 2)) + ", speed[km/h]:" + str(round(state.v * 3.6, 2)))
             plt.pause(0.0001)
 
         if crs:
             plt.cla()
-            y = [(number - 1.1) for number in yaw]
-            plt.plot(t, convert(y), "-b", label="speed")
+            y = [(number * 55) for number in yaw]
+            yf = y[0]
+            y = [(number - yf) for number in y]
+            plt.plot(t, y, "-b", label="speed")
             plt.plot(logtime, logcrs, "-r", label="trajectory")
             plt.grid(True)
             plt.xlabel("Time [s]")
@@ -522,7 +475,6 @@ def calc_speed_profile(cx, cy, cyaw, target_speed):
 
 
 def smooth_yaw(yaw):
-
     for i in range(len(yaw) - 1):
         dyaw = yaw[i + 1] - yaw[i]
 
@@ -535,58 +487,6 @@ def smooth_yaw(yaw):
             dyaw = yaw[i + 1] - yaw[i]
 
     return yaw
-
-
-def convert(lst):
-    return [-i for i in lst]
-
-
-def get_reference(dl):
-    log = pd.read_csv("log.csv", header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC', '17', 'NXPT'])
-    log = log.drop(columns=['0', '1', '3', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', '13', '15', 'HACC', '17', 'NXPT'])
-    log = log.dropna()
-    log.LAT = log.LAT/10000000
-    log.LON = log.LON/10000000
-    log.GSPEED = log.GSPEED*0.036
-    log.CRS = log.CRS/100000
-    transformer = Transformer.from_crs("epsg:4326", "epsg:8353")
-    ay, ax = transformer.transform(log.LON, log.LAT)
-    abs(ay)
-    abs(ax)
-    #ay = ay/1.25
-    #ax = ax/1.5
-    global firstx
-    firstx = ay[0]
-    global firsty
-    firsty = ax[0]
-    ay = ay - ay[0]
-    ax = ax - ax[0]
-    cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(
-        ax, ay, ds=dl)
-
-    return cx, cy, cyaw, ck
-
-
-def get_lap(dl):
-    log = pd.read_csv("lap.csv", header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC', '17', 'NXPT'])
-    log = log.drop(columns=['0', '1', '3', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', '13', '15', 'HACC', '17', 'NXPT'])
-    log = log.dropna()
-    log.LAT = log.LAT/10000000
-    log.LON = log.LON/10000000
-    log.GSPEED = log.GSPEED*0.036
-    log.CRS = log.CRS/100000
-    transformer = Transformer.from_crs("epsg:4326", "epsg:8353")
-    ay, ax = transformer.transform(log.LON, log.LAT)
-    abs(ay)
-    abs(ax)
-    #ay = ay/1.25
-    #ax = ax/1.5
-    ay = ay - ay[0]
-    ax = ax - ax[0]
-    cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(
-        ax, ay, ds=dl)
-
-    return cx, cy, cyaw, ck
 
 
 def create_curve(dataframe):
@@ -619,9 +519,7 @@ def find_out_difference(ref_lap, laps):
     measurement_column = 'Measurements count'
     frechet_column = 'Frechet distance'
     curve_len_column = 'Curve length measure'
-    data_structure = {measurement_column: [],
-                      frechet_column: [],
-                      curve_len_column: []}
+    data_structure = {measurement_column: [], frechet_column: [], curve_len_column: []}
 
     differences_df = pd.DataFrame(data=data_structure)
 
@@ -640,49 +538,59 @@ def find_out_difference(ref_lap, laps):
     return differences_df
 
 
+def convert(lst):
+    return [-i for i in lst]
+
+
+def get_reference(dl):
+    log = log_to_dataFrame("log.csv")
+    log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
+    normalize_logs(log)
+
+    log.LAT = log.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    log.LON = log.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+
+    global firstx
+    global firsty
+    firstx = log.LAT[0]
+    firsty = log.LON[0]
+
+    log.LAT -= log.LAT[0]
+    log.LON -= log.LON[0]
+    ax = log.LAT
+    ay = log.LON
+
+    cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(ax, ay, ds=dl)
+    return cx, cy, cyaw, ck
+
+
 def main():
     print(find_out_difference(pd.read_csv('log-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
-
     print(find_out_difference(pd.read_csv('lap-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
 
     if reference:
-        log = pd.read_csv("log.csv", header=None, sep=';',
-                          names=['time', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', 'GSPEED',
-                                 '13', 'CRS', '15', 'HACC', '17', 'NXPT'])
+        log = log_to_dataFrame("log.csv")
     if lap:
-        log = pd.read_csv("lap.csv", header=None, sep=';',
-                          names=['time', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', 'GSPEED',
-                                 '13', 'CRS', '15', 'HACC', '17', 'NXPT'])
+        log = log_to_dataFrame("lap.csv")
 
-    log = log.drop(
-        columns=['1', '3', '5', 'UTMX', '7', 'UTMY', '9', 'HMSL', '11', '13', '15', 'HACC', '17', 'NXPT'])
-    log = log.dropna()
-    log.time = log.time.apply(lambda x: x.split(' ')[1])
-    log.LAT = log.LAT / 10000000
-    log.LON = log.LON / 10000000
-    log.GSPEED = log.GSPEED * 0.036
-    log.CRS = log.CRS / 100000
+    log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
+    normalize_logs(log)
 
-    transformer = Transformer.from_crs("epsg:4326", "epsg:8353")
-    ay, ax = transformer.transform(log.LON, log.LAT)
-    abs(ay)
-    abs(ax)
-    ay = ay - ay[0]
-    ax = ax - ax[0]
+    dl = 1.0
+    cx, cy, cyaw, ck = get_reference(dl)
+
+    log.LAT = log.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    log.LON = log.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    log.LAT -= firstx
+    log.LON -= firsty
+
     global loglat
-    loglat = ax
     global loglon
-    loglon = ay
-    log.LAT = ax
-    log.LON = ay
+    loglat = log.LAT
+    loglon = log.LON
 
-    log.time = pd.to_datetime(log.time, format='%H:%M:%S,%f').dt.time
     minus = False
-    t = log.time[0]
-    pd.options.mode.chained_assignment = None
     for i in range(log.CRS.size - 1):
-        log.time[i] = datetime.combine(date.today(), log.time[i]) - datetime.combine(date.today(), t)
-        log.time[i] = log.time[i].total_seconds()
         if (log.CRS[i] - log.CRS[i+1]) > 300:
             minus = False
             temp = log.CRS[i]
@@ -692,57 +600,23 @@ def main():
             log.CRS[i] = -abs(360 - temp)
         if (log.CRS[i+1] - log.CRS[i]) > 300:
             minus = True
-
     log.drop(log.tail(1).index, inplace=True)
+    log.CRS -= log.CRS[0]
+
     global logcrs
-    logcrs = log.CRS / 55
     global logtime
-    logtime = log.time
-    log.CRS = log.CRS / 55
+    logcrs = log.CRS
+    logtime = log.TIME
     log.to_csv('l.csv', index=False)
 
-    dl = 1.0
-    cx, cy, cyaw, ck = get_reference(dl)
-
     sp = calc_speed_profile(cx, cy, cyaw, TARGET_SPEED)
-
     initial_state = State(x=cx[0], y=cy[0], yaw=cyaw[0], v=0.0)
-
-    t, x, y, yaw, v, d, a = do_simulation(
-        cx, cy, cyaw, ck, sp, dl, initial_state)
+    t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
 
     y = [(number - 1.1) for number in yaw]
-    d = {'time': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'acceleration': a, 'CRS': convert(y)}
+    d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
     df = pd.DataFrame(data=d)
     df.to_csv('out.csv', index=False)
-
-    if show_animation2:
-        plt.close("all")
-        plt.subplots()
-        plt.plot(cx, cy, "-r", label="spline")
-        plt.plot(x, y, "-g", label="tracking")
-        plt.grid(True)
-        plt.axis("equal")
-        plt.xlabel("x[m]")
-        plt.ylabel("y[m]")
-        plt.legend()
-        plt.show()
-
-    if show_animation3:
-        plt.subplots()
-        plt.plot(t, yaw, "-r", label="speed")
-        plt.grid(True)
-        plt.xlabel("Time [s]")
-        plt.ylabel("Speed [kmh]")
-        plt.show()
-
-    if show_animation4:
-        plt.subplots()
-        plt.plot(t, yaw, "-r", label="speed")
-        plt.grid(True)
-        plt.xlabel("Time [s]")
-        plt.ylabel("yaw ")
-        plt.show()
 
 
 if __name__ == '__main__':

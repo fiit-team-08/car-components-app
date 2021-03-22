@@ -4,6 +4,7 @@ import numpy as np
 import math
 from scipy.spatial import distance
 import json
+from datetime import datetime, date
 from analysis.lap_difference_analyzer import *
 
 
@@ -27,11 +28,11 @@ def log_to_dataFrame(file_path):
         A dataframe with all the logs.
     """
 
-    logs = pd.read_csv(file_path, header=None, sep=';', names=['0', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
+    logs = pd.read_csv(file_path, header=None, sep=';', names=['TIME', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
                                                                '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC',
                                                                '17', 'NXPT'])
 
-    logs = logs.drop(columns=['0', '1', '3', '5', '7', '9', '11', '13', '15', '17'])
+    logs = logs.drop(columns=['1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()
     return logs
 
@@ -73,6 +74,10 @@ def normalize_logs(logs):
             logs : DataFrame
                 A dataframe with logs of a ride.
     """
+    logs['TIME'] = logs['TIME'].apply(lambda x: x.split(' ')[1])
+    logs['TIME'] = pd.to_datetime(logs['TIME'], format='%H:%M:%S,%f').dt.time
+    logs['TIME'] = logs['TIME'].apply(lambda x: datetime.combine(date.today(), x) - datetime.combine(date.today(), logs['TIME'][0]))
+    logs['TIME'] = logs['TIME'].apply(lambda x: x.total_seconds())
 
     logs['LAT'] = logs['LAT'].apply(lambda x: x * 0.0000001)
     logs['LON'] = logs['LON'].apply(lambda x: x * 0.0000001)
