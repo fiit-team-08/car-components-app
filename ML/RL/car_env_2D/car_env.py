@@ -12,22 +12,24 @@ from utils import geodetic_to_geocentric
 from utils import find_closest_point
 from PIL import Image, ImageDraw
 import random
-import matplotlib.pyplot as plt
 import imageio
-from io import BytesIO
 
 
-WINDOW_W = 1200
-WINDOW_H = 1200
+WINDOW_W = 2000
+WINDOW_H = 2000
 STATE_W = 96
 STATE_H = 96
 COLOR_GRASS = (102, 204, 102)
 COLOR_TRACK = (102, 102, 102)
+COLOR_WINDOW = (114, 164, 212)
+COLOR_CAR = (255, 50, 0)
 BLACK_MARGIN_SIZE = 50
 GRASS_MARGIN_SIZE = 50
 CAR_FRONT_DIST = 3.  # meters
 CAR_BACK_DIST = 1.  # meters
 CAR_CORNER_DIST = 1.  # meters
+TIRE_WIDTH = 0.4  # meters
+WINDOW_CORNER_DIST = 0.65 # meters
 
 
 class CarEnv(Env):
@@ -76,7 +78,7 @@ class CarEnv(Env):
                  tolerance=1.0, filename='../../data/ref1.csv'):
         self.type = type
         self.action_dim = action_dim
-        self.tolerance = tolerance      # meters
+        self.tolerance = tolerance  # meters
 
         self.df = self._read_df(filename)
         self.track = self._create_track()
@@ -231,7 +233,7 @@ class CarEnv(Env):
         return window
 
     # car coordinates for drawing of the state
-    def _get_car_coords(self):
+    def _get_car_coords(self, original=False):
         x = self.position[0]
         y = self.position[1]
         theta = self.position[2]
@@ -241,17 +243,144 @@ class CarEnv(Env):
         back_x = x - CAR_BACK_DIST * np.cos(theta)
         back_y = y - CAR_BACK_DIST * np.sin(theta)
 
-        left_front_x = self._new_x(front_x + CAR_CORNER_DIST * np.sin(theta))
-        left_front_y = self._new_y(front_y - CAR_CORNER_DIST * np.cos(theta))
-        right_front_x = self._new_x(front_x - CAR_CORNER_DIST * np.sin(theta))
-        right_front_y = self._new_y(front_y + CAR_CORNER_DIST * np.cos(theta))
-        left_back_x = self._new_x(back_x - CAR_CORNER_DIST * np.sin(theta))
-        left_back_y = self._new_y(back_y + CAR_CORNER_DIST * np.cos(theta))
-        right_back_x = self._new_x(back_x + CAR_CORNER_DIST * np.sin(theta))
-        right_back_y = self._new_y(back_y - CAR_CORNER_DIST * np.cos(theta))
+        right_front_x = front_x + CAR_CORNER_DIST * np.sin(theta)
+        right_front_y = front_y - CAR_CORNER_DIST * np.cos(theta)
+        left_front_x = front_x - CAR_CORNER_DIST * np.sin(theta)
+        left_front_y = front_y + CAR_CORNER_DIST * np.cos(theta)
+        left_back_x = back_x - CAR_CORNER_DIST * np.sin(theta)
+        left_back_y = back_y + CAR_CORNER_DIST * np.cos(theta)
+        right_back_x = back_x + CAR_CORNER_DIST * np.sin(theta)
+        right_back_y = back_y - CAR_CORNER_DIST * np.cos(theta)
 
-        return [(left_front_x, left_front_y), (right_front_x, right_front_y),
-                (left_back_x, left_back_y), (right_back_x, right_back_y)]
+        if original:
+            return [
+                (left_front_x, left_front_y), (right_front_x, right_front_y),
+                (right_back_x, right_back_y), (left_back_x, left_back_y)
+            ]
+        else:
+            return [
+                (self._new_x(left_front_x), self._new_y(left_front_y)),
+                (self._new_x(right_front_x), self._new_y(right_front_y)),
+                (self._new_x(right_back_x), self._new_y(right_back_y)),
+                (self._new_x(left_back_x), self._new_y(left_back_y))
+            ]
+
+    def _get_tire_coords(self):
+        theta = self.position[2]
+        delta = theta + self.position[4]
+        car_coords = self._get_car_coords(original=True)
+        car = {
+            'left_front': car_coords[0],
+            'right_front': car_coords[1],
+            'right_back': car_coords[2],
+            'left_back': car_coords[3]
+        }
+
+        tires = list()
+        pos_and_angle = list()
+
+        # left front tire
+        x = (car['left_back'][0]
+             + (car['left_front'][0] - car['left_back'][0]) * 0.75)
+        y = (car['left_back'][1]
+             + (car['left_front'][1] - car['left_back'][1]) * 0.75)
+        pos_and_angle.append({'x': x, 'y': y, 'angle': delta})
+
+        # right front tire
+        x = (car['right_back'][0]
+             + (car['right_front'][0] - car['right_back'][0]) * 0.75)
+        y = (car['right_back'][1]
+             + (car['right_front'][1] - car['right_back'][1]) * 0.75)
+        pos_and_angle.append({'x': x, 'y': y, 'angle': delta})
+
+        # right back tire
+        x = (car['right_back'][0]
+             + (car['right_front'][0] - car['right_back'][0]) * 0.25)
+        y = (car['right_back'][1]
+             + (car['right_front'][1] - car['right_back'][1]) * 0.25)
+        pos_and_angle.append({'x': x, 'y': y, 'angle': theta})
+
+        # left back tire
+        x = (car['left_back'][0]
+             + (car['left_front'][0] - car['left_back'][0]) * 0.25)
+        y = (car['left_back'][1]
+             + (car['left_front'][1] - car['left_back'][1]) * 0.25)
+        pos_and_angle.append({'x': x, 'y': y, 'angle': theta})
+
+        for tire in pos_and_angle:
+            front_x = tire['x'] + 0.5 * np.cos(tire['angle'])
+            front_y = tire['y'] + 0.5 * np.sin(tire['angle'])
+            back_x = tire['x'] - 0.5 * np.cos(tire['angle'])
+            back_y = tire['y'] - 0.5 * np.sin(tire['angle'])
+
+            right_front_x = self._new_x(
+                front_x + (TIRE_WIDTH / 2) * np.sin(tire['angle']))
+            right_front_y = self._new_y(
+                front_y - (TIRE_WIDTH / 2) * np.cos(tire['angle']))
+            left_front_x = self._new_x(
+                front_x - (TIRE_WIDTH / 2) * np.sin(tire['angle']))
+            left_front_y = self._new_y(
+                front_y + (TIRE_WIDTH / 2) * np.cos(tire['angle']))
+            left_back_x = self._new_x(
+                back_x - (TIRE_WIDTH / 2) * np.sin(tire['angle']))
+            left_back_y = self._new_y(
+                back_y + (TIRE_WIDTH / 2) * np.cos(tire['angle']))
+            right_back_x = self._new_x(
+                back_x + (TIRE_WIDTH / 2) * np.sin(tire['angle']))
+            right_back_y = self._new_y(
+                back_y - (TIRE_WIDTH / 2) * np.cos(tire['angle']))
+
+            tires.append(
+                [(left_front_x, left_front_y), (right_front_x, right_front_y),
+                 (right_back_x, right_back_y), (left_back_x, left_back_y)]
+            )
+
+        return tires
+
+    def _get_car_windows_coords(self):
+        x = self.position[0]
+        y = self.position[1]
+        theta = self.position[2]
+
+        windows = list()
+        positions = list()
+
+        front_x = x + 1.8 * np.cos(theta)
+        front_y = y + 1.8 * np.sin(theta)
+        back_x = x + 1. * np.cos(theta)
+        back_y = y + 1. * np.sin(theta)
+        positions.append([front_x, front_y, back_x, back_y])
+
+        front_x = x
+        front_y = y
+        back_x = x - 0.3 * np.cos(theta)
+        back_y = y - 0.3 * np.sin(theta)
+        positions.append([front_x, front_y, back_x, back_y])
+
+        for pos in positions:
+            right_front_x = self._new_x(
+                pos[0] + WINDOW_CORNER_DIST * np.sin(theta))
+            right_front_y = self._new_y(
+                pos[1] - WINDOW_CORNER_DIST * np.cos(theta))
+            left_front_x = self._new_x(
+                pos[0] - WINDOW_CORNER_DIST * np.sin(theta))
+            left_front_y = self._new_y(
+                pos[1] + WINDOW_CORNER_DIST * np.cos(theta))
+            left_back_x = self._new_x(
+                pos[2] - WINDOW_CORNER_DIST * np.sin(theta))
+            left_back_y = self._new_y(
+                pos[3] + WINDOW_CORNER_DIST * np.cos(theta))
+            right_back_x = self._new_x(
+                pos[2] + WINDOW_CORNER_DIST * np.sin(theta))
+            right_back_y = self._new_y(
+                pos[3] - WINDOW_CORNER_DIST * np.cos(theta))
+
+            windows.append([
+                (left_front_x, left_front_y), (right_front_x, right_front_y),
+                (right_back_x, right_back_y), (left_back_x, left_back_y)
+            ])
+
+        return windows
 
     def step(self, action):
         # action = [delta_steering_angle, delta_velocity]
@@ -282,7 +411,7 @@ class CarEnv(Env):
         }
 
         new_v = self.position[3] + action[1]
-        delta_psi = action[0]
+        delta_psi = -action[0]
         new_x, new_y, new_theta, new_psi = self.simulator.change_state(
             velocity=new_v, steering_rate=delta_psi
         )
@@ -336,13 +465,19 @@ class CarEnv(Env):
     # get image of the state according to the new position of the car
     def _get_state(self):
         car_coords = self._get_car_coords()
+        tires = self._get_tire_coords()
+        car_windows = self._get_car_windows_coords()
 
         # load large window
         img = Image.fromarray(self.full_window)
         draw = ImageDraw.Draw(img)
-        draw.polygon(car_coords, fill='red', outline='red')
-
         # draw car
+        draw.polygon(car_coords, fill=COLOR_CAR, outline=COLOR_CAR)
+        for window in car_windows:
+            draw.polygon(window, fill=COLOR_WINDOW, outline=COLOR_WINDOW)
+        for tire in tires:
+            draw.polygon(tire, fill='black', outline='black')
+
         car_x = round(self._new_x(self.position[0]))
         car_y = round(self._new_y(self.position[1]))
         min_x = car_x - (STATE_W // 2)
@@ -390,8 +525,9 @@ class CarEnv(Env):
 
     def close(self):
         # start of pseudo rendering
-        imageio.mimsave('episode{}.gif'.format(self.episode),
-                        self.gif_images, fps=16)
+        if self.gif_images:
+            imageio.mimsave('episode{}.gif'.format(self.episode),
+                            self.gif_images, fps=16)
         # end of pseudo rendering
 
 
@@ -399,7 +535,7 @@ if __name__ == '__main__':
     env = CarEnv()
     for i_episode in range(10):
         env.reset()
-        for t in range(10000):
+        for t in range(1000):
             env.render()
             action_i = random.randrange(env.actions.shape[0])
             action = env.actions[action_i]
