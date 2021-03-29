@@ -556,6 +556,9 @@ def convert(lst):
 
 
 def get_reference(dl, path):
+    """
+        vytvorenie trasy pri trenovani MPC
+    """
     log = log_to_dataFrame(path)
     log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
     normalize_logs(log)
@@ -602,6 +605,9 @@ def get_reference(dl, path):
 
 
 def get_reference_data(path):
+    """
+        vytvorenie referencenej trasy pre graf, vracia dataframe s x,y suradnicami a crs
+    """
     log = log_to_dataFrame(path)
     log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
     normalize_logs(log)
@@ -643,6 +649,9 @@ def get_reference_data(path):
 
 
 def mpc(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer):
+    """
+        nastavenie parametrov z gui, vsetko musi byt float
+    """
     global LENGTH
     LENGTH = float(length)
     global WIDTH
@@ -665,10 +674,13 @@ def mpc(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, ma
     MAX_ACCEL = float(max_accel)
     global MAX_DSTEER
     MAX_DSTEER = np.deg2rad(float(max_dsteer))
-    return mains(path)
+    return main(path)
 
 
-def mains(path):
+def main(path):
+    """
+        spustenie MPC, vrati dataframe s x,y suradnicami casom a crs
+    """
     dl = 1.0
     cx, cy, cyaw, ck = get_reference(dl, path)
 
@@ -680,23 +692,6 @@ def mains(path):
     yf = y[0]
     y = [(number - yf) for number in y]
     #d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
-    d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
-    df = pd.DataFrame(data=d)
-    #df.to_csv('out.csv', index=False)
-    return df
-
-
-def main():
-    dl = 1.0
-    cx, cy, cyaw, ck = get_reference(dl, "log.csv")
-
-    sp = calc_speed_profile(cx, cy, cyaw, TARGET_SPEED)
-    initial_state = State(x=cx[0], y=cy[0], yaw=cyaw[0], v=0.0)
-    t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
-
-    y = [(number - 1.1) for number in globalyaw]
-    #d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
-    l = len(cx)
     d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
     df = pd.DataFrame(data=d)
     #df.to_csv('out.csv', index=False)

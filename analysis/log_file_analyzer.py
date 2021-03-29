@@ -7,22 +7,21 @@ import json
 from datetime import datetime, date
 from analysis.lap_difference_analyzer import *
 
+firstx = 0
+firsty = 0
 
 def log_to_dataFrame(file_path):
     """
         Converts a log file of a ride to a Pandas dataframe.
-
         Parameters
         --------
             file_path : str
                 A path to a log file.
-
         Example of a log file
         --------
             2020-06-29 13:06:24,595 - INFO - ;LAT;480492306;LON;175678507;UTMX;69136106;UTMY;532496222;HMSL;126112;GSPEED;0;CRS;0;HACC;66720;NXPT;1139
             2020-06-29 13:06:24,648 - INFO - ;LAT;480492313;LON;175678494;UTMX;69136096;UTMY;532496230;HMSL;126121;GSPEED;4;CRS;0;HACC;52510;NXPT;1139
             2020-06-29 13:06:24,698 - INFO - ;LAT;480492305;LON;175678495;UTMX;69136097;UTMY;532496221;HMSL;126146;GSPEED;1;CRS;0;HACC;49421;NXPT;1140
-
         Returns
         --------
         A dataframe with all the logs.
@@ -40,19 +39,16 @@ def log_to_dataFrame(file_path):
 def read_csv_ref_lap(file_path):
     """
         Creates a dataframe of a reference lap from a csv file.
-
         Parameters
         --------
             file_path : str
                 A path to a csv file.
-
         Example of a log file
         --------
             LAT,LON,GSPEED,CRS,NLAT,NLON,NCRS
             48.049214299999996,17.5678361,1.08,219.10375000000002,48.0492134,17.567835199999998,215.70312
             48.0492134,17.567835199999998,1.03,215.70312,48.0492127,17.567834299999998,215.56731000000002
             48.0492127,17.567834299999998,1.11,215.56731000000002,48.049211899999996,17.567833399999998,216.61797
-
         Returns
         --------
         A dataframe with a reference lap.
@@ -68,7 +64,6 @@ def normalize_logs(logs):
         In particular, the 'LAT' and 'LON' columns is divided by 10 000 000.
         The 'GSPEED' column is divided by 100.
         The CRS column is divided by 100 000.
-
         Parameters
         --------
             logs : DataFrame
@@ -88,7 +83,6 @@ def normalize_logs(logs):
 def drop_unnecessary_columns(logs):
     """
         Drops the columns 'UTMX', 'UTMY', 'HMSL', 'HACC' and 'NXPT' of the logs dataframe.
-
         Parameters
         --------
             logs : DataFrame
@@ -102,7 +96,6 @@ def drop_logs_where_car_stayed(logs: DataFrame):
     """
         Drops rows from the logs dataframe where the LAT and LON are not changing.
         Resets indices of a dataframe in the end.
-
         Parameters
         --------
             logs : DataFrame
@@ -127,7 +120,6 @@ def drop_logs_where_car_stayed(logs: DataFrame):
 def create_columns_with_future_position(logs):
     """
         Creates columns NLAT, NLON and NCRS which are the next position of a car.
-
         Parameters
         --------
             logs : DataFrame
@@ -160,12 +152,10 @@ def segment(p1, p2):
     """
         Parameters
         ===========
-
         p1 : list
             The first point.
         p2 : list
             The second point.
-
         Returns
         ==========
             A line segment of points represented in a quadruple.
@@ -193,7 +183,6 @@ def intersection(s1, s2):
 def separate_laps(traces, ref_lap=None):
     """
         Separate all the log dataframe into several laps.
-
         Parameters
         --------
             traces : DataFrame
@@ -246,7 +235,6 @@ def separate_laps(traces, ref_lap=None):
 def normalize_for_graph(logs):
     """
         Drops all columns except LAT, and LON
-
         Parameters
         --------
             logs : DataFrame
@@ -302,6 +290,14 @@ def get_essential_data_json(file_path) -> str:
 
 def get_track_graph_data(file_path) -> str:
     data = get_graph_data(file_path)
+    data.x = data.x.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    data.y = data.y.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    global firsty
+    global firstx
+    firsty = data.x[0]
+    firstx = data.y[0]
+    data.x -= data.x[0]
+    data.y -= data.y[0]
     return data.to_json(orient="records")
 
 
@@ -351,6 +347,10 @@ def analyze_laps(traces, reference_lap, laps):
         data_dict['pointsPerLap'].append(len(lap_data))
         data_dict['curveLength'].append(0)
         data_dict['averagePerpendicularDistance'].append(average_dist)
+        lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+        lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+        lap_data.LAT -= firstx
+        lap_data.LON -= firsty
         data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     # tha last circuit (lap) was not saved yet so save that one
@@ -364,6 +364,10 @@ def analyze_laps(traces, reference_lap, laps):
     data_dict['pointsPerLap'].append(len(lap_data))
     data_dict['curveLength'].append(0)
     data_dict['averagePerpendicularDistance'].append(average_dist)
+    lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    lap_data.LAT -= firstx
+    lap_data.LON -= firsty
     data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     data_frame = pd.DataFrame(data=data_dict)

@@ -29,6 +29,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
         }]
     },
     options: {
+        aspectRatio: 1,
         legend: {
             display: false,
             labels: {
@@ -50,7 +51,9 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white"
+                    fontColor: "white",
+                    stepSize: 1,
+                    stepValue: 1
                 }
             }],
             yAxes: [{
@@ -58,7 +61,9 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white"
+                    fontColor: "white",
+                    stepSize: 1,
+                    stepValue: 1
                 }
             }]
         }
@@ -84,6 +89,7 @@ let lines2 = new Chart(document.getElementById("chart2"), {
         }]
     },
     options: {
+        aspectRatio: 1,
         legend: {
             display: false,
             labels: {
@@ -105,7 +111,9 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white"
+                    fontColor: "white",
+                    stepSize: 1,
+                    stepValue: 1
                 }
             }],
             yAxes: [{
@@ -113,7 +121,9 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white"
+                    fontColor: "white",
+                    stepSize: 1,
+                    stepValue: 1
                 }
             }]
         }
