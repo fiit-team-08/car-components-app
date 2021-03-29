@@ -5,10 +5,10 @@ const contextMenu = require('electron-context-menu');
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
-    minWidth: 1920,
-    minHeight: 1080,
+    width: 1280,
+    height: 720,
+    minWidth: 1280,
+    minHeight: 720,
     frame: false,
     backgroundColor: '#FFF',
     icon: __dirname + '/icon/icon.png',

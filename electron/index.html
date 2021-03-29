@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>CarComp</title>
     <link rel="stylesheet" href="style.css">
-    <script type="text/javascript" src='/eel.js'></script>
+    <script type="text/javascript" src='eel.js'></script>
     <script type="text/javascript" src='chart.js'></script>
 </head>
 <body>
@@ -25,37 +25,38 @@
     </div>
 </header>
 <main>
-    <div id="w0">
-        <div class="center1">
-            <div class="flex">
-                <div class="insert">
-                    <div class="button" id="draha">
-                        <p>Analýza dráhy</p>
-                    </div>
-                </div>
-                <div class="insert">
-                    <div class="button" id="komponent">
-                        <p>Optimalizácia komponentov</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
     <div id="w1">
-        <div class="center2">
-            <h1 class="title">Výber komponentov</h1>
-            <div class="flex">
-                <div id="c1" class="component">
-                    <img srcset="img/wheel.png" />
-                    <p>Koleso</p>
+        <div class="center">
+            <div class="w1">
+                <h1 class="title">Vyberte súbory na analýzu</h1>
+                <div class="flex">
+                    <div class="insert">
+                        <div class="button" id="open-button1">
+                            <p>Vložiť referenčnú dráhu</p>
+                        </div>
+                        <p class="file-name" id="file-name1"></p>
+                    </div>
+                    <div class="insert">
+                        <div class="button" id="open-button2">
+                            <p>Vložiť LOG súbor</p>
+                        </div>
+                        <p class="file-name" id="file-name2"></p>
+                    </div>
                 </div>
-                <div id="c2" class="component">
-                    <img srcset="img/steering-wheel.png" />
-                    <p>Volant</p>
-                </div>
-                <div id="c3" class="component">
-                    <img srcset="img/brake.png" />
-                    <p>Brzdy</p>
+                <div>
+                    <h1 class="title disabled">Analyzujte vozidlo a dráhu</h1>
+                    <div class="flex-line">
+                        <div id="car" class="component disabled">
+                            <img class="load" srcset="icon/loading.svg" />
+                            <img srcset="img/steering-wheel.png" />
+                            <p>Vozidlo</p>
+                        </div>
+                        <div id="track" class="component disabled">
+                            <img class="load" srcset="icon/loading.svg" />
+                            <img srcset="img/circuit.png" />
+                            <p>Dráha</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -75,61 +76,142 @@
         </div>
         <div id="ww1">
             <div class="left">
-                <div class="flex">
-                    <div class="insert">
-                        <div class="button" id="open-button1">
-                            <p>Vložiť referenčnú dráhu</p>
-                        </div>
-                        <p class="file-name" id="file-name1"></p>
-                    </div>
-                    <div class="insert">
-                        <div class="button" id="open-button2">
-                            <p>Vložiť LOG súbor</p>
-                        </div>
-                        <p class="file-name" id="file-name2"></p>
-                    </div>
-                </div>
-                        <div class="info">
-                            <h1>Štatistika</h1>
-                            <div class="flex">
-                                <div class="info-number">
-                                    <p>Počet bodov na referenčnej trase</p>
-                                    <p id="referencenumber">&nbsp;</p>
-                                </div>
-                                <div class="info-number">
-                                    <p>Počet trás v analyzovanom súbore</p>
-                                    <p id="numeroflaps">&nbsp;</p>
-                                </div>
-                            </div>
-                        </div>
                 <div class="road">
                     <canvas id="chart1"></canvas>
                 </div>
-                <div class="road">
-                    <canvas id="chart0"></canvas>
-                </div>
             </div>
             <div class="right">
-                <div class="list">
-                    <h1>List</h1>
+                <div class="info">
+                    <h1>Štatistika</h1>
+                    <div class="info-box">
+                        <div class="info-number">
+                            <p>Počet bodov na referenčnej trase:</p>
+                            <p id="referencenumber"></p>
+                        </div>
+                        <div class="info-number">
+                            <p>Počet trás v analyzovanom súbore:</p>
+                            <p id="numeroflaps"></p>
+                        </div>
+                    </div>
+                    <h1>List trás</h1>
                     <div id="trasy">
+                        <div class="print-hide"><input type="checkbox" id="checkall" onClick="toggle(this)" checked="true" /><label for="checkall">Prepnúť všetky</label></div>
+                        <hr>
+                        <label class="label0"></label><label class="label1">PČ</label><label class="label2">Body</label><label class="label3">Odchýlka</label>
+                        <hr>
                     </div>
                 </div>
             </div>
         </div>
         <div id="ww2">
-            <div class="insert2">
-                <div class="button" id="open-button0">
-                    <p>Vložiť LOG súbor</p>
+            <div class="flex-row selector">
+                <div onClick="cp()" class="button button-small selector-buttons">
+                    <p>Simple Command Prediction</p>
                 </div>
-                <p class="file-name" id="file-name0"></p>
+                <div onClick="mpc()" class="button button-small selector-buttons">
+                    <p>Model Predictive Control</p>
+                </div>
+                <div onClick="nn()" class="button button-small selector-buttons">
+                    <p>Neural Network</p>
+                </div>
+            </div>
+            <div class="parameters">
+                <div id="inside">
+                    <div class="flex-row mpc-inputs">
+                        <div class="half-inputs">
+                            <div class="inputs">
+                                <label>Dĺžka&nbsp;vozidla:</label>
+                                <input type="text" id="lenght">
+                                <label>m</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Šírka&nbsp;vozidla:</label>
+                                <input type="text" id="width">
+                                <label>m</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Rozstup&nbsp;kolies:</label>
+                                <input type="text" id="wheels">
+                                <label>m</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Rázvor&nbsp;náprav:</label>
+                                <input type="text" id="wheelbase">
+                                <label>m</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Šírka&nbsp;kolies:</label>
+                                <input type="text" id="wheelsize">
+                                <label>m</label>
+                            </div>
+                        </div>
+                        <div class="half-inputs">
+                            <div class="inputs">
+                                <label>Cieľová&nbsp;rýchlosť:</label>
+                                <input type="text" id="s">
+                                <label>m/s</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Maximálna&nbsp;rýchlosť:</label>
+                                <input type="text" id="speed">
+                                <label>m/s</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Maximálne&nbsp;zrýchlenie:</label>
+                                <input type="text" id="acceleration">
+                                <label>m/ss</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Maximálny&nbsp;uhol&nbsp;kolies:</label>
+                                <input type="text" id="angle">
+                                <label>rad</label>
+                            </div>
+                            <div class="inputs">
+                                <label>Maximálna&nbsp;rýchlosť&nbsp;natočenia:</label>
+                                <input type="text" id="anglespeed">
+                                <label>rad/s</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="parameters-button">
+                        <p id="parameters-text"></p>
+                        <div class="flex-row parameters-buttons">
+                            <div onclick="runlocal()" class="button button-small button-smaller">
+                                <p>Spustiť lokálne</p>
+                            </div>
+                            <div onclick="runcloud()" class="button button-small button-smaller">
+                                <p>Spustiť na cloude</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="flex-row">
-                <div class="charts">
-                    <canvas id="chart2"></canvas>
+                <div class="left">
+                    <div class="charts">
+                        <canvas id="chart2"></canvas>
+                    </div>
                 </div>
-                <div class="charts">
-                    <canvas id="chart3"></canvas>
+                <div class="right">
+                    <div class="info">
+                        <h1>List trás</h1>
+                        <div id="trasyxy">
+                            <input type="checkbox" id="refxy" checked="true" /><label for="refxy">Referenčná</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="left">
+                    <div class="charts">
+                        <canvas id="chart3"></canvas>
+                    </div>
+                </div>
+                <div class="right">
+                    <div class="info info-bottom">
+                        <h1>List trás</h1>
+                        <div id="trasycrs">
+                            <input type="checkbox" id="refcrs" checked="true" /><label for="checkall">Referenčná</label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
