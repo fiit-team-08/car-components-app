@@ -294,6 +294,9 @@ def linear_mpc_control(xref, xbar, x0, dref):
 
 
 def calc_ref_trajectory(state, cx, cy, cyaw, ck, sp, dl, pind):
+    """
+    Calculate reference trajectory
+    """
     xref = np.zeros((NX, T + 1))
     dref = np.zeros((1, T + 1))
     ncourse = len(cx)
@@ -332,8 +335,9 @@ def calc_ref_trajectory(state, cx, cy, cyaw, ck, sp, dl, pind):
 
 
 def check_goal(state, goal, tind, nind):
-
-    # check goal
+    """
+    Check if in the vicinity of goal
+    """
     dx = state.x - goal[0]
     dy = state.y - goal[1]
     d = math.hypot(dx, dy)
@@ -542,8 +546,16 @@ def convert(lst):
     return [-i for i in lst]
 
 
+<<<<<<< Updated upstream
 def get_reference(dl):
     log = log_to_dataFrame("log.csv")
+=======
+def get_reference(dl, path):
+    """
+        vytvorenie trasy pri trenovani MPC
+    """
+    log = log_to_dataFrame(path)
+>>>>>>> Stashed changes
     log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
     normalize_logs(log)
 
@@ -573,6 +585,14 @@ def main():
     if lap:
         log = log_to_dataFrame("lap.csv")
 
+<<<<<<< Updated upstream
+=======
+def get_reference_data(path):
+    """
+        vytvorenie referencenej trasy pre graf, vracia dataframe s x,y suradnicami a crs
+    """
+    log = log_to_dataFrame(path)
+>>>>>>> Stashed changes
     log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
     normalize_logs(log)
 
@@ -607,16 +627,70 @@ def main():
     global logtime
     logcrs = log.CRS
     logtime = log.TIME
+<<<<<<< Updated upstream
     log.to_csv('l.csv', index=False)
+=======
+    log.rename(columns={"LAT": "y", "LON": "x"}, inplace=True)
+
+    return log
+
+
+def mpc(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer):
+    """
+        nastavenie parametrov z gui, vsetko musi byt float
+    """
+    global LENGTH
+    LENGTH = float(length)
+    global WIDTH
+    WIDTH = float(width)
+    global BACKTOWHEEL
+    BACKTOWHEEL = float(backtowheel)
+    global WB
+    WB = float(wb)
+    global WHEEL_LEN
+    global WHEEL_WIDTH
+    WHEEL_LEN = float(wheel)
+    WHEEL_WIDTH = float(wheel)
+    global TARGET_SPEED
+    TARGET_SPEED = float(target_speed) / 3.6
+    global MAX_STEER
+    MAX_STEER = np.deg2rad(float(max_steer))
+    global MAX_SPEED
+    MAX_SPEED = float(max_speed) / 3.6
+    global MAX_ACCEL
+    MAX_ACCEL = float(max_accel)
+    global MAX_DSTEER
+    MAX_DSTEER = np.deg2rad(float(max_dsteer))
+    return main(path)
+
+
+def main(path):
+    """
+        spustenie MPC, vrati dataframe s x,y suradnicami casom a crs
+    """
+    dl = 1.0
+    cx, cy, cyaw, ck = get_reference(dl, path)
+>>>>>>> Stashed changes
 
     sp = calc_speed_profile(cx, cy, cyaw, TARGET_SPEED)
     initial_state = State(x=cx[0], y=cy[0], yaw=cyaw[0], v=0.0)
     t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
 
+<<<<<<< Updated upstream
     y = [(number - 1.1) for number in yaw]
     d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
     df = pd.DataFrame(data=d)
     df.to_csv('out.csv', index=False)
+=======
+    y = [(number * 55) for number in yaw]
+    yf = y[0]
+    y = [(number - yf) for number in y]
+    #d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
+    d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
+    df = pd.DataFrame(data=d)
+    #df.to_csv('out.csv', index=False)
+    return df
+>>>>>>> Stashed changes
 
 
 if __name__ == '__main__':

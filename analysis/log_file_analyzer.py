@@ -7,6 +7,8 @@ import json
 from datetime import datetime, date
 from analysis.lap_difference_analyzer import *
 
+firstx = 0
+firsty = 0
 
 def log_to_dataFrame(file_path):
     """
@@ -302,6 +304,14 @@ def get_essential_data_json(file_path) -> str:
 
 def get_track_graph_data(file_path) -> str:
     data = get_graph_data(file_path)
+    data.x = data.x.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    data.y = data.y.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    global firsty
+    global firstx
+    firsty = data.x[0]
+    firstx = data.y[0]
+    data.x -= data.x[0]
+    data.y -= data.y[0]
     return data.to_json(orient="records")
 
 
@@ -329,6 +339,10 @@ def analyze_laps(traces, reference_lap, laps):
         data_dict['pointsPerLap'].append(len(lap_data))
         data_dict['curveLength'].append(0)
         data_dict['averagePerpendicularDistance'].append(average_dist)
+        lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+        lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+        lap_data.LAT -= firstx
+        lap_data.LON -= firsty
         data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     # tha last circuit (lap) was not saved yet so save that one
@@ -342,6 +356,10 @@ def analyze_laps(traces, reference_lap, laps):
     data_dict['pointsPerLap'].append(len(lap_data))
     data_dict['curveLength'].append(0)
     data_dict['averagePerpendicularDistance'].append(average_dist)
+    lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    lap_data.LAT -= firstx
+    lap_data.LON -= firsty
     data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     data_frame = pd.DataFrame(data=data_dict)
