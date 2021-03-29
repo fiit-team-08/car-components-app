@@ -98,17 +98,9 @@ header {
 
 main {
     overflow: scroll;
-    margin: 0 2px 0 2px;
-    padding: 20px 25px 20px 20px;
+    margin: 0 2px;
+    padding: 25px;
     height: calc(100% - 20px);
-}
-
-#w1 {
-    display: none;
-}
-
-#w1 {
-    display: none;
 }
 
 #w2 {
@@ -119,50 +111,117 @@ main {
     display: none;
 }
 
-.center1 {
-    top: 50%;
-    left: 50%;
+.w1 {
     width: 700px;
-    position: absolute;
-    transform: translate(-50%, -50%);
+    margin-top: -50px;
 }
 
-.center2 {
-    top: 40%;
+.parameters {
+    background: #eaeaea;
+    max-width: 800px;
+    margin: auto;
+    height: 0;
+    overflow: hidden;
+    transition: 0.5s ease-in-out;
+}
+
+#cp, #mpc, #nn {
+    display: none;
+    padding: 50px;
+}
+
+.selector {
+    margin: 25px auto 0;
+    max-width: 825px;
+}
+
+.parameters input {
+    background-color: #eaeaea;
+    border-bottom: 1px #333 solid;
+    font-size: 16px;
+    width: 100%;
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.parameters label {
+    display: inline-block;
+}
+
+.parameters-button {
+    padding: 30px 0;
+}
+
+.parameters-buttons {
+    max-width: 400px;
+    margin: auto;
+}
+
+#parameters-text {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.half-inputs {
+    width: 50%;
+    padding: 40px 20px 0px;
+}
+
+.mpc-inputs {
+    height: 0;
+    overflow: hidden;
+    transition: 0.5s ease-in-out;
+}
+
+.inputs {
+    display: flex;
+    margin: 0 25px 20px;
+}
+
+.center {
+    top: 50%;
     left: 50%;
-    width: 500px;
     position: absolute;
     transform: translate(-50%, -50%);
 }
 
 .left {
     float: left;
-    width: 70%;
-    padding: 30px 25px 0 10px;
+    width: calc(100% - 375px);
 }
 
 .right {
     float: right;
-    width: 30%;
-    padding: 30px 10px 0 25px;
+    width: 375px;
+}
+
+.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    transition: 0.5s ease-in-out;
+}
+
+ul {
+  list-style-type: none;
 }
 
 .title {
     color: #254053;
     font-size: 1.5rem;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     font-family: OpenSansLight, serif;
 }
 
 .component {
-    margin: 10px;
+    margin: 0 10px;
     width: 150px;
     height: 150px;
     padding: 20px;
     cursor: pointer;
     border-radius: 2px;
     background: #f5f5f5;
+    transition: 0.5s ease-in-out;
     font-family: OpenSansBold, serif;
 }
 
@@ -204,7 +263,7 @@ main {
 }
 
 .button:hover {
-    background: #1a3a4a;
+    background: #062942;
 }
 
 .button:active {
@@ -216,10 +275,46 @@ main {
     text-align: center;
 }
 
+.button-small {
+    color: white;
+    width: 250px;
+    height: 40px
+}
+
+.button-small p {
+    line-height: 40px;
+}
+
+.button-smaller {
+    width: 175px;
+}
+
+.selector-buttons {
+    background-color: #f5f5f5;
+}
+
+.selector-buttons:hover {
+    background-color: #eaeaea;
+}
+
+.selector-buttons:active {
+    background-color: #eaeaea;
+}
+
+.selector-buttons p {
+    color: #254053;
+}
+
 .file-name {
     margin: 20px 0;
     text-align: center;
     height: 25px;
+}
+
+.load {
+    position: absolute;
+    margin: 0 18px !important;
+    opacity: 0;
 }
 
 .insert {
@@ -234,6 +329,12 @@ main {
 li {
     cursor: pointer;
     color: rgb(0, 0, 0);
+}
+
+.flex-line {
+    display: flex;
+    width: fit-content;
+    margin: auto;
 }
 
 .flex {
@@ -266,6 +367,7 @@ li {
     line-height: 50px;
     text-align: center;
 }
+
 #back-button {
     width: 40px;
     height: 40px;
@@ -353,13 +455,6 @@ li {
 
 .info {
     background: #f5f5f5;
-<<<<<<< Updated upstream
-    margin: auto;
-    padding: 20px 25px;
-    text-align: center;
-    width: 800px;
-    border-radius: 2px;
-=======
     padding: 35px;
     border-radius: 5px;
     margin-top: 50px;
@@ -372,20 +467,44 @@ li {
 .info h1 {
     font-size: 1.25rem;
     margin-bottom: 10px;
->>>>>>> Stashed changes
 }
 
 .info-number {
-    margin: auto;
+    margin-bottom: 10px;
+    display: flex;
 }
 
-.info h1 {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
+.info-box {
+    margin-bottom: 20px;
 }
 
-.info p {
-    margin-top: 5px;
+.animation {
+    margin: 50px auto 10px;
+    width: 575px;
+}
+
+.info label {
+    padding-left: 10px;
+}
+
+.label0 {
+    width: 4px;
+    display: inline-block;
+}
+
+.label1 {
+    width: 60px;
+    display: inline-block;
+}
+
+.label2 {
+    width: 90px;
+    display: inline-block;
+}
+
+#numeroflaps, #referencenumber {
+    font-weight: bold;
+    margin-left: 5px;
 }
 
 .charts {
@@ -401,14 +520,6 @@ li {
     height: 90%;
 }
 
-<<<<<<< Updated upstream
-.road {
-    width: 98%;
-    margin: 0 auto;
-}
-
-=======
->>>>>>> Stashed changes
 .list {
     background: #f5f5f5;
     padding: 20px 25px;
@@ -419,12 +530,14 @@ li {
     margin-bottom: 10px;
 }
 
-ul {
-    margin-left: 25px;
-}
-
 #chart0 {
 
+}
+
+hr {
+    height: 1px;
+    margin: 10px 0;
+    background-color: #062942;
 }
 
 @page {
@@ -493,8 +606,6 @@ ul {
     .list {
         margin-top: 100px;
     }
-<<<<<<< Updated upstream
-=======
 
     .print-hide {
         display: none;
@@ -503,5 +614,4 @@ ul {
     .charts {
         margin: 25px 0 0 0;
     }
->>>>>>> Stashed changes
 }

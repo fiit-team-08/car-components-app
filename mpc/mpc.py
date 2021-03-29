@@ -3,7 +3,8 @@ import cvxpy
 import numpy as np
 import pandas as pd
 from numpy import zeros
-import cubic_spline_planner
+#from cubic_spline_planner import *
+from mpc.cubic_spline_planner import *
 import matplotlib.pyplot as plt
 from analysis.log_file_analyzer import *
 from similaritymeasures import curve_length_measure, frechet_dist
@@ -19,6 +20,10 @@ loglat = pd.DataFrame()
 loglon = pd.DataFrame()
 firstx = 0
 firsty = 0
+globaltime = []
+globalx = []
+globaly = []
+globalyaw = []
 
 NX = 4  # x = x, y, v, yaw
 NU = 2  # a = [accel, steer]
@@ -29,23 +34,23 @@ R = np.diag([0.01, 0.01])  # input cost matrix
 Rd = np.diag([0.01, 1.0])  # input difference cost matrix
 Q = np.diag([1.0, 1.0, 0.5, 0.5])  # state cost matrix
 Qf = Q  # state final matrix
-GOAL_DIS = 100  # goal distance
-STOP_SPEED = 0.5 / 3.6  # stop speed
-MAX_TIME = 500.0  # max simulation time
+GOAL_DIS = 10  # goal distance
+STOP_SPEED = 100 / 3.6  # stop speed
+MAX_TIME = 1000.0  # max simulation time
 
 # iterative paramter
 MAX_ITER = 1  # Max iteration
-DU_TH = 0.1  # iteration finish param
+DU_TH = 10  # iteration finish param
 TARGET_SPEED = 30 / 3.6  # [m/s] target speed
-N_IND_SEARCH = 100  # Search index number
-DT = 0.2  # [s] time tick
+N_IND_SEARCH = 10  # Search index number
+DT = 0.25  # [s] time tick
 
 # Vehicle parameters
 LENGTH = 2.817  # [m]
 WIDTH = 1.680  # [m]
 BACKTOWHEEL = 1.480  # [m]
 WHEEL_LEN = 0.4  # [m]
-WHEEL_WIDTH = 0.02  # [m]
+WHEEL_WIDTH = 0.4  # [m]
 TREAD = 0.7  # [m]
 WB = 2.345  # [m]
 
@@ -294,9 +299,6 @@ def linear_mpc_control(xref, xbar, x0, dref):
 
 
 def calc_ref_trajectory(state, cx, cy, cyaw, ck, sp, dl, pind):
-    """
-    Calculate reference trajectory
-    """
     xref = np.zeros((NX, T + 1))
     dref = np.zeros((1, T + 1))
     ncourse = len(cx)
@@ -335,9 +337,8 @@ def calc_ref_trajectory(state, cx, cy, cyaw, ck, sp, dl, pind):
 
 
 def check_goal(state, goal, tind, nind):
-    """
-    Check if in the vicinity of goal
-    """
+
+    # check goal
     dx = state.x - goal[0]
     dy = state.y - goal[1]
     d = math.hypot(dx, dy)
@@ -446,6 +447,14 @@ def do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state):
             plt.ylabel("yaw ")
             plt.pause(0.0001)
 
+    global globaltime
+    global globalx
+    global globaly
+    global globalyaw
+    globaltime = t
+    globalx = x
+    globaly = y
+    globalyaw = yaw
     return t, x, y, yaw, v, d, a
 
 
@@ -546,16 +555,11 @@ def convert(lst):
     return [-i for i in lst]
 
 
-<<<<<<< Updated upstream
-def get_reference(dl):
-    log = log_to_dataFrame("log.csv")
-=======
 def get_reference(dl, path):
     """
         vytvorenie trasy pri trenovani MPC
     """
     log = log_to_dataFrame(path)
->>>>>>> Stashed changes
     log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
     normalize_logs(log)
 
@@ -572,42 +576,54 @@ def get_reference(dl, path):
     ax = log.LON
     ay = log.LAT
 
-    cx, cy, cyaw, ck, s = cubic_spline_planner.calc_spline_course(ax, ay, ds=dl)
-    return cx, cy, cyaw, ck
-
-
-def main():
-    #print(find_out_difference(pd.read_csv('log-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
-    #print(find_out_difference(pd.read_csv('lap-edit.csv', sep=';'), pd.read_csv('out.csv', sep=';')))
-
-    if reference:
-        log = log_to_dataFrame("log.csv")
-    if lap:
-        log = log_to_dataFrame("lap.csv")
-
-<<<<<<< Updated upstream
-=======
-def get_reference_data(path):
-    """
-        vytvorenie referencenej trasy pre graf, vracia dataframe s x,y suradnicami a crs
-    """
-    log = log_to_dataFrame(path)
->>>>>>> Stashed changes
-    log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
-    normalize_logs(log)
-
-    dl = 1.0
-    cx, cy, cyaw, ck = get_reference(dl)
-
-    log.LAT = log.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
-    log.LON = log.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
-    log.LON -= firstx
-    log.LAT -= firsty
+    minus = False
+    for i in range(log.CRS.size - 1):
+        if (log.CRS[i] - log.CRS[i+1]) > 300:
+            minus = False
+            temp = log.CRS[i]
+            log.CRS[i] = -abs(360 - temp)
+        if minus:
+            temp = log.CRS[i]
+            log.CRS[i] = -abs(360 - temp)
+        if (log.CRS[i+1] - log.CRS[i]) > 300:
+            minus = True
+    log.drop(log.tail(1).index, inplace=True)
+    log.CRS -= log.CRS[0]
 
     global loglat
     global loglon
     loglat = log.LAT
     loglon = log.LON
+
+    global logcrs
+    global logtime
+    logcrs = log.CRS
+    logtime = log.TIME
+
+    cx, cy, cyaw, ck, s = calc_spline_course(ax, ay, ds=dl)
+    return cx, cy, cyaw, ck
+
+
+def get_reference_data(path):
+    """
+        vytvorenie referencenej trasy pre graf, vracia dataframe s x,y suradnicami a crs
+    """
+    log = log_to_dataFrame(path)
+    log = log.drop(columns=['UTMX', 'UTMY', 'HMSL', 'HACC', 'NXPT'])
+    normalize_logs(log)
+
+    log.LAT = log.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
+    log.LON = log.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
+
+    global firstx
+    global firsty
+    firstx = log.LON[0]
+    firsty = log.LAT[0]
+
+    log.LAT -= log.LAT[0]
+    log.LON -= log.LON[0]
+    ax = log.LON
+    ay = log.LAT
 
     minus = False
     for i in range(log.CRS.size - 1):
@@ -627,9 +643,6 @@ def get_reference_data(path):
     global logtime
     logcrs = log.CRS
     logtime = log.TIME
-<<<<<<< Updated upstream
-    log.to_csv('l.csv', index=False)
-=======
     log.rename(columns={"LAT": "y", "LON": "x"}, inplace=True)
 
     return log
@@ -670,18 +683,11 @@ def main(path):
     """
     dl = 1.0
     cx, cy, cyaw, ck = get_reference(dl, path)
->>>>>>> Stashed changes
 
     sp = calc_speed_profile(cx, cy, cyaw, TARGET_SPEED)
     initial_state = State(x=cx[0], y=cy[0], yaw=cyaw[0], v=0.0)
     t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
 
-<<<<<<< Updated upstream
-    y = [(number - 1.1) for number in yaw]
-    d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
-    df = pd.DataFrame(data=d)
-    df.to_csv('out.csv', index=False)
-=======
     y = [(number * 55) for number in yaw]
     yf = y[0]
     y = [(number - yf) for number in y]
@@ -690,7 +696,6 @@ def main(path):
     df = pd.DataFrame(data=d)
     #df.to_csv('out.csv', index=False)
     return df
->>>>>>> Stashed changes
 
 
 if __name__ == '__main__':
