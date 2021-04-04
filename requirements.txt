@@ -19,3 +19,4 @@ similaritymeasures
 sympy
 tensorflow
 torch
+cvxpy
