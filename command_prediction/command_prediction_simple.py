@@ -6,7 +6,8 @@ from shapely.geometry.polygon import LinearRing
 
 
 def angle_between(v1, v2, positive=False):
-    """ Returns the angle in radians between vectors 'v1' and 'v2'::
+    """
+        Computes an angle between two vectors
     """
     angle = atan2(np.linalg.det(np.array(v1 + v2).reshape((2, 2))), np.dot(v1, v2))
     if positive and angle < 0:
@@ -14,7 +15,19 @@ def angle_between(v1, v2, positive=False):
     return angle
 
 
-def get_new_steering_angle(lap, reference_lap, speed):
+def get_new_steering_angles(lap, reference_lap, speed=1):
+    """
+        Computes commands using bicycle model in each step of ride to keep the vehicle on track
+        Parameters
+        --------
+            lap : DataFrame
+                A dataframe with logs of a ride.
+            reference_lap : DataFrame
+                A dataframe with reference ride.
+            speed : Float
+                Constant speed of the vehicle, default is 1.
+    """
+
     points = [tuple(x) for x in lap[['LON', 'LAT']].to_numpy()]
     reference_points = [tuple(x) for x in reference_lap[['LON', 'LAT']].to_numpy()]
     reference_polygon = LinearRing(reference_lap[['LON', 'LAT']].values)
@@ -26,7 +39,6 @@ def get_new_steering_angle(lap, reference_lap, speed):
         possible_angles.append(-i)
 
     # use last points to determine normal vector
-    # TODO don't use last points but count in also index
     last_point1 = [reference_lap['LON'].iloc[-1], reference_lap['LAT'].iloc[-1]]
     last_point2 = [reference_lap['LON'].iloc[-2], reference_lap['LAT'].iloc[-2]]
 
@@ -103,16 +115,18 @@ def get_new_steering_angle(lap, reference_lap, speed):
     return created_points, angles, steering_angles, heading_angles
 
 
-def format_ref_df(path):
-    reference_df = log_to_dataFrame(path)
-    reference_df['LAT'] = reference_df['LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-    reference_df['LON'] = reference_df['LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-    reference_df['CRS'] = reference_df['CRS'].apply(lambda deg: np.deg2rad(deg))
-    reference_df.rename(columns={"LAT": "y", "LON": "x"}, inplace=True)
-    return reference_df
-
-
 def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
+    """
+        Creates DataFrames from both files and computes probable steering angles and returns a new DataFrame containing new data
+        Parameters
+        --------
+            reference_lap_file : String
+                path to reference ride logs.
+            traces_file : String
+                path to traces logs.
+            speed : Float
+                Speed of vehicle.
+    """
     reference_df = log_to_dataFrame(reference_lap_file)
     normalize_logs(reference_df)
 
@@ -129,14 +143,13 @@ def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
 
     lap = traces_df.iloc[0:2]
 
-    created_points, angles, steering_angles, heading_angles = get_new_steering_angle(lap, reference_df, speed)
+    created_points, angles, steering_angles, heading_angles = get_new_steering_angles(lap, reference_df, speed)
     list_x, list_y = list(map(list, zip(*created_points)))
     d = {'x': list_x, 'y': list_y, 'CRS': heading_angles, 'TIME': list(range(0, len(heading_angles)))}
     df = pd.DataFrame(data=d)
     df.x -= df.x[0]
     df.y -= df.y[0]
     df.CRS.apply(lambda rad: np.rad2deg(rad))
-    print(df.CRS)
     return df
 
 
@@ -168,7 +181,6 @@ def smooth(x, window_len=11, window='hanning'):
     numpy.hanning, numpy.hamming, numpy.bartlett, numpy.blackman, numpy.convolve
     scipy.signal.lfilter
 
-    TODO: the window parameter could be the window itself if an array instead of a string
     NOTE: length(output) != length(input), to correct this: return y[(window_len/2-1):-(window_len/2)] instead of just y.
     """
 
