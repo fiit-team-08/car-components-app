@@ -301,23 +301,23 @@ def get_track_graph_data(file_path) -> str:
     return data.to_json(orient="records")
 
 
-def get_mpc_reference_xy(data) -> str:
+def get_reference_xy(data) -> str:
     data.drop(columns=['TIME', 'CRS', 'GSPEED'], inplace=True)
     return data.to_json(orient="records")
 
 
-def get_mpc_reference_crs(data) -> str:
+def get_reference_crs(data) -> str:
     data.drop(columns=['x', 'y', 'GSPEED'], inplace=True)
     data.rename(columns={"TIME": "x", "CRS": "y"}, inplace=True)
     return data.to_json(orient="records")
 
 
-def get_mpc_data_xy(data) -> str:
+def get_data_xy(data) -> str:
     data.drop(columns=['TIME', 'CRS'], inplace=True)
     return data.to_json(orient="records")
 
 
-def get_mpc_data_crs(data) -> str:
+def get_data_crs(data) -> str:
     data.drop(columns=['x', 'y'], inplace=True)
     data.rename(columns={"TIME": "x", "CRS": "y"}, inplace=True)
     return data.to_json(orient="records")
