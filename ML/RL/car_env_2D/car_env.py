@@ -53,7 +53,7 @@ class CarEnv(Env):
     init_v (float): Initial velocity of the vehicle for reset (m/s).
     init_psi (float): Initial steering command of the vehicle given in radians.
     init_position (np.array): Initial position of the car.
-    position (np.array): Current osition of the car described by 5 elements:
+    position (np.array): Current position of the car described by 5 elements:
         x: x coord in meters
         y: y coord in meters
         theta: vehicle heading angle in radians
@@ -72,10 +72,12 @@ class CarEnv(Env):
     state (np.array or None): Current state of the car.
     simulator (Simulator or None): Instance of Simulator for calculations
         of the new car positions.
+    steps_still (int): Count of the steps which didn't alter the position
+        (last_point) of the car.
     """
 
     def __init__(self, type='continuous', action_dim=2, actions=None,
-                 tolerance=1.0, filename='../../data/ref1.csv'):
+                 tolerance=3.0, filename='../../data/ref1.csv'):
         self.type = type
         self.action_dim = action_dim
         self.tolerance = tolerance  # meters
@@ -136,7 +138,7 @@ class CarEnv(Env):
         self.last_point = None
         self.state = None
         self.simulator = None
-        # TODO:after real visualization remove gif renderer
+        self.steps_still = 0
         # start of pseudo rendering
         self.gif_images = list()
         self.episode = 1
@@ -425,6 +427,9 @@ class CarEnv(Env):
         reward = self.reward - self.prev_reward
         reward += closest_point
 
+        if closest_point == self.last_point:
+            self.steps_still += 1
+
         # based on the distance from the ref. trace
         if self.tolerance < 1.:
             reward -= distance
@@ -438,7 +443,15 @@ class CarEnv(Env):
             reward = -100
             done = True
 
-        elif closest_point - self.last_point > 100.:
+        elif self.steps_still > 10:
+            reward = -100
+            done = True
+
+        elif new_v < 0.0:
+            reward = -100
+            done = True
+
+        elif not (-np.pi/6 <= new_psi <= np.pi/6):
             reward = -100
             done = True
 
@@ -503,6 +516,7 @@ class CarEnv(Env):
         self.reward = 0.0
         self.prev_reward = 0.0
         self.last_point = 0
+        self.steps_still = 0
 
         # start of pseudo rendering
         if self.gif_images:

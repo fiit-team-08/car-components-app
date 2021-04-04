@@ -6,6 +6,8 @@ from utils import process_state_image
 from utils import generate_state_frame_stack_from_queue
 from car_env import CarEnv
 import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 RENDER = False
@@ -45,6 +47,9 @@ if __name__ == '__main__':
         STARTING_EPISODE = args.start
     if args.end:
         ENDING_EPISODE = args.end
+
+    scores = list()
+    rewards = list()
 
     for e in range(STARTING_EPISODE, ENDING_EPISODE + 1):
         init_state = env.reset()
@@ -94,6 +99,9 @@ if __name__ == '__main__':
                     'Episode: {}/{}, Scores(Time Frames): {}, Total Rewards(adjusted): {:.2}, Epsilon: {:.2}'.format(
                         e, ENDING_EPISODE, time_frame_counter,
                         float(total_reward), float(agent.epsilon)))
+
+                scores.append(time_frame_counter)
+                rewards.append(float(total_reward))
                 break
             if len(agent.memory) > TRAINING_BATCH_SIZE:
                 agent.replay(TRAINING_BATCH_SIZE)
@@ -104,5 +112,30 @@ if __name__ == '__main__':
 
         if e % SAVE_TRAINING_FREQUENCY == 0:
             agent.save('./save/trial_{}.h5'.format(e))
+
+    # plot the training process
+    x = list(range(STARTING_EPISODE, ENDING_EPISODE + 1))
+    x_shift = list(range(STARTING_EPISODE + 100 - 1, ENDING_EPISODE + 1))
+    scores_avg = [np.mean(scores[i - 100:i]) for i in x_shift]
+    rewards_avg = [np.mean(rewards[i - 100:i]) for i in x_shift]
+
+    plt.figure(figsize=(12, 5))
+
+    plt.subplot(1, 2, 1)
+    plt.plot(x, scores)
+    plt.plot(x_shift, scores_avg)
+    plt.ylabel('score (time frames elapsed)')
+    plt.xlabel('episode')
+    plt.legend(['original', 'average (last 100)'], loc='lower right')
+
+    plt.subplot(1, 2, 2)
+    plt.plot(x, rewards)
+    plt.plot(x_shift, rewards_avg)
+    plt.ylabel('total reward')
+    plt.xlabel('episode')
+    plt.legend(['original', 'average (last 100)'], loc='lower right')
+
+    plt.tight_layout()
+    plt.savefig('training.png')
 
     env.close()

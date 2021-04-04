@@ -1,5 +1,4 @@
 import argparse
-import gym
 from collections import deque
 from DQNAgent import CarRacingDQNAgent
 from utils import process_state_image
@@ -55,8 +54,7 @@ if __name__ == '__main__':
 
             if done:
                 print(
-                    '''Episode: {}/{}, Scores(Time Frames): {}, 
-                    Total Rewards: {:.2}'''.format(
+                    '''Episode: {}/{}, Scores(Time Frames): {}, Total Rewards: {:.2}'''.format(
                         e + 1, play_episodes, time_frame_counter,
                         float(total_reward))
                 )
