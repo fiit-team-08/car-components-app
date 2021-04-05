@@ -193,7 +193,38 @@ function runcloud() {
 
 function runlocal() {
     if (selector === 1) {
+        eel.get_scp_xy(referenceFileName, tracesFileName)().then((r) => {
+            lines2.data.datasets[1].data = JSON.parse(r);
+            lines2.update()
+        });
 
+        eel.get_scp_crs()().then((r) => {
+            lines3.data.datasets[1].data = JSON.parse(r);
+            lines3.update()
+
+            document.getElementById("trasyxy").appendChild(document.createElement('br'));
+            document.getElementById("trasycrs").appendChild(document.createElement('br'));
+
+            let item1 = document.createElement('input');
+            item1.setAttribute('id', 'scpxy');
+            item1.setAttribute('type', 'checkbox');
+            item1.setAttribute('checked', 'true');
+            let item2 = document.createElement('input');
+            item2.setAttribute('id', 'scpcsr');
+            item2.setAttribute('type', 'checkbox');
+            item2.setAttribute('checked', 'true');
+            document.getElementById("trasyxy").appendChild(item1);
+            document.getElementById("trasycrs").appendChild(item2);
+
+            let label1 = document.createElement('label');
+            label1.appendChild(document.createTextNode("Simple command prediction"));
+            label1.setAttribute('for', 'scpxy');
+            let label2 = document.createElement('label');
+            label2.appendChild(document.createTextNode("Simple command prediction"));
+            label2.setAttribute('for', 'scpcsr');
+            document.getElementById("trasyxy").appendChild(label1);
+            document.getElementById("trasycrs").appendChild(label2);
+        });
     }
     if (selector === 2) {
         let lenght

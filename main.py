@@ -1,6 +1,7 @@
 import eel
 from mpc.mpc import *
 from analysis.log_file_analyzer import *
+from command_prediction.command_prediction_simple import *
 
 
 eel.init('electron')
@@ -20,16 +21,15 @@ def get_track_data(path):
     json = get_track_graph_data(path)
     return json
 
-
 @eel.expose
 def get_mpc_ref_xy(path):
-    json = get_mpc_reference_xy(get_reference_data(path))
+    json = get_reference_xy(get_reference_data(path))
     return json
 
 
 @eel.expose
 def get_mpc_ref_crs(path):
-    json = get_mpc_reference_crs(get_reference_data(path))
+    json = get_reference_crs(get_reference_data(path))
     return json
 
 
@@ -38,14 +38,32 @@ def get_mpc_xy(path, length, width, backtowheel, wb, wheel, target_speed, max_sp
     global mpc_data
     mpc_data = mpc(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer)
     temp = mpc_data.copy()
-    json = get_mpc_data_xy(temp)
+    json = get_data_xy(temp)
     return json
 
 
 @eel.expose
 def get_mpc_crs(referenceFileName):
     temp = mpc_data.copy()
-    json = get_mpc_data_crs(temp)
+    json = get_data_crs(temp)
+    return json
+
+
+# SIMPLE COMMAND PREDICION
+
+@eel.expose
+def get_scp_xy(reference_path, traces_path):
+    global scp_data
+    scp_data = get_simple_command_prediction(reference_path, traces_path)
+    temp = scp_data.copy()
+    json = get_data_xy(temp)
+    return json
+
+
+@eel.expose
+def get_scp_crs():
+    temp = scp_data.copy()
+    json = get_data_crs(temp)
     return json
 
 
