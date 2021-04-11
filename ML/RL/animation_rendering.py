@@ -6,7 +6,7 @@ from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
-from obspy.geodetics import degrees2kilometers
+from analysis.obspy_copy import degrees2kilometers
 from gym.envs.classic_control import rendering
 from pyglet.window import key, mouse
 
@@ -34,6 +34,7 @@ ZOOM = 30
 
 env = None
 close = False
+
 
 # environment with continuous observation space
 class CarEnv(gym.Env):
@@ -77,7 +78,8 @@ class CarEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, filename='/Users/simonferancik/PycharmProjects/car-components-app-actual/ML/data/ref1.csv', type='continuous',
+    def __init__(self, filename='C:\\Users\\lukas\\school\\ing\\tp\\car-components-app\\test_data\\reference.log',
+                 type='continuous',
                  action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
@@ -94,10 +96,10 @@ class CarEnv(gym.Env):
         self.init_v = 2.0
         self.init_psi = 0.0
         self.init_observation = np.array([
-            self.init_x, 
+            self.init_x,
             self.init_y,
             self.init_v,
-            self.init_theta, 
+            self.init_theta,
             self.init_psi
         ])
         self.state = self.init_observation
@@ -152,7 +154,7 @@ class CarEnv(gym.Env):
         for i, point in enumerate(self.points):
 
             x_center, y_center = self.map_center
-            dist = ROAD_WIDTH/2  # half_width of road
+            dist = ROAD_WIDTH / 2  # half_width of road
 
             AL = []  # transformed point A to the left
             AR = []  # transformed point A to the right
@@ -168,13 +170,13 @@ class CarEnv(gym.Env):
             V = [B[0] - A[0], B[1] - A[1]]  # vector of points A and B
 
             # angle between vector V and X axis in coordinate system
-            cos_alfa = math.acos(V[0] / math.sqrt(V[0]**2 + V[1]**2))
+            cos_alfa = math.acos(V[0] / math.sqrt(V[0] ** 2 + V[1] ** 2))
 
             # if angle is greater than 90 degrees, subtract 90 degerees
-            if cos_alfa > (math.pi/2):
-                beta = cos_alfa - (math.pi/2)
+            if cos_alfa > (math.pi / 2):
+                beta = cos_alfa - (math.pi / 2)
             else:
-                beta = (math.pi/2) - cos_alfa
+                beta = (math.pi / 2) - cos_alfa
 
             delta_x = dist * math.cos(beta)  # difference on X axis
             delta_y = dist * math.sin(beta)  # difference on Y axis
@@ -236,7 +238,7 @@ class CarEnv(gym.Env):
         """
         x = self.points[0].x
         y = self.points[0].y
-        
+
         return ((x, y))
 
     def _create_track(self):
@@ -291,10 +293,10 @@ class CarEnv(gym.Env):
                 ur_x, ur_y = self.outer[0]
 
             track = rendering.FilledPolygon([
-                    (ll_x + WINDOW_W / 2, ll_y + WINDOW_H / 2),
-                    (ul_x + WINDOW_W / 2, ul_y + WINDOW_H / 2),
-                    (ur_x + WINDOW_W / 2, ur_y + WINDOW_H / 2),
-                    (lr_x + WINDOW_W / 2, lr_y + WINDOW_H / 2)
+                (ll_x + WINDOW_W / 2, ll_y + WINDOW_H / 2),
+                (ul_x + WINDOW_W / 2, ul_y + WINDOW_H / 2),
+                (ur_x + WINDOW_W / 2, ur_y + WINDOW_H / 2),
+                (lr_x + WINDOW_W / 2, lr_y + WINDOW_H / 2)
             ])
             # creates track represented by line
             self.track_trans = rendering.Transform()
@@ -420,7 +422,6 @@ class CarEnv(gym.Env):
             x = 0
             y = 0
 
-
             """
             
             self.score_label = pyglet.text.Label(
@@ -433,14 +434,12 @@ class CarEnv(gym.Env):
                 color=(255, 255, 255, 255),
             )
             """
-            
-            
 
             background = rendering.FilledPolygon([
                 (-WINDOW_W, -WINDOW_H),
-                (-WINDOW_W, WINDOW_H*2),
-                (WINDOW_W*2, WINDOW_H*2),
-                (WINDOW_W*2, -WINDOW_H)
+                (-WINDOW_W, WINDOW_H * 2),
+                (WINDOW_W * 2, WINDOW_H * 2),
+                (WINDOW_W * 2, -WINDOW_H)
             ])
             self.background_trans = rendering.Transform()
             background.add_attr(self.background_trans)
@@ -449,7 +448,6 @@ class CarEnv(gym.Env):
             self.viewer.add_geom(background)
 
             self._create_track_object(self.transform)
-
 
             # centers points of the track to the center of the screen
             for i in range(len(self.track)):
@@ -489,7 +487,6 @@ class CarEnv(gym.Env):
             track_outer.set_color(1, 0, 0)
             self.viewer.add_geom(track_outer)
 
-
         if self.car_rendered == False:
             car_body = self._create_car_object(CAR_WIDTH, CAR_LENGTH, CAR_COLOR)
 
@@ -505,7 +502,7 @@ class CarEnv(gym.Env):
 
             # length of part of the wheel which is outside of the car body 
             wheel_oversize = WHEEL_WIDTH - ((CAR_WIDTH - WHEEL_SPACING) / 2)
-            
+
             # FRONT WHEELS
             left_front_wheel = rendering.FilledPolygon([
                 (left - wheel_oversize, top),
@@ -530,14 +527,14 @@ class CarEnv(gym.Env):
             right_front_wheel.add_attr(self.transform)
             right_front_wheel.set_color(.1, .1, .1)
             self.viewer.add_geom(right_front_wheel)
-            
+
             self.car_rendered = True
 
         if self.state is None:
             return None
         if self.zoom == 30:
             self.is_zoomed = True
-        
+
         # Zooms into to car view until reached specific zoom
         if self.is_zoomed is not True:
             self.zoom = 0.1 * SCALE * max(1 - self.time, 0) + ZOOM * SCALE * min(self.time, 1)
@@ -546,29 +543,29 @@ class CarEnv(gym.Env):
         angle = -theta
         self.transform.set_scale(self.zoom, self.zoom)
         self.transform.set_translation(
-            -WINDOW_W*(self.zoom/2 - 0.5) - (scroll_x * self.zoom),
-            -WINDOW_H*(self.zoom/2 - 0.5) - (scroll_y * self.zoom),
+            -WINDOW_W * (self.zoom / 2 - 0.5) - (scroll_x * self.zoom),
+            -WINDOW_H * (self.zoom / 2 - 0.5) - (scroll_y * self.zoom),
         )
 
         # Transforms objects with each rendering
-        self.car_trans.set_translation(x + WINDOW_W/2, y + WINDOW_H/2)
-        self.car_trans.set_rotation(theta - (math.pi)/2)
+        self.car_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
+        self.car_trans.set_rotation(theta - (math.pi) / 2)
 
         self.left_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
         self.right_wheel_trans.set_translation(x + WINDOW_W / 2, y + WINDOW_H / 2)
 
-        #rotate front wheels (needs improvement -- TODO)
+        # rotate front wheels (needs improvement -- TODO)
         self.left_wheel_trans.set_rotation(self.car_trans.rotation + psi)
         self.right_wheel_trans.set_rotation(self.car_trans.rotation + psi)
 
-        #self.score_label.draw()
+        # self.score_label.draw()
 
         return self.viewer.render(return_rgb_array=mode == 'rgb_array')
 
     def zoom_in(self):
         self.zoom /= 0.8
         return
-    
+
     def zoom_out(self):
         self.zoom *= 0.8
         return
@@ -580,7 +577,7 @@ class CarEnv(gym.Env):
         if self.viewer is not None:
             self.viewer.close()
             self.viewer = None
-            
+
 
 def key_press(k, mod):
     global close
@@ -588,13 +585,13 @@ def key_press(k, mod):
         close = True
         print('Closed')
 
+
 def mouse_scroll(x, y, scroll_x, scroll_y):
     print(env.zoom)
     if scroll_y > 0 and env.zoom > 3:
         env.zoom_out()
     if scroll_y < 0 and env.zoom < 80:
         env.zoom_in()
-
 
 
 def run_animation(path):
@@ -614,10 +611,10 @@ def run_animation(path):
     env = CarEnv()
     env.reset()
     env.render()
-    
+
     env.viewer.window.on_mouse_scroll = mouse_scroll
     env.viewer.window.on_key_press = key_press
-    
+
     df = pd.read_csv(path, sep=',')
     df['x'] = df['x'] - df['x'][0]
     df['y'] = df['y'] - df['y'][0]
@@ -630,20 +627,20 @@ def run_animation(path):
         env.render()
     env.close()
     print(env)
-    
-    return 
+
+    return
 
 
 if __name__ == '__main__':
     env = CarEnv()
     env.reset()
     env.render()
-    
+
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_mouse_scroll = mouse_scroll
-    
+
     df = pd.read_csv('ML/data/full_track_mpc.csv', sep=',')
-    #df = pd.read_csv('ML/data/full_track_comm_pred.csv', sep=',')
+    # df = pd.read_csv('ML/data/full_track_comm_pred.csv', sep=',')
 
     df['x'] = df['x'] - df['x'][0]
     df['y'] = df['y'] - df['y'][0]
