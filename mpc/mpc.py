@@ -1,13 +1,11 @@
-import math
 import cvxpy
-import numpy as np
 import pandas as pd
 from numpy import zeros
-#from cubic_spline_planner import *
 from mpc.cubic_spline_planner import *
 import matplotlib.pyplot as plt
-from analysis.log_file_analyzer import *
+from analysis.log_file_analyzer import log_to_dataFrame, normalize_logs
 from similaritymeasures import curve_length_measure, frechet_dist
+from analysis.obspy_copy import degrees2kilometers
 
 reference = True
 lap = False

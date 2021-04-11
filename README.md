@@ -18,4 +18,9 @@ pip install pyinstaller
 
 ## Create .exe
 
-python -m eel main.py electron --onefile
+Execute __build_unix__ or __build_win__ scripts depending on your operating system.
+
+### Built application
+
+https://drive.google.com/drive/folders/1RphvljaiD-TMXNZPgU8DRJv5REbveRqy?usp=sharing
+
