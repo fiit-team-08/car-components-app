@@ -8,7 +8,7 @@ from numpy import radians
 from numpy import array, zeros
 from numpy import cos, sin, arcsin, rad2deg, deg2rad
 from similaritymeasures import curve_length_measure, frechet_dist
-from obspy.geodetics import degrees2kilometers
+from analysis.obspy_copy import degrees2kilometers
 
 
 def create_curve(dataframe):

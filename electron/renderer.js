@@ -187,13 +187,15 @@ function loadReference(name) {
     });
 }
 
-function runcloud() {
 
+function runcloud() {
+    
 }
 
 function runlocal() {
     if (selector === 1) {
         eel.get_scp_xy(referenceFileName, tracesFileName)().then((r) => {
+            console.log(r)
             lines2.data.datasets[1].data = JSON.parse(r);
             lines2.update()
         });
@@ -468,8 +470,15 @@ document.getElementById('open-button1').addEventListener("click", event => {
         ]
     }).then(result => {
         if (!result.canceled) {
+            console.log('check')
             referenceFileName = result.filePaths.toString()
-            document.getElementById('file-name1').innerHTML = referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+
+            // Path for Linux/Mac or Windows
+            if (referenceFileName.split(/(.*)\\/)[2] == undefined) {
+                document.getElementById('file-name1').innerHTML = referenceFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
+            } else {
+                document.getElementById('file-name1').innerHTML = referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+            }
             eel.get_reference_laps(referenceFileName)().then((r) => {
                 document.getElementById('referencenumber').innerHTML = r;
             });
@@ -505,7 +514,12 @@ document.getElementById('open-button2').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             tracesFileName = result.filePaths.toString()
-            document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+            // Path for Linux/Mac or Windows
+            if (tracesFileName.split(/(.*)\\/)[2] == undefined) {
+                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
+            } else {
+                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+            }
             file2 = 1;
                 if (file1 && file2) {
                     document.getElementsByClassName('disabled')[0].style.opacity = "1";

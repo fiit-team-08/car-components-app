@@ -1,11 +1,19 @@
 import eel
-from mpc.mpc import *
+from mpc.mpc import mpc
+from mpc.mpc import get_reference_data
 from analysis.log_file_analyzer import *
+
+from sys import platform
 from command_prediction.command_prediction_simple import *
+from ML.RL import animation_rendering
 
 
 eel.init('electron')
-eel.browsers.set_path('electron', 'node_modules/electron/dist/electron')
+
+if platform == 'darwin': # MacOS
+    eel.browsers.set_path('electron', 'node_modules/electron/dist/Electron.app/Contents/MacOS/Electron')
+else:
+    eel.browsers.set_path('electron', 'node_modules/electron/dist/electron')
 
 laps = None
 mpc_data = None
@@ -94,6 +102,14 @@ def export_mpc(path, file_name):
 @eel.expose
 def get_reference_laps(path):
     return get_number_of_lines(path)
+
+
+# ANIMATION
+@eel.expose
+def animate_track(path):
+    animation_rendering.run_animation(path)
+
+    
 
 
 data = [69, 59, 80, 81, 56, 55, 40]

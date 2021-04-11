@@ -1,11 +1,12 @@
-import pandas as pd
-from pandas import DataFrame
 import numpy as np
+import pandas as pd
 import math
-from scipy.spatial import distance
 import json
 from datetime import datetime, date
-from analysis.lap_difference_analyzer import *
+from scipy.spatial import distance
+from pandas import DataFrame
+from analysis.lap_difference_analyzer import find_out_difference_perpendiculars
+from analysis.obspy_copy import degrees2kilometers
 
 firstx = 0
 firsty = 0
@@ -30,6 +31,8 @@ def log_to_dataFrame(file_path):
     logs = pd.read_csv(file_path, header=None, sep=';', names=['TIME', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
                                                                '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC',
                                                                '17', 'NXPT'])
+    
+    
 
     logs = logs.drop(columns=['1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()

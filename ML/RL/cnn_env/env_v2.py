@@ -5,7 +5,7 @@ from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
-from obspy.geodetics import degrees2kilometers
+from analysis.obspy_copy import degrees2kilometers
 from ML.RL.bicycle_model import BicycleKinematicModel
 from gym.envs.classic_control import rendering
 from ML.RL.utils import find_closest_point
