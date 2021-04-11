@@ -1,7 +1,8 @@
 import eel
-from mpc.mpc import *
+from mpc.mpc import mpc
+from mpc.mpc import get_reference_data
 from analysis.log_file_analyzer import *
-from command_prediction.command_prediction_simple import *
+from command_prediction.command_prediction_simple import get_simple_command_prediction
 
 
 eel.init('electron')
