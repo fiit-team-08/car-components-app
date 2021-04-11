@@ -424,7 +424,7 @@ function cp() {
     } else {
         document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#eaeaea';
         document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
+        // document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
         document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
         document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString()+'px';
     }
@@ -440,7 +440,7 @@ function mpc() {
     } else {
         document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#f5f5f5';
         document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#eaeaea';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
+        // document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
         let n = document.getElementsByClassName('mpc-inputs')[0].scrollHeight + document.getElementsByClassName('parameters-button')[0].scrollHeight
         document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString()+'px';
         document.getElementsByClassName('parameters')[0].style.height = (n).toString()+'px';

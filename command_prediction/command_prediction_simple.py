@@ -1,6 +1,7 @@
 import shapely.geometry
 from analysis.log_file_analyzer import *
-from ML.RL.bicycle_model import BicycleKinematicModel
+from math import atan2
+from command_prediction.bicycle import BicycleKinematicModel
 from shapely.geometry import LineString
 from shapely.geometry.polygon import LinearRing
 
