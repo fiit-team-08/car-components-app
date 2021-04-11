@@ -308,9 +308,6 @@ function runlocal() {
             document.getElementById("trasycrs").appendChild(label2);
         });
     }
-    if (selector === 3) {
-
-    }
 }
 
 function loadTrackAnalysis() {
@@ -445,21 +442,6 @@ function mpc() {
         let n = document.getElementsByClassName('mpc-inputs')[0].scrollHeight + document.getElementsByClassName('parameters-button')[0].scrollHeight
         document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString()+'px';
         document.getElementsByClassName('parameters')[0].style.height = (n).toString()+'px';
-    }
-}
-
-function nn() {
-    document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Neural Network:";
-    selector = 3;
-    if (document.getElementsByClassName('selector-buttons')[2].style.backgroundColor === 'rgb(234, 234, 234)') {
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('parameters')[0].style.height = '0px';
-    } else {
-        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#eaeaea';
-        document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
-        document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString()+'px';
     }
 }
 
