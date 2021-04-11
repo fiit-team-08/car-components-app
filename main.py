@@ -9,6 +9,7 @@ eel.browsers.set_path('electron', 'node_modules/electron/dist/electron')
 
 laps = None
 mpc_data = None
+scp_data = None
 
 @eel.expose
 def getpath(path):

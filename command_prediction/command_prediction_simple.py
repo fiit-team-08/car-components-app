@@ -1,6 +1,6 @@
 import shapely.geometry
 from analysis.log_file_analyzer import *
-from ml.RL.car_env_v0.bicycle_model import BicycleKinematicModel
+from command_prediction.bicycle import *
 from shapely.geometry import LineString
 from shapely.geometry.polygon import LinearRing
 
@@ -91,8 +91,11 @@ def get_new_steering_angles(lap, reference_lap, speed=1):
         turn_angle = 0
         lowest_distance = math.inf
         for j in range(len(possible_angles)):
-            copied_model = BicycleKinematicModel(x=current_x, y=current_y, steering_angle=steering_angle,
-                                                 heading_angle=heading_angle, time_step=1)
+            copied_model = BicycleKinematicModel(x=current_x,
+                                                 y=current_y,
+                                                 steering_angle=steering_angle,
+                                                 heading_angle=heading_angle,
+                                                 time_step=1)
             angle = math.radians(possible_angles[j])
 
             copied_model.change_state(speed, angle)
@@ -145,12 +148,29 @@ def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
 
     created_points, angles, steering_angles, heading_angles = get_new_steering_angles(lap, reference_df, speed)
     list_x, list_y = list(map(list, zip(*created_points)))
-    d = {'x': list_x, 'y': list_y, 'CRS': heading_angles, 'TIME': list(range(0, len(heading_angles)))}
+    d = {
+        'x': list_x,
+        'y': list_y,
+        'CRS': heading_angles,
+        'TIME': np.linspace(reference_df.iloc[0]['TIME'], reference_df.iloc[-1]['TIME'], len(heading_angles))
+    }
     df = pd.DataFrame(data=d)
     df.x -= df.x[0]
     df.y -= df.y[0]
-    df.CRS.apply(lambda rad: np.rad2deg(rad))
+    df['CRS'] = df['CRS'].apply(lambda deg: np.rad2deg(deg) % 360)
+    # minus = False
+    # for i in range(df.CRS.size - 1):
+    #     if (df.CRS[i] - df.CRS[i+1]) > 300:
+    #         minus = False
+    #         temp = df.CRS[i]
+    #         df.CRS[i] = -abs(360 - temp)
+    #     if minus:
+    #         temp = df.CRS[i]
+    #         df.CRS[i] = -abs(360 - temp)
+    #     if (df.CRS[i+1] - df.CRS[i]) > 300:
+    #         minus = True
     return df
+
 
 
 def smooth(x, window_len=11, window='hanning'):

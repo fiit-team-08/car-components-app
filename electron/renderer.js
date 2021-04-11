@@ -197,7 +197,6 @@ function runlocal() {
             lines2.data.datasets[1].data = JSON.parse(r);
             lines2.update()
         });
-
         eel.get_scp_crs()().then((r) => {
             lines3.data.datasets[1].data = JSON.parse(r);
             lines3.update()
