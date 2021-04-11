@@ -9,7 +9,6 @@ pyglet
 keras
 matplotlib
 numpy
-obspy
 pandas
 pyinstaller
 scikit-learn

@@ -1,11 +1,12 @@
-import pandas as pd
-from pandas import DataFrame
 import numpy as np
+import pandas as pd
 import math
-from scipy.spatial import distance
 import json
 from datetime import datetime, date
-from analysis.lap_difference_analyzer import *
+from scipy.spatial import distance
+from pandas import DataFrame
+from analysis.lap_difference_analyzer import find_out_difference_perpendiculars
+from analysis.obspy_copy import degrees2kilometers
 
 firstx = 0
 firsty = 0
