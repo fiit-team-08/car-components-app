@@ -31,6 +31,8 @@ def log_to_dataFrame(file_path):
     logs = pd.read_csv(file_path, header=None, sep=';', names=['TIME', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
                                                                '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC',
                                                                '17', 'NXPT'])
+    
+    
 
     logs = logs.drop(columns=['1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()
