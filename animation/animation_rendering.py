@@ -2,16 +2,13 @@
 import math
 
 import gym
-from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
 from analysis.obspy_copy import degrees2kilometers
 from gym.envs.classic_control import rendering
-from pyglet.window import key, mouse
-
-import pyglet
-from pyglet import gl
+from pyglet.window import key
+from analysis.log_file_analyzer import log_to_dataFrame
 
 WINDOW_W = 1000
 WINDOW_H = 1000
@@ -83,7 +80,10 @@ class CarEnv(gym.Env):
                  action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
-        self.df = self._read_df(filename)
+        self.df = log_to_dataFrame(filename)
+        self.df['LAT'] = self.df['LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
+        self.df['LON'] = self.df['LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
+        self.df['CRS'] = self.df['CRS'].apply(lambda deg: np.deg2rad(deg))
 
         self.road = self._create_road()
         self.map_center = self._get_track_start()
@@ -608,7 +608,7 @@ def run_animation(path):
     """
     global env, close
 
-    env = CarEnv()
+    env = CarEnv(filename=path)
     env.reset()
     env.render()
 
