@@ -5,7 +5,7 @@ from analysis.log_file_analyzer import *
 
 from sys import platform
 from command_prediction.command_prediction_simple import *
-from ml.RL import animation_rendering
+from ML.RL import animation_rendering
 
 
 eel.init('electron')
