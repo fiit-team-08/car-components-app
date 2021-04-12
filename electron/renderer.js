@@ -471,6 +471,7 @@ document.getElementById('open-button1').addEventListener("click", event => {
     }).then(result => {
         if (!result.canceled) {
             console.log('check')
+            referenceFilePath = result.filePaths.toString()
             referenceFileName = result.filePaths.toString()
 
             // Path for Linux/Mac or Windows
@@ -516,9 +517,9 @@ document.getElementById('open-button2').addEventListener("click", event => {
             tracesFileName = result.filePaths.toString()
             // Path for Linux/Mac or Windows
             if (tracesFileName.split(/(.*)\\/)[2] == undefined) {
-                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
+                document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
             } else {
-                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+                document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
             }
             file2 = 1;
                 if (file1 && file2) {
