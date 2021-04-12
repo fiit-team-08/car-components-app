@@ -1,12 +1,10 @@
 Box2D
 eel
 gym
-h5py
 future
 geopandas
 Pillow
 pyglet
-keras
 matplotlib
 numpy
 pandas
@@ -16,6 +14,4 @@ scipy
 shapely
 similaritymeasures
 sympy
-tensorflow
-torch
 cvxpy
