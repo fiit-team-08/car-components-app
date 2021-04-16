@@ -10,6 +10,7 @@ let trackdata = undefined;
 let referenceFileName = undefined;
 let tracesFileName = undefined;
 let selector = 1
+let car = 0
 
 eel.getdata()().then((r) => {
     data = r;
@@ -51,7 +52,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white",
+                    fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
                 }
@@ -61,7 +62,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white",
+                    fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
                 }
@@ -78,6 +79,13 @@ let lines2 = new Chart(document.getElementById("chart2"), {
             showLine: true,
             fill: false,
             "borderColor": "#f56b00",
+            data: []
+        },
+        {
+            label: 'SCP',
+            showLine: true,
+            fill: false,
+            "borderColor": "#254053",
             data: []
         },
         {
@@ -111,7 +119,7 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white",
+                    fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
                 }
@@ -121,7 +129,7 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
-                    fontColor: "white",
+                    fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
                 }
@@ -141,6 +149,13 @@ let lines3 = new Chart(document.getElementById("chart3"), {
             data: []
         },
         {
+            label: 'SCP',
+            showLine: true,
+            fill: false,
+            "borderColor": "#254053",
+            data: []
+        },
+        {
             label: 'MPC',
             showLine: true,
             fill: false,
@@ -152,7 +167,7 @@ let lines3 = new Chart(document.getElementById("chart3"), {
         legend: {
             display: false,
             labels: {
-                fontColor: '#000000',
+                fontColor: '##f5f5f5',
                 fontSize: 15
             }
         },
@@ -187,12 +202,66 @@ function loadReference(name) {
     });
 }
 
+function lines2ref() {
+    if (lines2.data.datasets[0].hidden === true)
+        lines2.data.datasets[0].hidden = false;
+    else
+        lines2.data.datasets[0].hidden = true;
+    lines2.update()
+}
+
+function lines3ref() {
+    if (lines3.data.datasets[0].hidden === true)
+        lines3.data.datasets[0].hidden = false;
+    else
+        lines3.data.datasets[0].hidden = true;
+    lines3.update()
+}
+
+function lines2scp() {
+    if (lines2.data.datasets[1].hidden === true)
+        lines2.data.datasets[1].hidden = false;
+    else
+        lines2.data.datasets[1].hidden = true;
+    lines2.update()
+}
+
+function lines3scp() {
+    if (lines3.data.datasets[1].hidden === true)
+        lines3.data.datasets[1].hidden = false;
+    else
+        lines3.data.datasets[1].hidden = true;
+    lines3.update()
+}
+
+function lines2mpc() {
+    if (lines2.data.datasets[2].hidden === true)
+        lines2.data.datasets[2].hidden = false;
+    else
+        lines2.data.datasets[2].hidden = true;
+    lines2.update()
+}
+
+function lines3mpc() {
+    if (lines3.data.datasets[2].hidden === true)
+        lines3.data.datasets[2].hidden = false;
+    else
+        lines3.data.datasets[2].hidden = true;
+    lines3.update()
+}
 
 function runcloud() {
-    
+    document.getElementsByClassName('disable')[0].style.opacity = "0.5";
+    document.getElementsByClassName('disable')[0].style.pointerEvents = "none";
+    document.getElementsByClassName('disable')[1].style.opacity = "0.5";
+    document.getElementsByClassName('disable')[1].style.pointerEvents = "none";
 }
 
 function runlocal() {
+    document.getElementsByClassName('disable')[0].style.opacity = "0.5";
+    document.getElementsByClassName('disable')[0].style.pointerEvents = "none";
+    document.getElementsByClassName('disable')[1].style.opacity = "0.5";
+    document.getElementsByClassName('disable')[1].style.pointerEvents = "none";
     if (selector === 1) {
         eel.get_scp_xy(referenceFileName, tracesFileName)().then((r) => {
             console.log(r)
@@ -206,26 +275,33 @@ function runlocal() {
 
             document.getElementById("trasyxy").appendChild(document.createElement('br'));
             document.getElementById("trasycrs").appendChild(document.createElement('br'));
-
             let item1 = document.createElement('input');
             item1.setAttribute('id', 'scpxy');
             item1.setAttribute('type', 'checkbox');
+            item1.setAttribute('onclick', 'lines2scp()');
             item1.setAttribute('checked', 'true');
             let item2 = document.createElement('input');
             item2.setAttribute('id', 'scpcsr');
             item2.setAttribute('type', 'checkbox');
+            item2.setAttribute('onclick', 'lines3scp()');
             item2.setAttribute('checked', 'true');
             document.getElementById("trasyxy").appendChild(item1);
             document.getElementById("trasycrs").appendChild(item2);
 
             let label1 = document.createElement('label');
-            label1.appendChild(document.createTextNode("Simple command prediction"));
+            label1.appendChild(document.createTextNode("Simple Command Prediction"));
             label1.setAttribute('for', 'scpxy');
             let label2 = document.createElement('label');
-            label2.appendChild(document.createTextNode("Simple command prediction"));
+            label2.appendChild(document.createTextNode("Simple Command Prediction"));
             label2.setAttribute('for', 'scpcsr');
             document.getElementById("trasyxy").appendChild(label1);
             document.getElementById("trasycrs").appendChild(label2);
+            document.getElementsByClassName('disable')[0].style.opacity = "1";
+            document.getElementsByClassName('disable')[0].style.pointerEvents = "auto";
+            document.getElementsByClassName('disable')[1].style.opacity = "1";
+            document.getElementsByClassName('disable')[1].style.pointerEvents = "auto";
+            document.getElementsByClassName('run')[0].style.opacity = "1";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
         });
     }
     if (selector === 2) {
@@ -280,11 +356,11 @@ function runlocal() {
         else
             anglespeed = 10
         eel.get_mpc_xy(referenceFileName, lenght, width, wheels, wheelbase, wheelsize, s, speed, acceleration, angle, anglespeed)().then((r) => {
-            lines2.data.datasets[1].data = JSON.parse(r);
+            lines2.data.datasets[2].data = JSON.parse(r);
             lines2.update()
         });
         eel.get_mpc_crs(referenceFileName)().then((r) => {
-            lines3.data.datasets[1].data = JSON.parse(r);
+            lines3.data.datasets[2].data = JSON.parse(r);
             lines3.update()
 
             document.getElementById("trasyxy").appendChild(document.createElement('br'));
@@ -293,10 +369,12 @@ function runlocal() {
             let item1 = document.createElement('input');
             item1.setAttribute('id', 'mpcxy');
             item1.setAttribute('type', 'checkbox');
+            item1.setAttribute('onclick', 'lines2mpc()');
             item1.setAttribute('checked', 'true');
             let item2 = document.createElement('input');
             item2.setAttribute('id', 'mpccsr');
             item2.setAttribute('type', 'checkbox');
+            item2.setAttribute('onclick', 'lines3mpc()');
             item2.setAttribute('checked', 'true');
             document.getElementById("trasyxy").appendChild(item1);
             document.getElementById("trasycrs").appendChild(item2);
@@ -309,10 +387,13 @@ function runlocal() {
             label2.setAttribute('for', 'mpccsr');
             document.getElementById("trasyxy").appendChild(label1);
             document.getElementById("trasycrs").appendChild(label2);
+            document.getElementsByClassName('disable')[0].style.opacity = "1";
+            document.getElementsByClassName('disable')[0].style.pointerEvents = "auto";
+            document.getElementsByClassName('disable')[1].style.opacity = "1";
+            document.getElementsByClassName('disable')[1].style.pointerEvents = "auto";
+            document.getElementsByClassName('run')[0].style.opacity = "1";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
         });
-    }
-    if (selector === 3) {
-
     }
 }
 
@@ -422,13 +503,12 @@ function makeUL(array) {
 function cp() {
     document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Simple Command Prediction:";
     selector = 1;
-    if (document.getElementsByClassName('selector-buttons')[0].style.backgroundColor === 'rgb(234, 234, 234)') {
-        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#f5f5f5';
+    if (document.getElementsByClassName('selector-buttons')[0].style.backgroundColor === 'rgb(20, 46, 59)') {
+        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#254053';
         document.getElementsByClassName('parameters')[0].style.height = '0px';
     } else {
-        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#eaeaea';
-        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
+        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#142e3b';
+        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#254053';
         document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
         document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString()+'px';
     }
@@ -437,32 +517,16 @@ function cp() {
 function mpc() {
     document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Model Predictive Control:";
     selector = 2;
-    if (document.getElementsByClassName('selector-buttons')[1].style.backgroundColor === 'rgb(234, 234, 234)') {
-        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#f5f5f5';
+    if (document.getElementsByClassName('selector-buttons')[1].style.backgroundColor === 'rgb(20, 46, 59)') {
+        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#254053';
         document.getElementsByClassName('parameters')[0].style.height = '0px';
         document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
     } else {
-        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#eaeaea';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
+        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#254053';
+        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#142e3b';
         let n = document.getElementsByClassName('mpc-inputs')[0].scrollHeight + document.getElementsByClassName('parameters-button')[0].scrollHeight
         document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString()+'px';
         document.getElementsByClassName('parameters')[0].style.height = (n).toString()+'px';
-    }
-}
-
-function nn() {
-    document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Neural Network:";
-    selector = 3;
-    if (document.getElementsByClassName('selector-buttons')[2].style.backgroundColor === 'rgb(234, 234, 234)') {
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('parameters')[0].style.height = '0px';
-    } else {
-        document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#f5f5f5';
-        document.getElementsByClassName('selector-buttons')[2].style.backgroundColor = '#eaeaea';
-        document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
-        document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString()+'px';
     }
 }
 
@@ -506,18 +570,13 @@ document.getElementById('open-button1').addEventListener("click", event => {
                     document.getElementsByClassName('disabled')[0].style.opacity = "1";
                     document.getElementsByClassName('disabled')[1].style.opacity = "1";
                     document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
-                    //document.getElementsByClassName('load')[0].style.opacity = "1";
-                    //document.getElementsByClassName('load')[1].style.opacity = "1";
                 }
                 if (file1 && file2) {
-                    document.getElementsByClassName('disabled')[0].style.opacity = "1";
-                    document.getElementsByClassName('load')[1].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[2].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
                 }
-            loadChartForFile(referenceFileName, 0);
+            (referenceFileName, 0);
             loadReference(referenceFileName);
-            if (tracesFileName !== undefined) {
-                loadTrackAnalysis()
-            }
         }
     }).catch(err => {
         console.log(err)
@@ -535,20 +594,18 @@ document.getElementById('open-button2').addEventListener("click", event => {
             tracesFileName = result.filePaths.toString()
             // Path for Linux/Mac or Windows
             if (tracesFileName.split(/(.*)\\/)[2] == undefined) {
-                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
+                document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\//)[2].split(/\.log$/)[0];
             } else {
-                document.getElementById('file-name1').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
+                document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
             }
             file2 = 1;
                 if (file1 && file2) {
-                    document.getElementsByClassName('disabled')[0].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[2].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
                     //document.getElementsByClassName('load')[0].style.opacity = "1";
-                    document.getElementsByClassName('load')[1].style.opacity = "1";
+                    //document.getElementsByClassName('load')[1].style.opacity = "1";
                 }
-            loadChartForFile(tracesFileName, 1)
-            if (referenceFileName !== undefined) {
-                loadTrackAnalysis()
-            }
+            loadChartForFile(tracesFileName, 1);
         }
     }).catch(err => {
         console.log(err)
@@ -566,6 +623,10 @@ document.getElementById('track').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "block";
     document.getElementById('ww2').style.display = "none";
+    if (referenceFileName !== undefined && car === 0) {
+        loadTrackAnalysis()
+        car = 1
+    }
 });
 
 document.getElementById('car').addEventListener("click", event => {
