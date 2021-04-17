@@ -10,7 +10,7 @@ def angle_between(v1, v2, positive=False):
     """
         Computes an angle between two vectors
     """
-    angle = atan2(np.linalg.det(np.array(v1 + v2).reshape((2, 2))), np.dot(v1, v2))
+    angle = math.atan2(np.linalg.det(np.array(v1 + v2).reshape((2, 2))), np.dot(v1, v2))
     if positive and angle < 0:
         angle += 2 * math.pi
     return angle

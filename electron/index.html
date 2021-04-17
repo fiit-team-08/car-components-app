@@ -74,7 +74,7 @@
                 <img srcset="icon/print.png" />
             </div>
         </div>
-        <div id="ww1">
+        <div id="ww1" class="flex-row">
             <div class="left">
                 <div class="charts">
                     <canvas id="chart1"></canvas>
@@ -104,7 +104,7 @@
             </div>
         </div>
         <div id="ww2">
-            <div class="flex-row selector">
+            <div class="selector flex-row">
                 <div onClick="cp()" class="button button-small selector-buttons">
                     <p>Simple Command Prediction</p>
                 </div>
@@ -118,74 +118,75 @@
                         <div class="half-inputs">
                             <div class="inputs">
                                 <label>Dĺžka&nbsp;vozidla:</label>
-                                <input type="text" id="lenght">
+                                <input type="text" id="lenght" placeholder="2,8">
                                 <label>m</label>
                             </div>
                             <div class="inputs">
                                 <label>Šírka&nbsp;vozidla:</label>
-                                <input type="text" id="width">
+                                <input type="text" id="width" placeholder="1,6">
                                 <label>m</label>
                             </div>
                             <div class="inputs">
                                 <label>Rozstup&nbsp;kolies:</label>
-                                <input type="text" id="wheels">
+                                <input type="text" id="wheels" placeholder="1,5">
                                 <label>m</label>
                             </div>
                             <div class="inputs">
                                 <label>Rázvor&nbsp;náprav:</label>
-                                <input type="text" id="wheelbase">
+                                <input type="text" id="wheelbase" placeholder="2,4">
                                 <label>m</label>
                             </div>
                             <div class="inputs">
                                 <label>Šírka&nbsp;kolies:</label>
-                                <input type="text" id="wheelsize">
+                                <input type="text" id="wheelsize" placeholder="0,4">
                                 <label>m</label>
                             </div>
                         </div>
                         <div class="half-inputs">
                             <div class="inputs">
                                 <label>Cieľová&nbsp;rýchlosť:</label>
-                                <input type="text" id="s">
+                                <input type="text" id="s" placeholder="30">
                                 <label>m/s</label>
                             </div>
                             <div class="inputs">
                                 <label>Maximálna&nbsp;rýchlosť:</label>
-                                <input type="text" id="speed">
+                                <input type="text" id="speed" placeholder="40">
                                 <label>m/s</label>
                             </div>
                             <div class="inputs">
                                 <label>Maximálne&nbsp;zrýchlenie:</label>
-                                <input type="text" id="acceleration">
+                                <input type="text" id="acceleration" placeholder="1">
                                 <label>m/ss</label>
                             </div>
                             <div class="inputs">
                                 <label>Maximálny&nbsp;uhol&nbsp;kolies:</label>
-                                <input type="text" id="angle">
-                                <label>rad</label>
+                                <input type="text" id="angle" placeholder="30">
+                                <label>deg</label>
                             </div>
                             <div class="inputs">
                                 <label>Maximálna&nbsp;rýchlosť&nbsp;natočenia:</label>
-                                <input type="text" id="anglespeed">
-                                <label>rad/s</label>
+                                <input type="text" id="anglespeed" placeholder="10">
+                                <label>deg/s</label>
                             </div>
                         </div>
                     </div>
                     <div class="parameters-button">
                         <p id="parameters-text"></p>
                         <div class="flex-row parameters-buttons">
-                            <div onclick="runlocal()" class="button button-small button-smaller">
+                            <div onclick="runlocal()" class="button button-small button-smaller disable">
                                 <p>Spustiť lokálne</p>
                             </div>
-                            <div onclick="runcloud()" class="button button-small button-smaller">
+                            <div onclick="runcloud()" class="button button-small button-smaller disable">
                                 <p>Spustiť na cloude</p>
                             </div>
-                            <div onclick="animate_car_movement()" class="button button-small button-smaller">
+                            <div onclick="animate_car_movement()" class="button button-small button-smaller run">
                                 <p>Spustiť animáciu</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <p class="graph-title">Analyzovaná dráha</p>
             <div class="flex-row">
                 <div class="left">
                     <div class="charts">
@@ -196,10 +197,13 @@
                     <div class="info">
                         <h1>List trás</h1>
                         <div id="trasyxy">
-                            <input type="checkbox" id="refxy" checked="true" /><label for="refxy">Referenčná</label>
+                            <input type="checkbox" id="refxy" checked="true" onclick="lines2ref()"/><label for="refxy">Referenčná</label>
                         </div>
                     </div>
                 </div>
+            </div>
+            <p class="graph-title">Uhol natočenia volantu</p>
+            <div class="flex-row">
                 <div class="left">
                     <div class="charts">
                         <canvas id="chart3"></canvas>
@@ -209,7 +213,7 @@
                     <div class="info info-bottom">
                         <h1>List trás</h1>
                         <div id="trasycrs">
-                            <input type="checkbox" id="refcrs" checked="true" /><label for="checkall">Referenčná</label>
+                            <input type="checkbox" id="refcrs" checked="true" onclick="lines3ref()"/><label for="refcrs">Referenčná</label>
                         </div>
                     </div>
                 </div>
