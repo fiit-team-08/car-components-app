@@ -623,26 +623,41 @@ def get_reference_data(path):
     ax = log.LON
     ay = log.LAT
 
-    minus = False
-    for i in range(log.CRS.size - 1):
-        if (log.CRS[i] - log.CRS[i+1]) > 300:
-            minus = False
-            temp = log.CRS[i]
-            log.CRS[i] = -abs(360 - temp)
-        if minus:
-            temp = log.CRS[i]
-            log.CRS[i] = -abs(360 - temp)
-        if (log.CRS[i+1] - log.CRS[i]) > 300:
-            minus = True
-    log.drop(log.tail(1).index, inplace=True)
-    log.CRS -= log.CRS[0]
+    # minus = False
+    # for i in range(log.CRS.size - 1):
+    #     if (log.CRS[i] - log.CRS[i+1]) > 300:
+    #         minus = False
+    #         temp = log.CRS[i]
+    #         log.CRS[i] = -abs(360 - temp)
+    #     if minus:
+    #         temp = log.CRS[i]
+    #         log.CRS[i] = -abs(360 - temp)
+    #     if (log.CRS[i+1] - log.CRS[i]) > 300:
+    #         minus = True
+    # log.drop(log.tail(1).index, inplace=True)
+    # log.CRS -= log.CRS[0]
 
     global logcrs
     global logtime
     logcrs = log.CRS
     logtime = log.TIME
     log.rename(columns={"LAT": "y", "LON": "x"}, inplace=True)
-
+    # polar_x = []
+    # polar_y = []
+    #
+    # for i in range(1, len(log['CRS'])):
+    #     angle_actual = log.iloc[i]['CRS']
+    #     angle_prev = log.iloc[i-1]['CRS']
+    #     for w in np.linspace(0, 1, 4):
+    #         CS = (1 - w) * cos(angle_prev) + w * cos(angle_actual)
+    #         SN = (1 - w) * sin(angle_prev) + w * sin(angle_actual)
+    #         C = atan2(SN, CS)
+    #         cart_x, cart_y = cos(C), sin(C)
+    #         polar_x.append(cart_x * sqrt(i))
+    #         polar_y.append(cart_y * sqrt(i))
+    #
+    # log['CRS_NEW'] = polar_y
+    # log['TIME_NEW'] = polar_x
     return log
 
 

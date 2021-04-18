@@ -6,7 +6,7 @@ from numpy.linalg import norm, det
 from numpy import cross, dot
 from numpy import radians
 from numpy import array, zeros
-from numpy import cos, sin, arcsin
+from numpy import cos, sin, arcsin, rad2deg, deg2rad
 from similaritymeasures import curve_length_measure, frechet_dist
 from analysis.obspy_copy import degrees2kilometers
 
@@ -16,6 +16,10 @@ def create_curve(dataframe):
     curve[:, 0] = dataframe.LON
     curve[:, 1] = dataframe.LAT
     return curve
+
+
+def clamp_angle(angle):
+    return rad2deg(atan2(sin(deg2rad(angle)), cos(deg2rad(angle))))
 
 
 def earth_distance(point1, point2):

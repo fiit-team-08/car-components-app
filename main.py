@@ -4,8 +4,7 @@ from mpc.mpc import get_reference_data
 
 from sys import platform
 from command_prediction.command_prediction_simple import *
-from ML.RL import animation_rendering
-
+from animation import animation_rendering
 
 eel.init('electron')
 
@@ -16,6 +15,7 @@ else:
 
 laps = None
 mpc_data = None
+scp_data = None
 
 @eel.expose
 def getpath(path):
