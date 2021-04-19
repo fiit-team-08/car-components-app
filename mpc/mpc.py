@@ -9,7 +9,7 @@ from analysis.obspy_copy import degrees2kilometers
 
 reference = True
 lap = False
-xy = True
+xy = False
 crs = False
 
 logtime = pd.DataFrame()
@@ -702,8 +702,7 @@ def main(path):
     t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
 
     y = [(number * 55) for number in yaw]
-    yf = y[0]
-    y = [(number - yf) for number in y]
+    y = [(number - 100) for number in y]
     #d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
     d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
     df = pd.DataFrame(data=d)

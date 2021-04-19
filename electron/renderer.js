@@ -604,7 +604,7 @@ document.getElementById('open-button2').addEventListener("click", event => {
                     //document.getElementsByClassName('load')[0].style.opacity = "1";
                     //document.getElementsByClassName('load')[1].style.opacity = "1";
                 }
-            loadChartForFile(tracesFileName, 1);
+            loadChartForFile(referenceFileName, 0);
         }
     }).catch(err => {
         console.log(err)
