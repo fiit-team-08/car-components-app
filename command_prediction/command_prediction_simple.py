@@ -119,6 +119,10 @@ def get_new_steering_angles(lap, reference_lap, speed=1):
     return created_points, angles, steering_angles, heading_angles
 
 
+def convert(lst):
+    return [-i for i in lst]
+
+
 def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
     """
         Creates DataFrames from both files and computes probable steering angles and returns a new DataFrame containing new data
@@ -158,7 +162,7 @@ def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
     df = pd.DataFrame(data=d)
     df.x -= df.x[0]
     df.y -= df.y[0]
-    df['CRS'] = df['CRS'].apply(lambda deg: np.rad2deg(deg) % 360)
+    #df['CRS'] = df['CRS'].apply(lambda deg: np.rad2deg(deg) % 360)
     # minus = False
     # for i in range(df.CRS.size - 1):
     #     if (df.CRS[i] - df.CRS[i+1]) > 300:
@@ -170,6 +174,12 @@ def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
     #         df.CRS[i] = -abs(360 - temp)
     #     if (df.CRS[i+1] - df.CRS[i]) > 300:
     #         minus = True
+    df['CRS'] = df['CRS'].apply(lambda deg: np.rad2deg(deg))
+    init = df['CRS'][0]
+    df['CRS'] = convert(df['CRS'])
+    a = init - df['CRS'][0]
+    df['CRS'] = df['CRS'].apply(lambda deg: deg + a)
+    df['CRS'] = df['CRS'].apply(lambda deg: deg % 360)
     return df
 
 

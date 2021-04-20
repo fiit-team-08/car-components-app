@@ -622,7 +622,6 @@ def get_reference_data(path):
     log.LON -= log.LON[0]
     ax = log.LON
     ay = log.LAT
-
     # minus = False
     # for i in range(log.CRS.size - 1):
     #     if (log.CRS[i] - log.CRS[i+1]) > 300:
@@ -658,6 +657,11 @@ def get_reference_data(path):
     #
     # log['CRS_NEW'] = polar_y
     # log['TIME_NEW'] = polar_x
+    #init = log.CRS[0]
+    #log.CRS = convert(log.CRS)
+    #log['CRS'] = log['CRS'].apply(lambda deg: deg + 360)
+    #a = init - log.CRS[0]
+    #log['CRS'] = log['CRS'].apply(lambda deg: deg + a)
     return log
 
 
@@ -702,10 +706,18 @@ def main(path):
     t, x, y, yaw, v, d, a = do_simulation(cx, cy, cyaw, ck, sp, dl, initial_state)
 
     y = [(number * 55) for number in yaw]
-    y = [(number - 100) for number in y]
+    #y = [(number - 100) for number in y]
     #d = {'TIME': t, 'LAT': x, 'LON': y, 'GSPEED': v, 'CRS': convert(y), 'ACCEL': a}
+
+    init = y[0]
+    y = convert(y)
+    a = init - y[0]
+
     d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
     df = pd.DataFrame(data=d)
+    df['CRS'] = convert(df['CRS'])
+    df['CRS'] = df['CRS'].apply(lambda deg: deg + a)
+    df['CRS'] = df['CRS'].apply(lambda deg: deg % 360)
     #df.to_csv('out.csv', index=False)
     return df
 

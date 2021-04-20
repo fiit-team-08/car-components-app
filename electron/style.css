@@ -173,6 +173,18 @@ main {
     transition: 0.5s ease-in-out;
 }
 
+.refxy, .refcrs {
+    color: #132b3c;
+}
+
+.mpcxy, .mpccsr {
+    color: #809db5;
+}
+
+.scpxy, .scpcsr {
+    color: #4e7490;
+}
+
 .inputs {
     display: flex;
     margin: 0 25px 20px;
@@ -445,7 +457,7 @@ li {
     display: block;
     cursor: pointer;
     padding: 10px 0;
-    margin-left: auto;
+    margin-left: 20px;
     border-radius: 50%;
     background: #f5f5f5;
     transition: 0.5s ease-in-out;
@@ -463,6 +475,14 @@ li {
     height: 20px;
     margin: auto;
     display: block;
+}
+
+#description {
+    margin-left: auto;
+    width: 250px;
+    background: #f5f5f5;
+    padding: 10px 20px;
+    border-radius: 20px;
 }
 
 .info {
@@ -588,6 +608,17 @@ hr {
         color: black;
     }
 
+    #description {
+        margin: 15px auto -25px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .top-bar {
+        display: inherit;
+        margin-bottom: -15px;
+    }
+
     .info {
         margin-top: -10px;
         width: 690px;
@@ -637,5 +668,13 @@ hr {
 
     .charts {
         margin: 25px 0 0 0;
+    }
+
+    .selector {
+        display: none;
+    }
+
+    .parameters {
+        display: none;
     }
 }

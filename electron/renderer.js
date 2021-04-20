@@ -25,7 +25,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#f56b00",
+            "borderColor": "#132b3c",
             data: []
         }]
     },
@@ -52,6 +52,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
+                    display: false,
                     fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
@@ -62,6 +63,7 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                     display: false
                 },
                 ticks: {
+                    display: false,
                     fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
@@ -78,21 +80,21 @@ let lines2 = new Chart(document.getElementById("chart2"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#f56b00",
+            "borderColor": "#132b3c",
             data: []
         },
         {
             label: 'SCP',
             showLine: true,
             fill: false,
-            "borderColor": "#254053",
+            "borderColor": "#4e7490",
             data: []
         },
         {
             label: 'MPC',
             showLine: true,
             fill: false,
-            "borderColor": "#254053",
+            "borderColor": "#a1bacd",
             data: []
         }]
     },
@@ -119,6 +121,7 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
+                    display: false,
                     fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
@@ -129,6 +132,7 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                     display: false
                 },
                 ticks: {
+                    display: false,
                     fontColor: "#f5f5f5",
                     stepSize: 1,
                     stepValue: 1
@@ -145,21 +149,21 @@ let lines3 = new Chart(document.getElementById("chart3"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#f56b00",
+            "borderColor": "#132b3c",
             data: []
         },
         {
             label: 'SCP',
             showLine: true,
             fill: false,
-            "borderColor": "#254053",
+            "borderColor": "#4e7490",
             data: []
         },
         {
             label: 'MPC',
             showLine: true,
             fill: false,
-            "borderColor": "#254053",
+            "borderColor": "#a1bacd",
             data: []
         }]
     },
@@ -167,8 +171,7 @@ let lines3 = new Chart(document.getElementById("chart3"), {
         legend: {
             display: false,
             labels: {
-                fontColor: '##f5f5f5',
-                fontSize: 15
+                fontSize: 0
             }
         },
         tooltips: {
@@ -290,9 +293,11 @@ function runlocal() {
             let label1 = document.createElement('label');
             label1.appendChild(document.createTextNode("Simple Command Prediction"));
             label1.setAttribute('for', 'scpxy');
+            label1.setAttribute('class', 'scpxy');
             let label2 = document.createElement('label');
             label2.appendChild(document.createTextNode("Simple Command Prediction"));
             label2.setAttribute('for', 'scpcsr');
+            label2.setAttribute('class', 'scpcsr');
             document.getElementById("trasyxy").appendChild(label1);
             document.getElementById("trasycrs").appendChild(label2);
             document.getElementsByClassName('disable')[0].style.opacity = "1";
@@ -337,7 +342,7 @@ function runlocal() {
         if (document.getElementById("s").value !== "")
             s = parseFloat(document.getElementById("s").value.replace(",", "."))
         else
-            s = 30
+            s = 25
         if (document.getElementById("speed").value !== "")
             speed = parseFloat(document.getElementById("speed").value.replace(",", "."))
         else
@@ -381,9 +386,11 @@ function runlocal() {
             let label1 = document.createElement('label');
             label1.appendChild(document.createTextNode("Model Predictive Control"));
             label1.setAttribute('for', 'mpcxy');
+            label1.setAttribute('class', 'mpcxy');
             let label2 = document.createElement('label');
             label2.appendChild(document.createTextNode("Model Predictive Control"));
             label2.setAttribute('for', 'mpccsr');
+            label2.setAttribute('class', 'mpccsr');
             document.getElementById("trasyxy").appendChild(label1);
             document.getElementById("trasycrs").appendChild(label2);
             document.getElementsByClassName('disable')[0].style.opacity = "1";
@@ -450,6 +457,10 @@ function makeUL(array) {
         let lapSteps1 = `${i + 1}.`;
         let lapSteps2 = `${array[i]["pointsPerLap"]}`;
         let lapSteps3 = `${array[i]['averagePerpendicularDistance']}m`;
+        let a = Math.floor(Math.random() * (360 - 0 + 1)) + 0;
+        let b = Math.floor(Math.random() * (80 - 50 + 1)) + 50;
+        let c = Math.floor(Math.random() * (60 - 40 + 1)) + 40;
+        let color = 'hsl(' + a + ', ' + b + '%, ' + c + '%)';
         item.setAttribute('id', (i).toString());
         item.setAttribute('name', 'check');
         item.setAttribute('type', 'checkbox');
@@ -460,16 +471,19 @@ function makeUL(array) {
         label1.appendChild(document.createTextNode(lapSteps1));
         label1.setAttribute('class', 'label1');
         label1.setAttribute('for', (i).toString());
+        label1.style.color = color;
         list.appendChild(label1);
         let label2 = document.createElement('label');
         label2.appendChild(document.createTextNode(lapSteps2));
         label2.setAttribute('class', 'label2');
         label2.setAttribute('for', (i).toString());
+        label2.style.color = color;
         list.appendChild(label2);
         let label3 = document.createElement('label');
         label3.appendChild(document.createTextNode(lapSteps3));
         label3.setAttribute('class', 'label3');
         label3.setAttribute('for', (i).toString());
+        label3.style.color = color;
         list.appendChild(label3);
         let br = document.createElement('br');
         list.appendChild(br);
@@ -484,7 +498,7 @@ function makeUL(array) {
             label: "",
             showLine: true,
             fill: false,
-            "borderColor": "#254053e6",
+            "borderColor": color,
             data: dataset
         }
         l = i+1;
@@ -565,12 +579,10 @@ document.getElementById('open-button1').addEventListener("click", event => {
                 document.getElementById('referencenumber').innerHTML = r;
             });
             file1 = 1;
-                if (file1) {
+                if (file1 && file2) {
                     document.getElementsByClassName('disabled')[0].style.opacity = "1";
                     document.getElementsByClassName('disabled')[1].style.opacity = "1";
                     document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
-                }
-                if (file1 && file2) {
                     document.getElementsByClassName('disabled')[2].style.opacity = "1";
                     document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
                 }
@@ -599,10 +611,11 @@ document.getElementById('open-button2').addEventListener("click", event => {
             }
             file2 = 1;
                 if (file1 && file2) {
+                    document.getElementsByClassName('disabled')[0].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[1].style.opacity = "1";
+                    document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
                     document.getElementsByClassName('disabled')[2].style.opacity = "1";
                     document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
-                    //document.getElementsByClassName('load')[0].style.opacity = "1";
-                    //document.getElementsByClassName('load')[1].style.opacity = "1";
                 }
             loadChartForFile(referenceFileName, 0);
         }
@@ -643,17 +656,15 @@ document.getElementById('print-button').addEventListener("click", event => {
         Chart.instances[1].resize();
         Chart.instances[2].resize();
         window.print();
-        lines2.canvas.parentNode.style.width = '98%';
-        lines3.canvas.parentNode.style.width = '98%';
+        lines2.canvas.parentNode.style.width = '100%';
+        lines3.canvas.parentNode.style.width = '100%';
         Chart.instances[1].resize();
         Chart.instances[2].resize();
     } else {
         lines1.canvas.parentNode.style.width = '185mm';
-        Chart.instances[1].resize();
         Chart.instances[0].resize();
         window.print();
-        lines1.canvas.parentNode.style.width = '98%';
-        Chart.instances[1].resize();
+        lines1.canvas.parentNode.style.width = '100%';
         Chart.instances[0].resize();
     }
 });

@@ -62,11 +62,12 @@
         </div>
     </div>
     <div id="w2">
-        <div class="flex">
+        <div class="flex top-bar">
             <button id="back-button">
                 <img srcset="icon/back.png" />
             </button>
             <h1 id="name"></h1>
+            <input type="text" id="description" placeholder="Popis datasetu">
             <div id="save-button">
                 <img srcset="icon/download.png" />
             </div>
@@ -145,7 +146,7 @@
                         <div class="half-inputs">
                             <div class="inputs">
                                 <label>Cieľová&nbsp;rýchlosť:</label>
-                                <input type="text" id="s" placeholder="30">
+                                <input type="text" id="s" placeholder="25">
                                 <label>m/s</label>
                             </div>
                             <div class="inputs">
@@ -197,7 +198,7 @@
                     <div class="info">
                         <h1>List trás</h1>
                         <div id="trasyxy">
-                            <input type="checkbox" id="refxy" checked="true" onclick="lines2ref()"/><label for="refxy">Referenčná</label>
+                            <input type="checkbox" id="refxy" checked="true" onclick="lines2ref()"/><label class="refxy" for="refxy">Referenčná</label>
                         </div>
                     </div>
                 </div>
@@ -213,7 +214,7 @@
                     <div class="info info-bottom">
                         <h1>List trás</h1>
                         <div id="trasycrs">
-                            <input type="checkbox" id="refcrs" checked="true" onclick="lines3ref()"/><label for="refcrs">Referenčná</label>
+                            <input type="checkbox" id="refcrs" checked="true" onclick="lines3ref()"/><label class="refcrs" for="refcrs">Referenčná</label>
                         </div>
                     </div>
                 </div>
