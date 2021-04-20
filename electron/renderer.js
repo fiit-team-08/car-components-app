@@ -181,6 +181,20 @@ let lines3 = new Chart(document.getElementById("chart3"), {
             point: {
                 radius: 0
             }
+        },
+        scales: {
+            xAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Čas'
+                }
+            }],
+            yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Natočenie auta'
+                }
+            }]
         }
     }
 });
