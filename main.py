@@ -104,10 +104,12 @@ def get_reference_laps(path):
 
 # ANIMATION
 @eel.expose
-def animate_track(path):
-    animation_rendering.run_animation(path)
-
-    
+def animate_track(model):
+    if model == 'scp':
+        data = rename_columns(scp_data.copy())
+    elif model == 'mpc':
+        data = rename_columns(mpc_data.copy())
+    animation_rendering.run_animation(data)
 
 
 data = [69, 59, 80, 81, 56, 55, 40]

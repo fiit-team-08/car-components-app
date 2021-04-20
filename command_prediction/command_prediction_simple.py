@@ -153,13 +153,16 @@ def get_simple_command_prediction(reference_lap_file, traces_file, speed=1):
 
     created_points, angles, steering_angles, heading_angles = get_new_steering_angles(lap, reference_df, speed)
     list_x, list_y = list(map(list, zip(*created_points)))
-    d = {
+    dict = {
         'x': list_x,
         'y': list_y,
         'CRS': heading_angles,
-        'TIME': np.linspace(reference_df.iloc[0]['TIME'], reference_df.iloc[-1]['TIME'], len(heading_angles))
+        'TIME': np.linspace(reference_df.iloc[0]['TIME'], reference_df.iloc[-1]['TIME'], len(heading_angles)),
+        'heading_angle': heading_angles,
+        'steering_angle': steering_angles,
+        'velocity': 'const'
     }
-    df = pd.DataFrame(data=d)
+    df = pd.DataFrame(data=dict)
     df.x -= df.x[0]
     df.y -= df.y[0]
     #df['CRS'] = df['CRS'].apply(lambda deg: np.rad2deg(deg) % 360)
