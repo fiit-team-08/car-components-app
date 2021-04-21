@@ -20,14 +20,12 @@ from pyglet import gl
 WINDOW_W = 800
 WINDOW_H = 800
 
-SCALE = 1  # Track scale in the viewing window
-
-CAR_WIDTH = 1.680 * SCALE
-CAR_LENGTH = 2.817 * SCALE
-WHEEL_SPACING = 1.480 * SCALE
-WHEEL_LENGTH = 0.3 * SCALE
-WHEEL_WIDTH = 0.195 * SCALE
-WHEEL_BASE = 2.345 * SCALE
+CAR_WIDTH = 1.680
+CAR_LENGTH = 2.817
+WHEEL_SPACING = 1.480
+WHEEL_LENGTH = 0.3
+WHEEL_WIDTH = 0.195
+WHEEL_BASE = 2.345
 
 CAR_COLOR = (1, 0, 0)  # RED
 WINDOW_COLOR = (.5, .5, .8)  # BLUE
@@ -82,16 +80,15 @@ class CarEnv(gym.Env):
 
     metadata = {'render.modes': ['human']}
 
-    debug = '../../ML/data/ref1.csv'
-    production = 'benchmark/ref1.csv'
 
-    def __init__(self, filename=production, type='continuous',
+
+    def __init__(self, filename, type='continuous',
                  action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
         self.df = self._read_df(filename)
 
-        self.road = self._create_road()
+        self._create_road()
         self.map_center = self._get_track_start()
 
         self._create_road_borders()
@@ -102,15 +99,6 @@ class CarEnv(gym.Env):
         self.init_v = 2.0
         self.init_psi = 0.0
         self.time = 0
-        self.init_observation = np.array([
-            self.init_x, 
-            self.init_y,
-            self.init_v,
-            self.init_theta, 
-            self.init_psi,
-            self.time
-        ])
-        self.state = self.init_observation
         self.const_t = False
         self.const_v = False
 
@@ -131,6 +119,7 @@ class CarEnv(gym.Env):
         self.is_zoomed = False
         self.car_rendered = False
 
+
     @staticmethod
     def _read_df(filename: str) -> pd.DataFrame:
         df = pd.read_csv(filename)
@@ -145,12 +134,10 @@ class CarEnv(gym.Env):
         """
         Creates road from given points
         """
-        self.points = list()
 
+        self.track_points = list()
         for index, row in self.df.iterrows():
-            self.points.append(geom.Point(row['LON'], row['LAT']))
-
-        return geom.LineString(self.points)
+            self.track_points.append((row['LON'], row['LAT']))
 
     def _create_road_borders(self):
         """
@@ -160,7 +147,7 @@ class CarEnv(gym.Env):
         self.outer = list()
         self.inner = list()
 
-        for i, point in enumerate(self.points):
+        for i, point in enumerate(self.track_points):
 
             x_center, y_center = self.map_center
             dist = ROAD_WIDTH/2  # half_width of road
@@ -170,11 +157,11 @@ class CarEnv(gym.Env):
             BL = []  # transformed point B to the left
             BR = []  # transformed point B to the right
 
-            A = [point.x, point.y]  # start point
-            if i == len(self.points) - 1:
-                B = [self.points[0].x, self.points[0].y]  # end point
+            A = [point[0], point[1]]  # start point X, Y
+            if i == len(self.track_points) - 1:
+                B = [self.track_points[0][0], self.track_points[0][1]]  # end point X, Y
             else:
-                B = [self.points[i + 1].x, self.points[i + 1].y]  # end point
+                B = [self.track_points[i + 1][0], self.track_points[i + 1][1]]  # end point X, Y
 
             V = [B[0] - A[0], B[1] - A[1]]  # vector of points A and B
 
@@ -236,50 +223,41 @@ class CarEnv(gym.Env):
                 BL = [B[0] + dist, B[1]]
                 BR = [B[0] - dist, B[1]]
 
-            self.outer.append(((AL[0] - x_center) * SCALE, (AL[1] - y_center) * SCALE))
-            self.outer.append(((BL[0] - x_center) * SCALE, (BL[1] - y_center) * SCALE))
-            self.inner.append(((AR[0] - x_center) * SCALE, (AR[1] - y_center) * SCALE))
-            self.inner.append(((BR[0] - x_center) * SCALE, (BR[1] - y_center) * SCALE))
+            self.outer.append(((AL[0] - x_center), (AL[1] - y_center)))
+            self.outer.append(((BL[0] - x_center), (BL[1] - y_center)))
+            self.inner.append(((AR[0] - x_center), (AR[1] - y_center)))
+            self.inner.append(((BR[0] - x_center), (BR[1] - y_center)))
 
     def _get_track_start(self):
         """
         Gets track centre based on starting point of the track
         """
-        x = self.points[0].x
-        y = self.points[0].y
-        
+        x = self.track_points[0][0]
+        y = self.track_points[0][1]
         return ((x, y))
 
-    def _create_track(self):
+    def _create_track(self, points, mode):
         """
         Transforms world coordinates into x,y coordinates by finding center
         and translating points and creates track represented by x,y points
 
         :returns - list of x,y points representing track in
         """
-        center_x, center_y = self.map_center
+
+        if mode == 'track':
+            center_x, center_y = self.map_center
+        else:
+            center_x = 0
+            center_y = 0
 
         # append all x,y points to the track list
         coordinates = []
-        for point in self.points:
-            x = point.x - center_x
-            y = point.y - center_y
-
-            coordinates.append((x * SCALE, y * SCALE))
-
-        coordinates.append(((self.points[0].x - center_x) * SCALE, (self.points[0].y - center_y) * SCALE))
-
-        return coordinates
-
-    def _create_track_border(self, points):
-
-        coordinates = []
         for point in points:
-            x = point[0]
-            y = point[1]
+            x = point[0] - center_x
+            y = point[1] - center_y
             coordinates.append((x, y))
 
-        coordinates.append((points[0][0], points[0][1]))
+        coordinates.append(((points[0][0] - center_x), (points[0][1] - center_y)))
 
         return coordinates
 
@@ -320,9 +298,6 @@ class CarEnv(gym.Env):
             track.set_color(0.25, 0.25, 0.25)
             self.viewer.add_geom(track)
 
-
-
-
     def _create_car_object(self, car_width, car_length, car_color):
         """
         Creates car object (polygon) which includes body and rear wheels
@@ -338,7 +313,6 @@ class CarEnv(gym.Env):
             -car_length / 2
         )
         # CAR BODY
-
         car = rendering.FilledPolygon([
             (left, bottom),
             (left, top),
@@ -388,10 +362,6 @@ class CarEnv(gym.Env):
         )
         return label
 
-    def _car_indicator_object(self):
-        self.car_small = pyglet.shapes.Rectangle(50,  50, 20, 80, color=(1, 0, 0))
-
-
     def _create_track_line(self, line, color):
         """
         Function to create middle line and borders of the track
@@ -408,9 +378,10 @@ class CarEnv(gym.Env):
         Updates parameters with each step
         """
 
-        new_x = action['x'] * SCALE
-        new_y = action['y'] * SCALE
+        new_x = action['x']
+        new_y = action['y']
 
+        # scp does not contain velocity and time, so we want to set it to constant
         if 'velocity' in action:
             if action['velocity'] == 'const':
                 new_v = 1
@@ -426,21 +397,8 @@ class CarEnv(gym.Env):
             self.const_t = True
             new_t = self.time
 
-
         new_theta = action['heading_angle']
         new_psi = action['steering_angle']
-        #new_t = action['time']
-
-        info = {
-            'current_state': {
-                'x': self.state[0],
-                'y': self.state[1],
-                'v': self.state[2],
-                'theta': self.state[3],
-                'psi': self.state[4],
-                'time': self.state[5]
-            },
-        }
 
         self.state = [new_x, new_y, new_v, new_theta, new_psi, new_t]
 
@@ -448,17 +406,19 @@ class CarEnv(gym.Env):
 
     def reset(self):
         """
-        Resets the state of the car to the initial state.
+        Resets the state of the car to the initial state and creates track
         """
-        self.state = self.init_observation
-
-        self.track = self._create_track()
-        self.outer_border = self._create_track_border(self.outer)
-        self.inner_border = self._create_track_border(self.inner)
-
-        return self.init_observation
-
-
+        self.state = np.array([
+            self.init_x,
+            self.init_y,
+            self.init_v,
+            self.init_theta,
+            self.init_psi,
+            self.time
+        ])
+        self.track = self._create_track(self.track_points, 'track')
+        self.outer_border = self._create_track(self.outer, 'border')
+        self.inner_border = self._create_track(self.inner, 'border')
 
     def render(self, mode='human'):
 
@@ -484,22 +444,6 @@ class CarEnv(gym.Env):
             self.velocity_label = self._define_label('time', 40)
             self.steering_angle_label = self._define_label('time', 60)
             self.upper_left_indicator = pyglet.shapes.Rectangle(0, WINDOW_H - 80, 200, 80, color=(0,0,0))
-            #self.lower_left_indicator = pyglet.shapes.Rectangle(0, 0, 200, 200, color=(200, 200, 200))
-
-
-            # -----DEFINE STEERING WHEEL MINIATURE-----
-            # self.lower_right_indicator = pyglet.shapes.Rectangle(WINDOW_W - 150, 0, 150, 150, color=(200, 200, 200))
-            #self.steering_wheel_outer = pyglet.shapes.Circle(WINDOW_W-75, 75, 70, color=(0, 0, 0))
-            #self.steering_wheel_inner = pyglet.shapes.Circle(WINDOW_W-75, 75, 55, color=(200, 200, 200))
-
-            # -----DEFINE CAR MINIATURE-----
-            self.car_small = pyglet.shapes.Rectangle(100, 100, car_w, car_l, color=(255, 0, 0))
-            self.car_small_wheel_left_rear = pyglet.shapes.Rectangle(100, 100, wheel_w, -wheel_l, color=(0, 0, 0))
-            self.car_small_wheel_right_rear = pyglet.shapes.Rectangle(100, 100, -wheel_w, -wheel_l, color=(0, 0, 0))
-            self.car_small_wheel_left_front = pyglet.shapes.Rectangle(100, 100, wheel_w, wheel_l, color=(0, 0, 0))
-            self.car_small_wheel_right_front = pyglet.shapes.Rectangle(100, 100, -wheel_w, wheel_l, color=(0, 0, 0))
-
-
 
             # -----BACKGROUND GRASS-----
             background = rendering.FilledPolygon([
@@ -513,8 +457,6 @@ class CarEnv(gym.Env):
             background.add_attr(self.transform)
             background.set_color(0.051, 0.455, 0.024)
             self.viewer.add_geom(background)
-
-
 
             # -----TRACK AND TRACK LINES RENDERING-----
             self._create_track_object()
@@ -550,7 +492,6 @@ class CarEnv(gym.Env):
                     self.viewer.add_geom(part)
 
                 # FRONT WHEELS
-
                 wheel = rendering.FilledPolygon([
                     (-WHEEL_WIDTH / 2, -WHEEL_LENGTH / 2),
                     (WHEEL_WIDTH / 2, -WHEEL_LENGTH / 2),
@@ -661,7 +602,7 @@ class CarEnv(gym.Env):
         if self.is_zoomed is not True:
             if self.time == 0:
                 self.time = 0.05
-            self.zoom = 0.01 * SCALE * max(1 - self.time, 0) + (ZOOM * SCALE * min(self.time, 1))
+            self.zoom = 0.01 * max(1 - self.time, 0) + (ZOOM * min(self.time, 1))
 
         # -----FOLLOWING CAR VIEW-----
         scroll_x = x
@@ -705,7 +646,6 @@ class CarEnv(gym.Env):
 
         # ----------LABELS-----------
         self.upper_left_indicator.draw()
-        #self.lower_right_indicator.draw()
         self.time_label.text = f'time: {round(time, 1)}'
         self.time_label.draw()
 
@@ -717,9 +657,6 @@ class CarEnv(gym.Env):
 
         win.flip()
         self.viewer.isopen
-
-
-
 
 
     def zoom_in(self):
@@ -743,7 +680,7 @@ def key_press(k, mod):
     global close
     if k == key.ESCAPE or k == key.X:
         close = True
-        print('Closed')
+        print('Animation closed by user.')
 
 def mouse_scroll(x, y, scroll_x, scroll_y):
     print(env.zoom)
@@ -754,7 +691,7 @@ def mouse_scroll(x, y, scroll_x, scroll_y):
 
 
 
-def run_animation(data):
+def run_animation(data, car_dimensions):
     """
     Runs complete animation 
     Parameters
@@ -764,18 +701,17 @@ def run_animation(data):
         close : Boolean
             True if animation is finished or canceled
     """
-    global env, close
+    global env, close, CAR_WIDTH, CAR_LENGTH, WHEEL_WIDTH, WHEEL_LENGTH, WHEEL_BASE, WHEEL_SPACING
 
-    env = CarEnv()
+    if car_dimensions:
+        CAR_LENGTH, CAR_WIDTH, WHEEL_SPACING, WHEEL_BASE, WHEEL_LENGTH = car_dimensions
+
+    env = CarEnv(filename='benchmark/ref1.csv')
     env.reset()
     env.render()
     
     env.viewer.window.on_mouse_scroll = mouse_scroll
     env.viewer.window.on_key_press = key_press
-
-    # TODO: ZATVARANIE OKNA
-
-    print(data.columns)
 
     for index, row in data.iterrows():
         if close is True:
@@ -783,21 +719,23 @@ def run_animation(data):
             break
         observation = env.step(row)
         env.render()
+    env.viewer.window.set_visible(False)
     env.close()
-    print(env)
-    
+    print('Animation ended.')
     return 
 
 
 if __name__ == '__main__':
-    env = CarEnv()
+    env = CarEnv(filename='../../benchmark/ref1.csv')
     env.reset()
     env.render()
+
     
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_mouse_scroll = mouse_scroll
 
-    df = pd.read_csv('/Users/simonferancik/PycharmProjects/car-components-app-lukas/ML/data/full_track_mpc.csv')
+    #df = pd.read_csv('../../benchmark/full_track_mpc.csv')
+    df = pd.read_csv('../../benchmark/full_track_cps.csv')
 
     print(df.columns)
     df['x'] = df['x'] - df['x'][0]
@@ -805,7 +743,9 @@ if __name__ == '__main__':
 
     for index, row in df.iterrows():
         if close is True:
+            close = False
             break
         observation = env.step(row)
         env.render()
+    env.viewer.window.set_visible(False)
     env.close()

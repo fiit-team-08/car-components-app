@@ -17,6 +17,8 @@ laps = None
 mpc_data = None
 scp_data = None
 
+car_dimensions = []
+
 @eel.expose
 def getpath(path):
     json_data = get_raw_data_json(path)
@@ -42,7 +44,8 @@ def get_mpc_ref_crs(path):
 
 @eel.expose
 def get_mpc_xy(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer):
-    global mpc_data
+    global mpc_data, car_dimensions
+    car_dimensions = [length, width, backtowheel, wb, wheel]
     mpc_data = mpc(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer)
     temp = mpc_data.copy()
     json = get_data_xy(temp)
@@ -60,7 +63,8 @@ def get_mpc_crs(referenceFileName):
 
 @eel.expose
 def get_scp_xy(reference_path, traces_path):
-    global scp_data
+    global scp_data, car_dimensions
+    car_dimensions = []
     scp_data = get_simple_command_prediction(reference_path, traces_path)
     temp = scp_data.copy()
     json = get_data_xy(temp)
@@ -109,7 +113,7 @@ def animate_track(model):
         data = rename_columns(scp_data.copy())
     elif model == 'mpc':
         data = rename_columns(mpc_data.copy())
-    animation_rendering.run_animation(data)
+    animation_rendering.run_animation(data, car_dimensions)
 
 
 data = [69, 59, 80, 81, 56, 55, 40]
