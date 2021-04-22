@@ -3,6 +3,8 @@ from mpc.mpc import mpc
 from mpc.mpc import get_reference_data
 
 from sys import platform
+import sys
+from os import devnull
 from command_prediction.command_prediction_simple import *
 from animation import animation_rendering
 
@@ -16,6 +18,7 @@ else:
 laps = None
 mpc_data = None
 scp_data = None
+VERBOSE = False
 
 @eel.expose
 def getpath(path):
@@ -57,7 +60,6 @@ def get_mpc_crs(referenceFileName):
 
 
 # SIMPLE COMMAND PREDICION
-
 @eel.expose
 def get_scp_xy(reference_path, traces_path):
     global scp_data
@@ -107,8 +109,6 @@ def get_reference_laps(path):
 def animate_track(path):
     animation_rendering.run_animation(path)
 
-    
-
 
 data = [69, 59, 80, 81, 56, 55, 40]
 
@@ -117,5 +117,9 @@ data = [69, 59, 80, 81, 56, 55, 40]
 def getdata():
     return data
 
+
+if not VERBOSE:
+    sys.stdout = open(devnull, "w")
+    sys.stderr = open(devnull, "w")
 
 eel.start('index.html', mode='electron', cmdline_args=['electron'])
