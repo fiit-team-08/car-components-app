@@ -1,4 +1,5 @@
 pyinstaller main.py --noconfirm \
+    --noconsole \
     --add-data="package.json;." \
     --add-data="package-lock.json;." \
     --add-data="electron;electron" \
