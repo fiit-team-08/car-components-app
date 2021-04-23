@@ -470,7 +470,7 @@ function makeUL(array) {
         let item = document.createElement('input');
         let lapSteps1 = `${i + 1}.`;
         let lapSteps2 = `${array[i]["pointsPerLap"]}`;
-        let lapSteps3 = `${array[i]['averagePerpendicularDistance']}m`;
+        let lapSteps3 = `${array[i]['averagePerpendicularDistance'].toFixed(3)}m`;
         let a = Math.floor(Math.random() * (360 - 0 + 1)) + 0;
         let b = Math.floor(Math.random() * (80 - 50 + 1)) + 50;
         let c = Math.floor(Math.random() * (60 - 40 + 1)) + 40;
