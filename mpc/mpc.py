@@ -713,8 +713,16 @@ def main(path):
     y = convert(y)
     a = init - y[0]
 
-    d = {'TIME': globaltime, 'x': globalx, 'y': globaly, 'CRS': convert(y)}
-    df = pd.DataFrame(data=d)
+    dict = {
+        'TIME': globaltime,
+        'x': globalx,
+        'y': globaly,
+        'CRS': convert(y),
+        'heading_angle': yaw,
+        'steering_angle': d,
+        'velocity': v
+    }
+    df = pd.DataFrame(data=dict)
     df['CRS'] = convert(df['CRS'])
     df['CRS'] = df['CRS'].apply(lambda deg: deg + a)
     df['CRS'] = df['CRS'].apply(lambda deg: deg % 360)

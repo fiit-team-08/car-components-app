@@ -316,15 +316,18 @@ def get_reference_crs(data) -> str:
 
 
 def get_data_xy(data) -> str:
-    data.drop(columns=['TIME', 'CRS'], inplace=True)
+    data.drop(columns=['TIME', 'CRS', 'heading_angle', 'steering_angle', 'velocity'], inplace=True)
     return data.to_json(orient="records")
 
 
 def get_data_crs(data) -> str:
-    data.drop(columns=['x', 'y'], inplace=True)
+    data.drop(columns=['x', 'y', 'heading_angle', 'steering_angle', 'velocity'], inplace=True)
     data.rename(columns={"TIME": "x", "CRS": "y"}, inplace=True)
     return data.to_json(orient="records")
 
+def rename_columns(data) -> str:
+    data.rename(columns={"TIME": "time"}, inplace=True)
+    return data
 
 def average(lst):
     return sum(lst) / len(lst)

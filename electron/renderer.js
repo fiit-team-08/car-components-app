@@ -336,23 +336,23 @@ function runlocal() {
         if (document.getElementById("lenght").value !== "")
             lenght = parseFloat(document.getElementById("lenght").value.replace(",", "."))
         else
-            lenght = 2.8
+            lenght = 2.817
         if (document.getElementById("width").value !== "")
             width = parseFloat(document.getElementById("width").value.replace(",", "."))
         else
-            width = 1.6
+            width = 1.680
         if (document.getElementById("wheels").value !== "")
             wheels = parseFloat(document.getElementById("wheels").value.replace(",", "."))
         else
-            wheels = 1.5
+            wheels = 1.480
         if (document.getElementById("wheelbase").value !== "")
             wheelbase = parseFloat(document.getElementById("wheelbase").value.replace(",", "."))
         else
-            wheelbase = 2.4
+            wheelbase = 2.345
         if (document.getElementById("wheelsize").value !== "")
             wheelsize = parseFloat(document.getElementById("wheelsize").value.replace(",", "."))
         else
-            wheelsize = 0.4
+            wheelsize = 0.300
         if (document.getElementById("s").value !== "")
             s = parseFloat(document.getElementById("s").value.replace(",", "."))
         else
