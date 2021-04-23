@@ -16,9 +16,10 @@ else:
     eel.browsers.set_path('electron', 'node_modules/electron/dist/electron')
 
 laps = None
+analyzed_laps = None
 mpc_data = None
 scp_data = None
-VERBOSE = False
+VERBOSE = True
 
 car_dimensions = []
 
@@ -83,17 +84,18 @@ def get_scp_crs():
 @eel.expose
 def get_laps_data(reference_file_path, traces_file_path):
     global laps
-    laps = get_lap_data(reference_file_path, traces_file_path)
-    json = put_laps_to_json(laps)
+    global analyzed_laps
+    analyzed_laps, laps = get_lap_data(reference_file_path, traces_file_path)
+    json = put_laps_to_json(analyzed_laps)
     return json
 
 
 @eel.expose
-def export_data(path, file_name):
+def export_data(path, file_name, description):
     print("Exporting to: {}\{}".format(path, file_name))
-    if laps is None:
+    if analyzed_laps is None or laps is None:
         return
-    save_laps_to_files(path, file_name, laps)
+    save_laps_to_files(path, file_name, analyzed_laps, laps, description)
 
 
 @eel.expose

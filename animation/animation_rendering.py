@@ -8,8 +8,7 @@ from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
-from obspy.geodetics import degrees2kilometers
-#from analysis.obspy_copy import degrees2kilometers
+from analysis.obspy_copy import degrees2kilometers
 
 from gym.envs.classic_control import rendering
 from pyglet.window import key, mouse
