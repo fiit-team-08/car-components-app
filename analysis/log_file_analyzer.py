@@ -277,6 +277,11 @@ def get_data_for_export(traces_df: DataFrame, laps: list) -> DataFrame:
         lap_data = traces_df.iloc[laps[i]: laps[i + 1]]
         lap_data.reset_index(inplace=True)
         split.append(lap_data)
+
+    lap_data = traces_df.iloc[laps[-1:]]
+    lap_data.reset_index(inplace=True)
+    split.append(lap_data)
+
     joined = pd.concat(split, axis=1)
     joined.drop(columns=['index'], inplace=True)
     return joined
@@ -331,6 +336,17 @@ def get_reference_crs(data) -> str:
 def get_data_xy(data) -> str:
     data.drop(columns=['TIME', 'CRS', 'heading_angle', 'steering_angle', 'velocity'], inplace=True)
     return data.to_json(orient="records")
+
+
+def export_computed_data(file_path, data, description):
+    result = pd.concat(data, axis=1)
+    result.drop(columns=['heading_angle', 'steering_angle', 'TIME'], inplace=True)
+
+    if description != "":
+        new_df = pd.DataFrame(data={'Description': description}, index=[0])
+        result = pd.concat([new_df, result], axis=1)
+
+    result.to_csv('{}/computed_data.csv'.format(file_path, file_name), index=False)
 
 
 def get_data_crs(data) -> str:
@@ -395,12 +411,17 @@ def analyze_laps(traces, reference_lap, laps):
     return data_frame
 
 
-def save_laps_to_files(file_path, file_name, analyzed_laps, lap_data, description):
+def save_laps_to_files(file_path, file_name, analyzed_laps, lap_data, description, selected_laps):
     analyzed_laps.sort_values(by=['averagePerpendicularDistance'], inplace=True)
     analyzed_laps.to_csv('{}/{}_lap-stats.csv'.format(file_path, file_name),
                          index=False,
                          header=['Lap number', 'Points per lap', 'Avg. perp. diff. (cm)'],
                          columns=['lapNumber', 'pointsPerLap', 'averagePerpendicularDistance'])
+
+    y = list(map(lambda x: [a for a in range(x * 4, x * 4 + 4)], selected_laps))
+    columns = [item for sublist in y for item in sublist]
+
+    lap_data = lap_data.iloc[:, columns]
 
     if description != "":
         new_df = pd.DataFrame(data={'Description': description}, index=[0])

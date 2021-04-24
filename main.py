@@ -19,7 +19,7 @@ laps = None
 analyzed_laps = None
 mpc_data = None
 scp_data = None
-VERBOSE = True
+VERBOSE = False
 
 car_dimensions = []
 
@@ -73,7 +73,6 @@ def get_scp_xy(reference_path, traces_path):
     json = get_data_xy(temp)
     return json
 
-
 @eel.expose
 def get_scp_crs():
     temp = scp_data.copy()
@@ -91,11 +90,27 @@ def get_laps_data(reference_file_path, traces_file_path):
 
 
 @eel.expose
-def export_data(path, file_name, description):
+def export_data(path, file_name, description, selected_laps):
     print("Exporting to: {}\{}".format(path, file_name))
     if analyzed_laps is None or laps is None:
         return
-    save_laps_to_files(path, file_name, analyzed_laps, laps, description)
+    save_laps_to_files(path, file_name, analyzed_laps, laps, description, selected_laps)
+
+
+@eel.expose
+def export_predicted_data(path, description):
+    data = []
+    if mpc_data is not None:
+        data.append(mpc_data)
+    if scp_data is not None:
+        data.append(scp_data)
+
+    if len(data) == 0:
+        print("Nothing to export")
+        return
+
+    export_computed_data(path, data, description)
+
 
 
 @eel.expose
