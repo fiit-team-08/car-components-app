@@ -732,3 +732,15 @@ document.getElementById('save-button').addEventListener("click", event => {
         });
     }
 })
+
+function animate_car_movement() {
+    eel.get_track_coordinates(referenceFileName)
+    if (selector === 1) {
+        model = 'scp'
+        eel.animate_track(model)
+    }
+    if (selector === 2) {
+        model = 'mpc'
+        eel.animate_track(model)
+    }
+}

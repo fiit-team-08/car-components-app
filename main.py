@@ -21,6 +21,7 @@ mpc_data = None
 scp_data = None
 VERBOSE = True
 
+coords = None
 car_dimensions = []
 
 @eel.expose
@@ -85,8 +86,15 @@ def get_laps_data(reference_file_path, traces_file_path):
     global laps
     global analyzed_laps
     analyzed_laps, laps = get_lap_data(reference_file_path, traces_file_path)
+    #print(analyzed_laps)
     json = put_laps_to_json(analyzed_laps)
+    print(json)
     return json
+
+@eel.expose
+def get_track_coordinates(reference_file_path):
+    global coords
+    coords = get_track_for_animation(reference_file_path)
 
 
 @eel.expose
@@ -128,11 +136,12 @@ def get_reference_laps(path):
 # ANIMATION
 @eel.expose
 def animate_track(model):
+    df = coords[['LAT', 'LON']]
     if model == 'scp':
         data = rename_columns(scp_data.copy())
     elif model == 'mpc':
         data = rename_columns(mpc_data.copy())
-    animation_rendering.run_animation(data, car_dimensions)
+    animation_rendering.run_animation(data, car_dimensions, df)
 
 @eel.expose
 def can_run_animation(model):

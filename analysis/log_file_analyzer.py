@@ -286,6 +286,10 @@ def get_data_for_export(traces_df: DataFrame, laps: list) -> DataFrame:
     joined.drop(columns=['index'], inplace=True)
     return joined
 
+def get_track_for_animation(reference_file_path):
+    reference_df = log_to_dataFrame(reference_file_path)
+    normalize_logs(reference_df)
+    return reference_df
 
 def get_lap_data(reference_file_path, traces_file_path):
     reference_df = log_to_dataFrame(reference_file_path)

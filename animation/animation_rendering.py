@@ -82,11 +82,11 @@ class CarEnv(gym.Env):
 
 
 
-    def __init__(self, filename, type='continuous',
+    def __init__(self, reference_track, type='continuous',
                  action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
-        self.df = self._read_df(filename)
+        self.df = self._read_df(reference_track)
 
         self._create_road()
         self.map_center = self._get_track_start()
@@ -121,12 +121,10 @@ class CarEnv(gym.Env):
 
 
     @staticmethod
-    def _read_df(filename: str) -> pd.DataFrame:
-        df = pd.read_csv(filename)
+    def _read_df(df) -> pd.DataFrame:
         # covert degrees to meters and degrees to radians
-        df['LAT'] = df['LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-        df['LON'] = df['LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-        df['CRS'] = df['CRS'].apply(lambda deg: np.deg2rad(deg))
+        df.loc[:,'LAT'] = df.loc[:,'LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
+        df.loc[:,'LON'] = df.loc[:,'LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
 
         return df
 
@@ -695,7 +693,7 @@ def on_close_window():
     close = True
 
 
-def run_animation(data, car_dimensions):
+def run_animation(data, car_dimensions, coords):
     """
     Runs complete animation 
     Parameters
@@ -710,7 +708,7 @@ def run_animation(data, car_dimensions):
     if car_dimensions:
         CAR_LENGTH, CAR_WIDTH, WHEEL_SPACING, WHEEL_BASE, WHEEL_LENGTH = car_dimensions
 
-    env = CarEnv(filename='benchmark/ref1.csv')
+    env = CarEnv(reference_track=coords)
     env.reset()
     env.render()
     
