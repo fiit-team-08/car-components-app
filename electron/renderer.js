@@ -83,20 +83,20 @@ let lines2 = new Chart(document.getElementById("chart2"), {
             "borderColor": "#132b3c",
             data: []
         },
-        {
-            label: 'SCP',
-            showLine: true,
-            fill: false,
-            "borderColor": "#4e7490",
-            data: []
-        },
-        {
-            label: 'MPC',
-            showLine: true,
-            fill: false,
-            "borderColor": "#a1bacd",
-            data: []
-        }]
+            {
+                label: 'SCP',
+                showLine: true,
+                fill: false,
+                "borderColor": "#4e7490",
+                data: []
+            },
+            {
+                label: 'MPC',
+                showLine: true,
+                fill: false,
+                "borderColor": "#a1bacd",
+                data: []
+            }]
     },
     options: {
         aspectRatio: 1,
@@ -152,20 +152,20 @@ let lines3 = new Chart(document.getElementById("chart3"), {
             "borderColor": "#132b3c",
             data: []
         },
-        {
-            label: 'SCP',
-            showLine: true,
-            fill: false,
-            "borderColor": "#4e7490",
-            data: []
-        },
-        {
-            label: 'MPC',
-            showLine: true,
-            fill: false,
-            "borderColor": "#a1bacd",
-            data: []
-        }]
+            {
+                label: 'SCP',
+                showLine: true,
+                fill: false,
+                "borderColor": "#4e7490",
+                data: []
+            },
+            {
+                label: 'MPC',
+                showLine: true,
+                fill: false,
+                "borderColor": "#a1bacd",
+                data: []
+            }]
     },
     options: {
         legend: {
@@ -427,34 +427,34 @@ function loadTrackAnalysis() {
 function trackAdd(id) {
     let newDataset = [];
     if (document.getElementById(id).checked) {
-        trackdata[Number(id)].lapData.forEach(function(item, index) {
-            newDataset[index]  = {
+        trackdata[Number(id)].lapData.forEach(function (item, index) {
+            newDataset[index] = {
                 "x": trackdata[Number(id)].lapData[index].LON,
                 "y": trackdata[Number(id)].lapData[index].LAT
             }
         });
-        lines1.data.datasets[Number(id)+1].data = newDataset;
+        lines1.data.datasets[Number(id) + 1].data = newDataset;
     } else {
-        lines1.data.datasets[Number(id)+1].data = [];
+        lines1.data.datasets[Number(id) + 1].data = [];
     }
     lines1.update();
 }
 
 function toggle(source) {
     checkboxes = document.getElementsByName('check');
-    for(let i=0, n=checkboxes.length; i<n; i++) {
+    for (let i = 0, n = checkboxes.length; i < n; i++) {
         checkboxes[i].checked = source.checked;
         let newDataset = [];
         if (source.checked) {
-            trackdata[Number(i)].lapData.forEach(function(item, index) {
-                newDataset[index]  = {
+            trackdata[Number(i)].lapData.forEach(function (item, index) {
+                newDataset[index] = {
                     "x": trackdata[Number(i)].lapData[index].LON,
                     "y": trackdata[Number(i)].lapData[index].LAT
                 }
             });
-            lines1.data.datasets[Number(i)+1].data = newDataset;
+            lines1.data.datasets[Number(i) + 1].data = newDataset;
         } else {
-            lines1.data.datasets[Number(i)+1].data = [];
+            lines1.data.datasets[Number(i) + 1].data = [];
         }
         lines1.update();
     }
@@ -478,7 +478,7 @@ function makeUL(array) {
         item.setAttribute('id', (i).toString());
         item.setAttribute('name', 'check');
         item.setAttribute('type', 'checkbox');
-        item.setAttribute('onclick','trackAdd(this.id)');
+        item.setAttribute('onclick', 'trackAdd(this.id)');
         item.setAttribute('checked', 'true');
         list.appendChild(item);
         let label1 = document.createElement('label');
@@ -502,8 +502,8 @@ function makeUL(array) {
         let br = document.createElement('br');
         list.appendChild(br);
         let dataset = [];
-        trackdata[l].lapData.forEach(function(item, index) {
-            dataset[index]  = {
+        trackdata[l].lapData.forEach(function (item, index) {
+            dataset[index] = {
                 "x": trackdata[Number(l)].lapData[index].LON,
                 "y": trackdata[Number(l)].lapData[index].LAT
             }
@@ -515,7 +515,7 @@ function makeUL(array) {
             "borderColor": color,
             data: dataset
         }
-        l = i+1;
+        l = i + 1;
         lines1.data.datasets.push(newDataset);
         lines1.update();
     }
@@ -537,8 +537,10 @@ function cp() {
         document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#142e3b';
         document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#254053';
         document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
-        document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString()+'px';
+        document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString() + 'px';
     }
+
+    toggleAnimationButton('scp')
 }
 
 function mpc() {
@@ -552,9 +554,23 @@ function mpc() {
         document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#254053';
         document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#142e3b';
         let n = document.getElementsByClassName('mpc-inputs')[0].scrollHeight + document.getElementsByClassName('parameters-button')[0].scrollHeight
-        document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString()+'px';
-        document.getElementsByClassName('parameters')[0].style.height = (n).toString()+'px';
+        document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString() + 'px';
+        document.getElementsByClassName('parameters')[0].style.height = (n).toString() + 'px';
     }
+
+    toggleAnimationButton('mpc')
+}
+
+function toggleAnimationButton(model) {
+    eel.can_run_animation(model)().then((r) => {
+        if (r) {
+            document.getElementsByClassName('run')[0].style.opacity = "1";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
+        } else {
+            document.getElementsByClassName('run')[0].style.opacity = "0.5";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "none";
+        }
+    });
 }
 
 document.getElementById('max-button').addEventListener("click", event => {
@@ -593,13 +609,13 @@ document.getElementById('open-button1').addEventListener("click", event => {
                 document.getElementById('referencenumber').innerHTML = r;
             });
             file1 = 1;
-                if (file1 && file2) {
-                    document.getElementsByClassName('disabled')[0].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[1].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
-                    document.getElementsByClassName('disabled')[2].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
-                }
+            if (file1 && file2) {
+                document.getElementsByClassName('disabled')[0].style.opacity = "1";
+                document.getElementsByClassName('disabled')[1].style.opacity = "1";
+                document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
+                document.getElementsByClassName('disabled')[2].style.opacity = "1";
+                document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
+            }
             (referenceFileName, 0);
             loadReference(referenceFileName);
         }
@@ -624,13 +640,13 @@ document.getElementById('open-button2').addEventListener("click", event => {
                 document.getElementById('file-name2').innerHTML = tracesFileName.split(/(.*)\\/)[2].split(/\.log$/)[0];
             }
             file2 = 1;
-                if (file1 && file2) {
-                    document.getElementsByClassName('disabled')[0].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[1].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
-                    document.getElementsByClassName('disabled')[2].style.opacity = "1";
-                    document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
-                }
+            if (file1 && file2) {
+                document.getElementsByClassName('disabled')[0].style.opacity = "1";
+                document.getElementsByClassName('disabled')[1].style.opacity = "1";
+                document.getElementsByClassName('disabled')[1].style.pointerEvents = "auto";
+                document.getElementsByClassName('disabled')[2].style.opacity = "1";
+                document.getElementsByClassName('disabled')[2].style.pointerEvents = "auto";
+            }
             loadChartForFile(referenceFileName, 0);
         }
     }).catch(err => {
@@ -685,12 +701,20 @@ document.getElementById('print-button').addEventListener("click", event => {
 
 document.getElementById('save-button').addEventListener("click", event => {
     if (document.getElementById('ww1').style.display === "block") {
+        let selected = lines1.data.datasets.reduce(function (arr, e, i) {
+            if (e.data.length > 0 && i > 0) arr.push(i - 1);
+            return arr;
+        }, []);
         dialog.showOpenDialog({
             title: "Select a folder",
             properties: ["openDirectory"]
         }).then(result => {
             if (!result.canceled) {
-                eel.export_data(result.filePaths.toString(), referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0])
+                eel.export_data(
+                    result.filePaths.toString(),
+                    referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0],
+                    document.getElementById('description').value,
+                    selected)
             }
         });
     }
@@ -701,7 +725,22 @@ document.getElementById('save-button').addEventListener("click", event => {
         }).then(result => {
             if (!result.canceled) {
                 eel.export_mpc(result.filePaths.toString(), referenceFileName.split(/(.*)\\/)[2].split(/\.log$/)[0])
+                eel.export_predicted_data(
+                    result.filePaths.toString(),
+                    document.getElementById('description').value)
             }
         });
     }
 })
+
+function animate_car_movement() {
+    eel.get_track_coordinates(referenceFileName)
+    if (selector === 1) {
+        model = 'scp'
+        eel.animate_track(model)
+    }
+    if (selector === 2) {
+        model = 'mpc'
+        eel.animate_track(model)
+    }
+}

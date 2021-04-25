@@ -8,13 +8,13 @@ from gym import spaces
 import pandas as pd
 import numpy as np
 import shapely.geometry as geom
-from obspy.geodetics import degrees2kilometers
-#from analysis.obspy_copy import degrees2kilometers
+from analysis.obspy_copy import degrees2kilometers
 
 from gym.envs.classic_control import rendering
 from pyglet.window import key, mouse
 
 import pyglet
+from pyglet import shapes, window
 from pyglet import gl
 
 WINDOW_W = 800
@@ -82,11 +82,11 @@ class CarEnv(gym.Env):
 
 
 
-    def __init__(self, filename, type='continuous',
+    def __init__(self, reference_track, type='continuous',
                  action_dim=2, verbose=1):
 
         super(CarEnv, self).__init__()
-        self.df = self._read_df(filename)
+        self.df = self._read_df(reference_track)
 
         self._create_road()
         self.map_center = self._get_track_start()
@@ -121,12 +121,10 @@ class CarEnv(gym.Env):
 
 
     @staticmethod
-    def _read_df(filename: str) -> pd.DataFrame:
-        df = pd.read_csv(filename)
+    def _read_df(df) -> pd.DataFrame:
         # covert degrees to meters and degrees to radians
-        df['LAT'] = df['LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-        df['LON'] = df['LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
-        df['CRS'] = df['CRS'].apply(lambda deg: np.deg2rad(deg))
+        df.loc[:,'LAT'] = df.loc[:,'LAT'].apply(lambda deg: degrees2kilometers(deg) * 1000)
+        df.loc[:,'LON'] = df.loc[:,'LON'].apply(lambda deg: degrees2kilometers(deg) * 1000)
 
         return df
 
@@ -443,7 +441,7 @@ class CarEnv(gym.Env):
             self.time_label = self._define_label('time', 20)
             self.velocity_label = self._define_label('time', 40)
             self.steering_angle_label = self._define_label('time', 60)
-            self.upper_left_indicator = pyglet.shapes.Rectangle(0, WINDOW_H - 80, 200, 80, color=(0,0,0))
+            self.upper_left_indicator = shapes.Rectangle(0, WINDOW_H - 80, 200, 80, color=(0,0,0))
 
             # -----BACKGROUND GRASS-----
             background = rendering.FilledPolygon([
@@ -690,8 +688,12 @@ def mouse_scroll(x, y, scroll_x, scroll_y):
         env.zoom_in()
 
 
+def on_close_window():
+    global close
+    close = True
 
-def run_animation(data, car_dimensions):
+
+def run_animation(data, car_dimensions, coords):
     """
     Runs complete animation 
     Parameters
@@ -706,12 +708,13 @@ def run_animation(data, car_dimensions):
     if car_dimensions:
         CAR_LENGTH, CAR_WIDTH, WHEEL_SPACING, WHEEL_BASE, WHEEL_LENGTH = car_dimensions
 
-    env = CarEnv(filename='benchmark/ref1.csv')
+    env = CarEnv(reference_track=coords)
     env.reset()
     env.render()
     
     env.viewer.window.on_mouse_scroll = mouse_scroll
     env.viewer.window.on_key_press = key_press
+    env.viewer.window.on_close = on_close_window
 
     for index, row in data.iterrows():
         if close is True:
@@ -722,7 +725,7 @@ def run_animation(data, car_dimensions):
     env.viewer.window.set_visible(False)
     env.close()
     print('Animation ended.')
-    return 
+    return
 
 
 if __name__ == '__main__':

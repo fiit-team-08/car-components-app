@@ -11,6 +11,7 @@ from analysis.obspy_copy import degrees2kilometers
 firstx = 0
 firsty = 0
 
+
 def log_to_dataFrame(file_path):
     """
         Converts a log file of a ride to a Pandas dataframe.
@@ -31,8 +32,6 @@ def log_to_dataFrame(file_path):
     logs = pd.read_csv(file_path, header=None, sep=';', names=['TIME', '1', 'LAT', '3', 'LON', '5', 'UTMX', '7', 'UTMY',
                                                                '9', 'HMSL', '11', 'GSPEED', '13', 'CRS', '15', 'HACC',
                                                                '17', 'NXPT'])
-    
-    
 
     logs = logs.drop(columns=['1', '3', '5', '7', '9', '11', '13', '15', '17'])
     logs = logs.dropna()
@@ -74,7 +73,8 @@ def normalize_logs(logs):
     """
     logs['TIME'] = logs['TIME'].apply(lambda x: x.split(' ')[1])
     logs['TIME'] = pd.to_datetime(logs['TIME'], format='%H:%M:%S,%f').dt.time
-    logs['TIME'] = logs['TIME'].apply(lambda x: datetime.combine(date.today(), x) - datetime.combine(date.today(), logs['TIME'][0]))
+    logs['TIME'] = logs['TIME'].apply(
+        lambda x: datetime.combine(date.today(), x) - datetime.combine(date.today(), logs['TIME'][0]))
     logs['TIME'] = logs['TIME'].apply(lambda x: x.total_seconds())
 
     logs['LAT'] = logs['LAT'].apply(lambda x: x * 0.0000001)
@@ -269,6 +269,28 @@ def get_graph_data(file_path) -> DataFrame:
     return log_df
 
 
+def get_data_for_export(traces_df: DataFrame, laps: list) -> DataFrame:
+    drop_unnecessary_columns(traces_df)
+    traces_df.drop(columns=['TIME'], inplace=True)
+    split = []
+    for i in range(len(laps) - 1):
+        lap_data = traces_df.iloc[laps[i]: laps[i + 1]]
+        lap_data.reset_index(inplace=True)
+        split.append(lap_data)
+
+    lap_data = traces_df.iloc[laps[-1:]]
+    lap_data.reset_index(inplace=True)
+    split.append(lap_data)
+
+    joined = pd.concat(split, axis=1)
+    joined.drop(columns=['index'], inplace=True)
+    return joined
+
+def get_track_for_animation(reference_file_path):
+    reference_df = log_to_dataFrame(reference_file_path)
+    normalize_logs(reference_df)
+    return reference_df
+
 def get_lap_data(reference_file_path, traces_file_path):
     reference_df = log_to_dataFrame(reference_file_path)
     normalize_logs(reference_df)
@@ -278,7 +300,7 @@ def get_lap_data(reference_file_path, traces_file_path):
 
     laps = separate_laps(traces_df, reference_df)
     analyzed_laps = analyze_laps(traces_df, reference_df, laps)
-    return analyzed_laps
+    return analyzed_laps, get_data_for_export(traces_df, laps)
 
 
 def get_raw_data_json(file_path) -> str:
@@ -320,14 +342,27 @@ def get_data_xy(data) -> str:
     return data.to_json(orient="records")
 
 
+def export_computed_data(file_path, data, description):
+    result = pd.concat(data, axis=1)
+    result.drop(columns=['heading_angle', 'steering_angle', 'TIME'], inplace=True)
+
+    if description != "":
+        new_df = pd.DataFrame(data={'Description': description}, index=[0])
+        result = pd.concat([new_df, result], axis=1)
+
+    result.to_csv('{}/computed_data.csv'.format(file_path), index=False)
+
+
 def get_data_crs(data) -> str:
     data.drop(columns=['x', 'y', 'heading_angle', 'steering_angle', 'velocity'], inplace=True)
     data.rename(columns={"TIME": "x", "CRS": "y"}, inplace=True)
     return data.to_json(orient="records")
 
+
 def rename_columns(data) -> str:
     data.rename(columns={"TIME": "time"}, inplace=True)
     return data
+
 
 def average(lst):
     return sum(lst) / len(lst)
@@ -380,16 +415,24 @@ def analyze_laps(traces, reference_lap, laps):
     return data_frame
 
 
-def save_laps_to_files(file_path, file_name, laps):
-    laps.sort_values(by=['averagePerpendicularDistance'], inplace=True)
-    laps.to_csv('{}/{}_lap-stats.csv'.format(file_path, file_name),
-                index=False,
-                header=['Lap number', 'Points per lap', 'Avg. perp. diff. (cm)'],
-                columns=['lapNumber', 'pointsPerLap', 'averagePerpendicularDistance'])
-    laps.to_csv('{}/{}_lap-data.csv'.format(file_path, file_name),
-                index=False,
-                header=['Lap number', 'Lap data'],
-                columns=['lapNumber', 'lapData'])
+def save_laps_to_files(file_path, file_name, analyzed_laps, lap_data, description, selected_laps):
+    analyzed_laps.sort_values(by=['averagePerpendicularDistance'], inplace=True)
+    analyzed_laps.to_csv('{}/{}_lap-stats.csv'.format(file_path, file_name),
+                         index=False,
+                         header=['Lap number', 'Points per lap', 'Avg. perp. diff. (cm)'],
+                         columns=['lapNumber', 'pointsPerLap', 'averagePerpendicularDistance'])
+
+    y = list(map(lambda x: [a for a in range(x * 4, x * 4 + 4)], selected_laps))
+    columns = [item for sublist in y for item in sublist]
+
+    lap_data = lap_data.iloc[:, columns]
+
+    if description != "":
+        new_df = pd.DataFrame(data={'Description': description}, index=[0])
+        lap_data = pd.concat([new_df, lap_data], axis=1)
+
+    lap_data.to_csv('{}/{}_lap-data.csv'.format(file_path, file_name),
+                    index=False)
 
 
 def put_laps_to_json(laps):
