@@ -539,6 +539,8 @@ function cp() {
         document.getElementsByClassName('mpc-inputs')[0].style.height = '0px';
         document.getElementsByClassName('parameters')[0].style.height = (document.getElementsByClassName('parameters-button')[0].scrollHeight).toString() + 'px';
     }
+
+    toggleAnimationButton('scp')
 }
 
 function mpc() {
@@ -555,6 +557,20 @@ function mpc() {
         document.getElementsByClassName('mpc-inputs')[0].style.height = (document.getElementsByClassName('mpc-inputs')[0].scrollHeight).toString() + 'px';
         document.getElementsByClassName('parameters')[0].style.height = (n).toString() + 'px';
     }
+
+    toggleAnimationButton('mpc')
+}
+
+function toggleAnimationButton(model) {
+    eel.can_run_animation(model)().then((r) => {
+        if (r) {
+            document.getElementsByClassName('run')[0].style.opacity = "1";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
+        } else {
+            document.getElementsByClassName('run')[0].style.opacity = "0.5";
+            document.getElementsByClassName('run')[0].style.pointerEvents = "none";
+        }
+    });
 }
 
 document.getElementById('max-button').addEventListener("click", event => {
@@ -686,7 +702,7 @@ document.getElementById('print-button').addEventListener("click", event => {
 document.getElementById('save-button').addEventListener("click", event => {
     if (document.getElementById('ww1').style.display === "block") {
         let selected = lines1.data.datasets.reduce(function (arr, e, i) {
-            if (e.data.length > 0 && i > 0) arr.push(i-1);
+            if (e.data.length > 0 && i > 0) arr.push(i - 1);
             return arr;
         }, []);
         dialog.showOpenDialog({

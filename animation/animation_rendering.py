@@ -14,6 +14,7 @@ from gym.envs.classic_control import rendering
 from pyglet.window import key, mouse
 
 import pyglet
+from pyglet import shapes, window
 from pyglet import gl
 
 WINDOW_W = 800
@@ -442,7 +443,7 @@ class CarEnv(gym.Env):
             self.time_label = self._define_label('time', 20)
             self.velocity_label = self._define_label('time', 40)
             self.steering_angle_label = self._define_label('time', 60)
-            self.upper_left_indicator = pyglet.shapes.Rectangle(0, WINDOW_H - 80, 200, 80, color=(0,0,0))
+            self.upper_left_indicator = shapes.Rectangle(0, WINDOW_H - 80, 200, 80, color=(0,0,0))
 
             # -----BACKGROUND GRASS-----
             background = rendering.FilledPolygon([
@@ -689,6 +690,10 @@ def mouse_scroll(x, y, scroll_x, scroll_y):
         env.zoom_in()
 
 
+def on_close_window():
+    global close
+    close = True
+
 
 def run_animation(data, car_dimensions):
     """
@@ -711,6 +716,7 @@ def run_animation(data, car_dimensions):
     
     env.viewer.window.on_mouse_scroll = mouse_scroll
     env.viewer.window.on_key_press = key_press
+    env.viewer.window.on_close = on_close_window
 
     for index, row in data.iterrows():
         if close is True:
@@ -721,7 +727,7 @@ def run_animation(data, car_dimensions):
     env.viewer.window.set_visible(False)
     env.close()
     print('Animation ended.')
-    return 
+    return
 
 
 if __name__ == '__main__':

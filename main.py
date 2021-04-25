@@ -19,7 +19,7 @@ laps = None
 analyzed_laps = None
 mpc_data = None
 scp_data = None
-VERBOSE = False
+VERBOSE = True
 
 car_dimensions = []
 
@@ -133,6 +133,15 @@ def animate_track(model):
     elif model == 'mpc':
         data = rename_columns(mpc_data.copy())
     animation_rendering.run_animation(data, car_dimensions)
+
+@eel.expose
+def can_run_animation(model):
+    if model == 'scp':
+        return scp_data is not None
+    elif model == 'mpc':
+        return mpc_data is not None
+    else:
+        return False
 
 
 data = [69, 59, 80, 81, 56, 55, 40]
