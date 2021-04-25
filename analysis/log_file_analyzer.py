@@ -350,7 +350,7 @@ def export_computed_data(file_path, data, description):
         new_df = pd.DataFrame(data={'Description': description}, index=[0])
         result = pd.concat([new_df, result], axis=1)
 
-    result.to_csv('{}/computed_data.csv'.format(file_path, file_name), index=False)
+    result.to_csv('{}/computed_data.csv'.format(file_path), index=False)
 
 
 def get_data_crs(data) -> str:
