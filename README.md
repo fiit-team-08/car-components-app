@@ -18,7 +18,7 @@ pip install pyinstaller
 
 ## Create .exe
 
-Execute __build_unix__ or __build_win__ scripts depending on your operating system.
+Execute __build_unix__ or __build_win__ scripts depending on your operating system, VERBOSE must be False.
 
 ### Built application
 
