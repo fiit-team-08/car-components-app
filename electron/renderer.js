@@ -25,7 +25,8 @@ let lines1 = new Chart(document.getElementById("chart1"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#132b3c",
+            "borderColor": "#B71C1C",
+            borderWidth: 5,
             data: []
         }]
     },
@@ -37,6 +38,9 @@ let lines1 = new Chart(document.getElementById("chart1"), {
                 fontColor: '#000000',
                 fontSize: 15
             }
+        },
+        layout: {
+            padding: 5
         },
         tooltips: {
             enabled: false
@@ -80,7 +84,8 @@ let lines2 = new Chart(document.getElementById("chart2"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#132b3c",
+            "borderColor": "#B71C1C",
+            borderWidth: 5,
             data: []
         },
             {
@@ -106,6 +111,9 @@ let lines2 = new Chart(document.getElementById("chart2"), {
                 fontColor: '#000000',
                 fontSize: 15
             }
+        },
+        layout: {
+            padding: 5
         },
         tooltips: {
             enabled: false
@@ -149,7 +157,8 @@ let lines3 = new Chart(document.getElementById("chart3"), {
             label: 'Referenčná dráha',
             showLine: true,
             fill: false,
-            "borderColor": "#132b3c",
+            "borderColor": "#B71C1C",
+            borderWidth: 5,
             data: []
         },
             {
