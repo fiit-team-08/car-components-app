@@ -9,8 +9,11 @@ let data = [];
 let trackdata = undefined;
 let referenceFileName = undefined;
 let tracesFileName = undefined;
-let selector = 1
-let car = 0
+let selector = 1;
+let car = 0;
+let drahadesc = "";
+let vozidlodesc = "";
+
 
 eel.getdata()().then((r) => {
     data = r;
@@ -277,13 +280,16 @@ function lines3mpc() {
 }
 
 function runcloud() {
+    document.getElementById('loading').style.display = "flex";
     document.getElementsByClassName('disable')[0].style.opacity = "0.5";
     document.getElementsByClassName('disable')[0].style.pointerEvents = "none";
     document.getElementsByClassName('disable')[1].style.opacity = "0.5";
     document.getElementsByClassName('disable')[1].style.pointerEvents = "none";
+    document.getElementById('loading').style.display = "none";
 }
 
 function runlocal() {
+    document.getElementById('loading').style.display = "flex";
     document.getElementsByClassName('disable')[0].style.opacity = "0.5";
     document.getElementsByClassName('disable')[0].style.pointerEvents = "none";
     document.getElementsByClassName('disable')[1].style.opacity = "0.5";
@@ -329,6 +335,7 @@ function runlocal() {
             document.getElementsByClassName('disable')[1].style.pointerEvents = "auto";
             document.getElementsByClassName('run')[0].style.opacity = "1";
             document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
+            document.getElementById('loading').style.display = "none";
         });
     }
     if (selector === 2) {
@@ -422,6 +429,7 @@ function runlocal() {
             document.getElementsByClassName('disable')[1].style.pointerEvents = "auto";
             document.getElementsByClassName('run')[0].style.opacity = "1";
             document.getElementsByClassName('run')[0].style.pointerEvents = "auto";
+            document.getElementById('loading').style.display = "none";
         });
     }
 }
@@ -430,6 +438,7 @@ function loadTrackAnalysis() {
     eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
         trackdata = JSON.parse(r);
         document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+        document.getElementById('loading').style.display = "none";
     });
 }
 
@@ -598,6 +607,39 @@ document.getElementById('close-button').addEventListener("click", event => {
 });
 
 document.getElementById('open-button1').addEventListener("click", event => {
+    if (file1 && file2) {
+        sessionStorage.setItem("reloading1", "true");
+        document.location.reload();
+    }
+    else {
+        open1();
+    }
+});
+
+document.getElementById('open-button2').addEventListener("click", event => {
+    if (file1 && file2) {
+        sessionStorage.setItem("reloading2", "true");
+        document.location.reload();
+    }
+    else {
+        open2();
+    }
+});
+
+window.onload = function() {
+    var reloading1 = sessionStorage.getItem("reloading1");
+    if (reloading1) {
+        sessionStorage.removeItem("reloading1");
+        open1();
+    }
+    var reloading2 = sessionStorage.getItem("reloading2");
+    if (reloading2) {
+        sessionStorage.removeItem("reloading2");
+        open2();
+    }
+}
+
+function open1() {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
@@ -631,9 +673,9 @@ document.getElementById('open-button1').addEventListener("click", event => {
     }).catch(err => {
         console.log(err)
     })
-});
+}
 
-document.getElementById('open-button2').addEventListener("click", event => {
+function open2() {
     dialog.showOpenDialog({
         properties: ['openFile'],
         filters: [
@@ -661,9 +703,13 @@ document.getElementById('open-button2').addEventListener("click", event => {
     }).catch(err => {
         console.log(err)
     })
-});
+}
 
 document.getElementById('back-button').addEventListener("click", event => {
+    if (document.getElementById('ww2').style.display === "block")
+        vozidlodesc = document.getElementById('description').value
+    if (document.getElementById('ww1').style.display === "block")
+        drahadesc = document.getElementById('description').value
     document.getElementById('w1').style.display = "block";
     document.getElementById('w2').style.display = "none";
 });
@@ -674,9 +720,11 @@ document.getElementById('track').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "block";
     document.getElementById('ww2').style.display = "none";
+    document.getElementById('description').value = drahadesc;
     if (referenceFileName !== undefined && car === 0) {
+        document.getElementById('loading').style.display = "flex";
         loadTrackAnalysis()
-        car = 1
+        car = 1;
     }
 });
 
@@ -686,6 +734,7 @@ document.getElementById('car').addEventListener("click", event => {
     document.getElementById('w2').style.display = "block";
     document.getElementById('ww1').style.display = "none";
     document.getElementById('ww2').style.display = "block";
+    document.getElementById('description').value = vozidlodesc;
 });
 
 document.getElementById('print-button').addEventListener("click", event => {
