@@ -313,8 +313,8 @@ class CarEnv(gym.Env):
         # CAR BODY
         car = rendering.FilledPolygon([
             (left, bottom),
-            (left, top),
-            (right, top),
+            (left + car_width/10, top),
+            (right - car_width/10, top),
             (right, bottom)
         ])
         self.car_trans = rendering.Transform()
@@ -517,14 +517,23 @@ class CarEnv(gym.Env):
 
                 # TODO - Make funcion from this
                 # -----MINIATURE OF CAR IN LOWER LEFT INDICATOR-----
+
+
                 lower_left_indicator = rendering.FilledPolygon([
                     (0, 0),
-                    (0, 200),
-                    (200, 200),
-                    (200, 0)
+                    (0, 250),
+                    (250, 250),
+                    (250, 0)
                 ])
                 lower_left_indicator.set_color(0.784, 0.784, 0.784)
                 self.viewer.add_geom(lower_left_indicator)
+
+                self.compass_trans = rendering.Transform()
+                self.compass_trans.set_translation(125, 125)
+                compass = rendering.Image('animation/compass.png', 250, 250)
+                compass.add_attr(self.compass_trans)
+                self.viewer.add_geom(compass)
+
 
                 left, right, top, bottom = (
                     -CAR_WIDTH * ZOOM / 2,
@@ -536,12 +545,12 @@ class CarEnv(gym.Env):
 
                 car = rendering.FilledPolygon([
                     (left, bottom),
-                    (left, top),
-                    (right, top),
+                    (left + CAR_WIDTH*ZOOM/10, top),
+                    (right - CAR_WIDTH*ZOOM/10, top),
                     (right, bottom)
                 ])
                 self.mini_car_trans = rendering.Transform()
-                self.mini_car_trans.set_translation(100,100)
+                self.mini_car_trans.set_translation(125,125)
                 car.add_attr(self.mini_car_trans)
                 car.set_color(1, 0, 0)
                 self.viewer.add_geom(car)
@@ -708,6 +717,7 @@ def run_animation(data, car_dimensions, coords):
     if car_dimensions:
         CAR_LENGTH, CAR_WIDTH, WHEEL_SPACING, WHEEL_BASE, WHEEL_LENGTH = car_dimensions
 
+
     env = CarEnv(reference_track=coords)
     env.reset()
     env.render()
@@ -729,7 +739,13 @@ def run_animation(data, car_dimensions, coords):
 
 
 if __name__ == '__main__':
-    env = CarEnv(filename='../../benchmark/ref1.csv')
+
+    df = pd.read_csv('animation/track_ref.csv')
+    data = pd.read_csv('animation/data.csv')
+
+    print(df)
+
+    env = CarEnv(reference_track=df)
     env.reset()
     env.render()
 
@@ -737,14 +753,7 @@ if __name__ == '__main__':
     env.viewer.window.on_key_press = key_press
     env.viewer.window.on_mouse_scroll = mouse_scroll
 
-    #df = pd.read_csv('../../benchmark/full_track_mpc.csv')
-    df = pd.read_csv('../../benchmark/full_track_cps.csv')
-
-    print(df.columns)
-    df['x'] = df['x'] - df['x'][0]
-    df['y'] = df['y'] - df['y'][0]
-
-    for index, row in df.iterrows():
+    for index, row in data.iterrows():
         if close is True:
             close = False
             break
