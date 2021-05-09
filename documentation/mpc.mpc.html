@@ -1,0 +1,238 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module mpc.mpc</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="mpc.html"><font color="#ffffff">mpc</font></a>.mpc</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="bisect.html">bisect</a><br>
+<a href="cvxpy.html">cvxpy</a><br>
+</td><td width="25%" valign=top><a href="math.html">math</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="pandas.html">pandas</a><br>
+<a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="mpc.mpc.html#State">State</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="State">class <strong>State</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#State">State</a>(x=0.0,&nbsp;y=0.0,&nbsp;yaw=0.0,&nbsp;v=0.0)<br>
+&nbsp;<br>
+vehicle&nbsp;state&nbsp;class<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="State-__init__"><strong>__init__</strong></a>(self, x=0.0, y=0.0, yaw=0.0, v=0.0)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-calc_nearest_index"><strong>calc_nearest_index</strong></a>(state, cx, cy, cyaw, pind)</dt></dl>
+ <dl><dt><a name="-calc_ref_trajectory"><strong>calc_ref_trajectory</strong></a>(state, cx, cy, cyaw, ck, sp, dl, pind)</dt></dl>
+ <dl><dt><a name="-calc_speed_profile"><strong>calc_speed_profile</strong></a>(cx, cy, cyaw, target_speed)</dt></dl>
+ <dl><dt><a name="-check_goal"><strong>check_goal</strong></a>(state, goal, tind, nind)</dt></dl>
+ <dl><dt><a name="-convert"><strong>convert</strong></a>(lst)</dt></dl>
+ <dl><dt><a name="-create_curve"><strong>create_curve</strong></a>(dataframe)</dt></dl>
+ <dl><dt><a name="-do_simulation"><strong>do_simulation</strong></a>(cx, cy, cyaw, ck, sp, dl, initial_state)</dt><dd><tt>Simulation<br>
+&nbsp;<br>
+cx:&nbsp;course&nbsp;x&nbsp;position&nbsp;list<br>
+cy:&nbsp;course&nbsp;y&nbsp;position&nbsp;list<br>
+cy:&nbsp;course&nbsp;yaw&nbsp;position&nbsp;list<br>
+ck:&nbsp;course&nbsp;curvature&nbsp;list<br>
+sp:&nbsp;speed&nbsp;profile<br>
+dl:&nbsp;course&nbsp;tick&nbsp;[m]</tt></dd></dl>
+ <dl><dt><a name="-find_out_difference"><strong>find_out_difference</strong></a>(ref_lap, laps)</dt><dd><tt>With&nbsp;the&nbsp;usage&nbsp;of&nbsp;several&nbsp;curve&nbsp;metrics,&nbsp;finds&nbsp;out&nbsp;differences&nbsp;between<br>
+a&nbsp;referrence&nbsp;lap&nbsp;and&nbsp;laps&nbsp;of&nbsp;a&nbsp;ride<br>
+&nbsp;<br>
+Parameters<br>
+--------<br>
+&nbsp;&nbsp;&nbsp;&nbsp;ref_lap&nbsp;:&nbsp;DataFrame<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;dataframe&nbsp;of&nbsp;with&nbsp;logs&nbsp;of&nbsp;a&nbsp;a&nbsp;reference&nbsp;ride.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;laps&nbsp;:&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;list&nbsp;of&nbsp;dataframes.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Each&nbsp;dataframe&nbsp;represents&nbsp;one&nbsp;lap&nbsp;of&nbsp;a&nbsp;ride.<br>
+&nbsp;<br>
+Returns<br>
+--------<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;dataframe&nbsp;<a href="builtins.html#object">object</a>&nbsp;with&nbsp;three&nbsp;columns:&nbsp;a&nbsp;Measurements&nbsp;count,&nbsp;a&nbsp;Frechet&nbsp;distance&nbsp;and&nbsp;a&nbsp;Curve&nbsp;length&nbsp;measure.</tt></dd></dl>
+ <dl><dt><a name="-get_linear_model_matrix"><strong>get_linear_model_matrix</strong></a>(v, phi, delta)</dt></dl>
+ <dl><dt><a name="-get_nparray_from_matrix"><strong>get_nparray_from_matrix</strong></a>(x)</dt></dl>
+ <dl><dt><a name="-get_reference"><strong>get_reference</strong></a>(dl, path)</dt><dd><tt>vytvorenie&nbsp;trasy&nbsp;pri&nbsp;trenovani&nbsp;MPC</tt></dd></dl>
+ <dl><dt><a name="-get_reference_data"><strong>get_reference_data</strong></a>(path)</dt><dd><tt>vytvorenie&nbsp;referencenej&nbsp;trasy&nbsp;pre&nbsp;graf,&nbsp;vracia&nbsp;dataframe&nbsp;s&nbsp;x,y&nbsp;suradnicami&nbsp;a&nbsp;crs</tt></dd></dl>
+ <dl><dt><a name="-iterative_linear_mpc_control"><strong>iterative_linear_mpc_control</strong></a>(xref, x0, dref, oa, od)</dt><dd><tt>MPC&nbsp;contorl&nbsp;with&nbsp;updating&nbsp;operational&nbsp;point&nbsp;iteraitvely</tt></dd></dl>
+ <dl><dt><a name="-linear_mpc_control"><strong>linear_mpc_control</strong></a>(xref, xbar, x0, dref)</dt><dd><tt>linear&nbsp;mpc&nbsp;control<br>
+&nbsp;<br>
+xref:&nbsp;reference&nbsp;point<br>
+xbar:&nbsp;operational&nbsp;point<br>
+x0:&nbsp;initial&nbsp;state<br>
+dref:&nbsp;reference&nbsp;steer&nbsp;angle</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>(path)</dt><dd><tt>spustenie&nbsp;MPC,&nbsp;vrati&nbsp;dataframe&nbsp;s&nbsp;x,y&nbsp;suradnicami&nbsp;casom&nbsp;a&nbsp;crs</tt></dd></dl>
+ <dl><dt><a name="-mpc"><strong>mpc</strong></a>(path, length, width, backtowheel, wb, wheel, target_speed, max_speed, max_accel, max_steer, max_dsteer)</dt><dd><tt>nastavenie&nbsp;parametrov&nbsp;z&nbsp;gui,&nbsp;vsetko&nbsp;musi&nbsp;byt&nbsp;float</tt></dd></dl>
+ <dl><dt><a name="-pi_2_pi"><strong>pi_2_pi</strong></a>(angle)</dt></dl>
+ <dl><dt><a name="-plot_car"><strong>plot_car</strong></a>(x, y, yaw, steer=0.0, cabcolor='-r', truckcolor='-k')</dt></dl>
+ <dl><dt><a name="-predict_motion"><strong>predict_motion</strong></a>(x0, oa, od, xref)</dt></dl>
+ <dl><dt><a name="-smooth_yaw"><strong>smooth_yaw</strong></a>(yaw)</dt></dl>
+ <dl><dt><a name="-update_state"><strong>update_state</strong></a>(state, a, delta)</dt></dl>
+ <dl><dt><a name="-zeros"><strong>zeros</strong></a>(...)</dt><dd><tt><a href="#-zeros">zeros</a>(shape,&nbsp;dtype=float,&nbsp;order='C',&nbsp;*,&nbsp;like=None)<br>
+&nbsp;<br>
+Return&nbsp;a&nbsp;new&nbsp;array&nbsp;of&nbsp;given&nbsp;shape&nbsp;and&nbsp;type,&nbsp;filled&nbsp;with&nbsp;zeros.<br>
+&nbsp;<br>
+Parameters<br>
+----------<br>
+shape&nbsp;:&nbsp;int&nbsp;or&nbsp;tuple&nbsp;of&nbsp;ints<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Shape&nbsp;of&nbsp;the&nbsp;new&nbsp;array,&nbsp;e.g.,&nbsp;``(2,&nbsp;3)``&nbsp;or&nbsp;``2``.<br>
+dtype&nbsp;:&nbsp;data-type,&nbsp;optional<br>
+&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;desired&nbsp;data-type&nbsp;for&nbsp;the&nbsp;array,&nbsp;e.g.,&nbsp;`numpy.int8`.&nbsp;&nbsp;Default&nbsp;is<br>
+&nbsp;&nbsp;&nbsp;&nbsp;`numpy.float64`.<br>
+order&nbsp;:&nbsp;{'C',&nbsp;'F'},&nbsp;optional,&nbsp;default:&nbsp;'C'<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Whether&nbsp;to&nbsp;store&nbsp;multi-dimensional&nbsp;data&nbsp;in&nbsp;row-major<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(C-style)&nbsp;or&nbsp;column-major&nbsp;(Fortran-style)&nbsp;order&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;memory.<br>
+like&nbsp;:&nbsp;array_like<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Reference&nbsp;<a href="builtins.html#object">object</a>&nbsp;to&nbsp;allow&nbsp;the&nbsp;creation&nbsp;of&nbsp;arrays&nbsp;which&nbsp;are&nbsp;not<br>
+&nbsp;&nbsp;&nbsp;&nbsp;NumPy&nbsp;arrays.&nbsp;If&nbsp;an&nbsp;array-like&nbsp;passed&nbsp;in&nbsp;as&nbsp;``like``&nbsp;supports<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;``__array_function__``&nbsp;protocol,&nbsp;the&nbsp;result&nbsp;will&nbsp;be&nbsp;defined<br>
+&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;it.&nbsp;In&nbsp;this&nbsp;case,&nbsp;it&nbsp;ensures&nbsp;the&nbsp;creation&nbsp;of&nbsp;an&nbsp;array&nbsp;<a href="builtins.html#object">object</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;compatible&nbsp;with&nbsp;that&nbsp;passed&nbsp;in&nbsp;via&nbsp;this&nbsp;argument.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;..&nbsp;note::<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;``like``&nbsp;keyword&nbsp;is&nbsp;an&nbsp;experimental&nbsp;feature&nbsp;pending&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;acceptance&nbsp;of&nbsp;:ref:`NEP&nbsp;35&nbsp;&lt;NEP35&gt;`.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;..&nbsp;versionadded::&nbsp;1.20.0<br>
+&nbsp;<br>
+Returns<br>
+-------<br>
+out&nbsp;:&nbsp;ndarray<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Array&nbsp;of&nbsp;zeros&nbsp;with&nbsp;the&nbsp;given&nbsp;shape,&nbsp;dtype,&nbsp;and&nbsp;order.<br>
+&nbsp;<br>
+See&nbsp;Also<br>
+--------<br>
+zeros_like&nbsp;:&nbsp;Return&nbsp;an&nbsp;array&nbsp;of&nbsp;zeros&nbsp;with&nbsp;shape&nbsp;and&nbsp;type&nbsp;of&nbsp;input.<br>
+empty&nbsp;:&nbsp;Return&nbsp;a&nbsp;new&nbsp;uninitialized&nbsp;array.<br>
+ones&nbsp;:&nbsp;Return&nbsp;a&nbsp;new&nbsp;array&nbsp;setting&nbsp;values&nbsp;to&nbsp;one.<br>
+full&nbsp;:&nbsp;Return&nbsp;a&nbsp;new&nbsp;array&nbsp;of&nbsp;given&nbsp;shape&nbsp;filled&nbsp;with&nbsp;value.<br>
+&nbsp;<br>
+Examples<br>
+--------<br>
+&gt;&gt;&gt;&nbsp;np.<a href="#-zeros">zeros</a>(5)<br>
+array([&nbsp;0.,&nbsp;&nbsp;0.,&nbsp;&nbsp;0.,&nbsp;&nbsp;0.,&nbsp;&nbsp;0.])<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;np.<a href="#-zeros">zeros</a>((5,),&nbsp;dtype=int)<br>
+array([0,&nbsp;0,&nbsp;0,&nbsp;0,&nbsp;0])<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;np.<a href="#-zeros">zeros</a>((2,&nbsp;1))<br>
+array([[&nbsp;0.],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;0.]])<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;s&nbsp;=&nbsp;(2,2)<br>
+&gt;&gt;&gt;&nbsp;np.<a href="#-zeros">zeros</a>(s)<br>
+array([[&nbsp;0.,&nbsp;&nbsp;0.],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[&nbsp;0.,&nbsp;&nbsp;0.]])<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;np.<a href="#-zeros">zeros</a>((2,),&nbsp;dtype=[('x',&nbsp;'i4'),&nbsp;('y',&nbsp;'i4')])&nbsp;#&nbsp;custom&nbsp;dtype<br>
+array([(0,&nbsp;0),&nbsp;(0,&nbsp;0)],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dtype=[('x',&nbsp;'&lt;i4'),&nbsp;('y',&nbsp;'&lt;i4')])</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>BACKTOWHEEL</strong> = 1.48<br>
+<strong>DT</strong> = 0.25<br>
+<strong>DU_TH</strong> = 10<br>
+<strong>GOAL_DIS</strong> = 10<br>
+<strong>LENGTH</strong> = 2.817<br>
+<strong>MAX_ACCEL</strong> = 1.0<br>
+<strong>MAX_DSTEER</strong> = 0.17453292519943295<br>
+<strong>MAX_ITER</strong> = 1<br>
+<strong>MAX_SPEED</strong> = 11.11111111111111<br>
+<strong>MAX_STEER</strong> = 0.5235987755982988<br>
+<strong>MAX_TIME</strong> = 1000.0<br>
+<strong>MIN_SPEED</strong> = -0.2777777777777778<br>
+<strong>NU</strong> = 2<br>
+<strong>NX</strong> = 4<br>
+<strong>N_IND_SEARCH</strong> = 10<br>
+<strong>Q</strong> = array([[1. , 0. , 0. , 0. ],
+       [0. , 1. , 0.... , 0. , 0.5, 0. ],
+       [0. , 0. , 0. , 0.5]])<br>
+<strong>Qf</strong> = array([[1. , 0. , 0. , 0. ],
+       [0. , 1. , 0.... , 0. , 0.5, 0. ],
+       [0. , 0. , 0. , 0.5]])<br>
+<strong>R</strong> = array([[0.01, 0.  ],
+       [0.  , 0.01]])<br>
+<strong>Rd</strong> = array([[0.01, 0.  ],
+       [0.  , 1.  ]])<br>
+<strong>STOP_SPEED</strong> = 27.77777777777778<br>
+<strong>T</strong> = 5<br>
+<strong>TARGET_SPEED</strong> = 8.333333333333334<br>
+<strong>TREAD</strong> = 0.7<br>
+<strong>WB</strong> = 2.345<br>
+<strong>WHEEL_LEN</strong> = 0.4<br>
+<strong>WHEEL_WIDTH</strong> = 0.4<br>
+<strong>WIDTH</strong> = 1.68<br>
+<strong>crs</strong> = False<br>
+<strong>firstx</strong> = 0<br>
+<strong>firsty</strong> = 0<br>
+<strong>globaltime</strong> = []<br>
+<strong>globalx</strong> = []<br>
+<strong>globaly</strong> = []<br>
+<strong>globalyaw</strong> = []<br>
+<strong>lap</strong> = False<br>
+<strong>logcrs</strong> = Empty DataFrame
+Columns: []
+Index: []<br>
+<strong>loglat</strong> = Empty DataFrame
+Columns: []
+Index: []<br>
+<strong>loglon</strong> = Empty DataFrame
+Columns: []
+Index: []<br>
+<strong>logtime</strong> = Empty DataFrame
+Columns: []
+Index: []<br>
+<strong>reference</strong> = True<br>
+<strong>xy</strong> = False</td></tr></table>
+</body></html>

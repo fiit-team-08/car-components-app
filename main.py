@@ -161,8 +161,9 @@ def getdata():
     return data
 
 
-if not VERBOSE:
-    sys.stdout = open(devnull, "w")
-    sys.stderr = open(devnull, "w")
+if __name__ == '__main__':
+    if not VERBOSE:
+        sys.stdout = open(devnull, "w")
+        sys.stderr = open(devnull, "w")
 
-eel.start('index.html', mode='electron', cmdline_args=['electron'])
+    eel.start('index.html', mode='electron', cmdline_args=['electron'])

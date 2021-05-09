@@ -1,0 +1,240 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module animation.animation_rendering</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="animation.html"><font color="#ffffff">animation</font></a>.animation_rendering</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"></font></td></tr></table>
+    <p><tt>#&nbsp;https://stable-baselines.readthedocs.io/en/master/guide/custom_env.html</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="copy.html">copy</a><br>
+<a href="shapely.geometry.html">shapely.geometry</a><br>
+<a href="pyglet.gl.html">pyglet.gl</a><br>
+<a href="gym.html">gym</a><br>
+</td><td width="25%" valign=top><a href="json.html">json</a><br>
+<a href="pyglet.window.key.html">pyglet.window.key</a><br>
+<a href="math.html">math</a><br>
+<a href="pyglet.window.mouse.html">pyglet.window.mouse</a><br>
+</td><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+<a href="pandas.html">pandas</a><br>
+<a href="pyglet.html">pyglet</a><br>
+<a href="gym.envs.classic_control.rendering.html">gym.envs.classic_control.rendering</a><br>
+</td><td width="25%" valign=top><a href="gym.spaces.html">gym.spaces</a><br>
+<a href="pyglet.window.html">pyglet.window</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="gym.core.html#Env">gym.core.Env</a>(<a href="builtins.html#object">builtins.object</a>)
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="animation.animation_rendering.html#CarEnv">CarEnv</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="CarEnv">class <strong>CarEnv</strong></a>(<a href="gym.core.html#Env">gym.core.Env</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#CarEnv">CarEnv</a>(reference_track,&nbsp;type='continuous',&nbsp;action_dim=2,&nbsp;verbose=1)<br>
+&nbsp;<br>
+Environment&nbsp;class&nbsp;containing&nbsp;all&nbsp;the&nbsp;methods&nbsp;necessary&nbsp;for&nbsp;reinforcement<br>
+learning.<br>
+&nbsp;<br>
+Attributes<br>
+----------<br>
+&nbsp;&nbsp;&nbsp;&nbsp;df&nbsp;:&nbsp;pd.DataFrame<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DataFrame&nbsp;containing&nbsp;info&nbsp;about&nbsp;the&nbsp;ref.&nbsp;trace.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;road&nbsp;:&nbsp;geom.LineString<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Geometric&nbsp;multiline&nbsp;representing&nbsp;the&nbsp;ref.&nbsp;trace.&nbsp;&nbsp;&nbsp;&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_x&nbsp;:&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;x&nbsp;position&nbsp;for&nbsp;reset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_y&nbsp;:&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;y&nbsp;position&nbsp;for&nbsp;reset.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_theta&nbsp;:&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;vehicle&nbsp;heading&nbsp;angle&nbsp;for&nbsp;reset&nbsp;(radians).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_v&nbsp;:&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;velocity&nbsp;of&nbsp;the&nbsp;vehicle&nbsp;for&nbsp;reset&nbsp;(m/s).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_psi&nbsp;:&nbsp;float<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;steering&nbsp;command&nbsp;of&nbsp;the&nbsp;vehicle&nbsp;given&nbsp;in&nbsp;radians.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;init_observation&nbsp;:&nbsp;np.array<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Initial&nbsp;observation&nbsp;used&nbsp;to&nbsp;reset&nbsp;the&nbsp;environment.&nbsp;It's&nbsp;described<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;by&nbsp;array&nbsp;[x,&nbsp;y,&nbsp;theta,&nbsp;v,&nbsp;psi].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;state&nbsp;:&nbsp;np.array&nbsp;or&nbsp;None<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Current&nbsp;state&nbsp;of&nbsp;the&nbsp;car&nbsp;given&nbsp;by&nbsp;array&nbsp;[x,&nbsp;y,&nbsp;theta,&nbsp;v,&nbsp;psi].<br>
+&nbsp;&nbsp;&nbsp;&nbsp;viewer&nbsp;:&nbsp;rendering.Viewer()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Scene&nbsp;with&nbsp;objects&nbsp;being&nbsp;rendered<br>
+&nbsp;&nbsp;&nbsp;&nbsp;track&nbsp;:&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Coordinates&nbsp;x,y&nbsp;of&nbsp;all&nbsp;points&nbsp;of&nbsp;the&nbsp;track<br>
+&nbsp;&nbsp;&nbsp;&nbsp;car_trans&nbsp;:&nbsp;rendering.Transformation()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute&nbsp;for&nbsp;making&nbsp;transformations&nbsp;with&nbsp;car&nbsp;object<br>
+&nbsp;&nbsp;&nbsp;&nbsp;track_trans&nbsp;:&nbsp;rendering.Transformation()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute&nbsp;for&nbsp;making&nbsp;transformations&nbsp;with&nbsp;track<br>
+&nbsp;&nbsp;&nbsp;&nbsp;left_wheel_trans,&nbsp;right_wheel_trans&nbsp;:&nbsp;rendering.Transformation()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Attribute&nbsp;for&nbsp;making&nbsp;transformations&nbsp;with&nbsp;front&nbsp;wheels<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%"><dl><dt>Method resolution order:</dt>
+<dd><a href="animation.animation_rendering.html#CarEnv">CarEnv</a></dd>
+<dd><a href="gym.core.html#Env">gym.core.Env</a></dd>
+<dd><a href="builtins.html#object">builtins.object</a></dd>
+</dl>
+<hr>
+Methods defined here:<br>
+<dl><dt><a name="CarEnv-__init__"><strong>__init__</strong></a>(self, reference_track, type='continuous', action_dim=2, verbose=1)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-close"><strong>close</strong></a>(self)</dt><dd><tt>Closes&nbsp;the&nbsp;viewer&nbsp;window.</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-render"><strong>render</strong></a>(self, mode='human')</dt><dd><tt>Renders&nbsp;the&nbsp;environment.<br>
+&nbsp;<br>
+The&nbsp;set&nbsp;of&nbsp;supported&nbsp;modes&nbsp;varies&nbsp;per&nbsp;environment.&nbsp;(And&nbsp;some<br>
+environments&nbsp;do&nbsp;not&nbsp;support&nbsp;rendering&nbsp;at&nbsp;all.)&nbsp;By&nbsp;convention,<br>
+if&nbsp;mode&nbsp;is:<br>
+&nbsp;<br>
+-&nbsp;human:&nbsp;render&nbsp;to&nbsp;the&nbsp;current&nbsp;display&nbsp;or&nbsp;terminal&nbsp;and<br>
+&nbsp;&nbsp;return&nbsp;nothing.&nbsp;Usually&nbsp;for&nbsp;human&nbsp;consumption.<br>
+-&nbsp;rgb_array:&nbsp;Return&nbsp;an&nbsp;numpy.ndarray&nbsp;with&nbsp;shape&nbsp;(x,&nbsp;y,&nbsp;3),<br>
+&nbsp;&nbsp;representing&nbsp;RGB&nbsp;values&nbsp;for&nbsp;an&nbsp;x-by-y&nbsp;pixel&nbsp;image,&nbsp;suitable<br>
+&nbsp;&nbsp;for&nbsp;turning&nbsp;into&nbsp;a&nbsp;video.<br>
+-&nbsp;ansi:&nbsp;Return&nbsp;a&nbsp;string&nbsp;(str)&nbsp;or&nbsp;StringIO.StringIO&nbsp;containing&nbsp;a<br>
+&nbsp;&nbsp;terminal-style&nbsp;text&nbsp;representation.&nbsp;The&nbsp;text&nbsp;can&nbsp;include&nbsp;newlines<br>
+&nbsp;&nbsp;and&nbsp;ANSI&nbsp;escape&nbsp;sequences&nbsp;(e.g.&nbsp;for&nbsp;colors).<br>
+&nbsp;<br>
+Note:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Make&nbsp;sure&nbsp;that&nbsp;your&nbsp;class's&nbsp;metadata&nbsp;'render.modes'&nbsp;key&nbsp;includes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;list&nbsp;of&nbsp;supported&nbsp;modes.&nbsp;It's&nbsp;recommended&nbsp;to&nbsp;call&nbsp;super()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;in&nbsp;implementations&nbsp;to&nbsp;use&nbsp;the&nbsp;functionality&nbsp;of&nbsp;this&nbsp;method.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;mode&nbsp;(str):&nbsp;the&nbsp;mode&nbsp;to&nbsp;render&nbsp;with<br>
+&nbsp;<br>
+Example:<br>
+&nbsp;<br>
+class&nbsp;MyEnv(<a href="gym.core.html#Env">Env</a>):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;metadata&nbsp;=&nbsp;{'render.modes':&nbsp;['human',&nbsp;'rgb_array']}<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;def&nbsp;<a href="#CarEnv-render">render</a>(self,&nbsp;mode='human'):<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;if&nbsp;mode&nbsp;==&nbsp;'rgb_array':<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return&nbsp;np.array(...)&nbsp;#&nbsp;return&nbsp;RGB&nbsp;frame&nbsp;suitable&nbsp;for&nbsp;video<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;elif&nbsp;mode&nbsp;==&nbsp;'human':<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...&nbsp;#&nbsp;pop&nbsp;up&nbsp;a&nbsp;window&nbsp;and&nbsp;render<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;else:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;super(MyEnv,&nbsp;self).<a href="#CarEnv-render">render</a>(mode=mode)&nbsp;#&nbsp;just&nbsp;raise&nbsp;an&nbsp;exception</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-reset"><strong>reset</strong></a>(self)</dt><dd><tt>Resets&nbsp;the&nbsp;state&nbsp;of&nbsp;the&nbsp;car&nbsp;to&nbsp;the&nbsp;initial&nbsp;state&nbsp;and&nbsp;creates&nbsp;track</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-step"><strong>step</strong></a>(self, action)</dt><dd><tt>Updates&nbsp;parameters&nbsp;with&nbsp;each&nbsp;step</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-zoom_in"><strong>zoom_in</strong></a>(self)</dt></dl>
+
+<dl><dt><a name="CarEnv-zoom_out"><strong>zoom_out</strong></a>(self)</dt></dl>
+
+<hr>
+Data and other attributes defined here:<br>
+<dl><dt><strong>metadata</strong> = {'render.modes': ['human']}</dl>
+
+<hr>
+Methods inherited from <a href="gym.core.html#Env">gym.core.Env</a>:<br>
+<dl><dt><a name="CarEnv-__enter__"><strong>__enter__</strong></a>(self)</dt><dd><tt>Support&nbsp;with-statement&nbsp;for&nbsp;the&nbsp;environment.</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-__exit__"><strong>__exit__</strong></a>(self, *args)</dt><dd><tt>Support&nbsp;with-statement&nbsp;for&nbsp;the&nbsp;environment.</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-__str__"><strong>__str__</strong></a>(self)</dt><dd><tt>Return&nbsp;str(self).</tt></dd></dl>
+
+<dl><dt><a name="CarEnv-seed"><strong>seed</strong></a>(self, seed=None)</dt><dd><tt>Sets&nbsp;the&nbsp;seed&nbsp;for&nbsp;this&nbsp;env's&nbsp;random&nbsp;number&nbsp;generator(s).<br>
+&nbsp;<br>
+Note:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Some&nbsp;environments&nbsp;use&nbsp;multiple&nbsp;pseudorandom&nbsp;number&nbsp;generators.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;We&nbsp;want&nbsp;to&nbsp;capture&nbsp;all&nbsp;such&nbsp;seeds&nbsp;used&nbsp;in&nbsp;order&nbsp;to&nbsp;ensure&nbsp;that<br>
+&nbsp;&nbsp;&nbsp;&nbsp;there&nbsp;aren't&nbsp;accidental&nbsp;correlations&nbsp;between&nbsp;multiple&nbsp;generators.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list&lt;bigint&gt;:&nbsp;Returns&nbsp;the&nbsp;list&nbsp;of&nbsp;seeds&nbsp;used&nbsp;in&nbsp;this&nbsp;env's&nbsp;random<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;number&nbsp;generators.&nbsp;The&nbsp;first&nbsp;value&nbsp;in&nbsp;the&nbsp;list&nbsp;should&nbsp;be&nbsp;the<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"main"&nbsp;seed,&nbsp;or&nbsp;the&nbsp;value&nbsp;which&nbsp;a&nbsp;reproducer&nbsp;should&nbsp;pass&nbsp;to<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'seed'.&nbsp;Often,&nbsp;the&nbsp;main&nbsp;seed&nbsp;equals&nbsp;the&nbsp;provided&nbsp;'seed',&nbsp;but<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this&nbsp;won't&nbsp;be&nbsp;true&nbsp;if&nbsp;seed=None,&nbsp;for&nbsp;example.</tt></dd></dl>
+
+<hr>
+Readonly properties inherited from <a href="gym.core.html#Env">gym.core.Env</a>:<br>
+<dl><dt><strong>unwrapped</strong></dt>
+<dd><tt>Completely&nbsp;unwrap&nbsp;this&nbsp;env.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;gym.Env:&nbsp;The&nbsp;base&nbsp;non-wrapped&nbsp;gym.Env&nbsp;instance</tt></dd>
+</dl>
+<hr>
+Data descriptors inherited from <a href="gym.core.html#Env">gym.core.Env</a>:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<hr>
+Data and other attributes inherited from <a href="gym.core.html#Env">gym.core.Env</a>:<br>
+<dl><dt><strong>action_space</strong> = None</dl>
+
+<dl><dt><strong>observation_space</strong> = None</dl>
+
+<dl><dt><strong>reward_range</strong> = (-inf, inf)</dl>
+
+<dl><dt><strong>spec</strong> = None</dl>
+
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-key_press"><strong>key_press</strong></a>(k, mod)</dt></dl>
+ <dl><dt><a name="-mouse_scroll"><strong>mouse_scroll</strong></a>(x, y, scroll_x, scroll_y)</dt></dl>
+ <dl><dt><a name="-on_close_window"><strong>on_close_window</strong></a>()</dt></dl>
+ <dl><dt><a name="-run_animation"><strong>run_animation</strong></a>(data, car_dimensions, coords)</dt><dd><tt>Runs&nbsp;complete&nbsp;animation&nbsp;<br>
+Parameters<br>
+---------<br>
+&nbsp;&nbsp;&nbsp;&nbsp;env&nbsp;:&nbsp;<a href="#CarEnv">CarEnv</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;car&nbsp;environment<br>
+&nbsp;&nbsp;&nbsp;&nbsp;close&nbsp;:&nbsp;Boolean<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;True&nbsp;if&nbsp;animation&nbsp;is&nbsp;finished&nbsp;or&nbsp;canceled</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>CAR_COLOR</strong> = (1, 0, 0)<br>
+<strong>CAR_LENGTH</strong> = 2.817<br>
+<strong>CAR_WIDTH</strong> = 1.68<br>
+<strong>ROAD_WIDTH</strong> = 7<br>
+<strong>WHEEL_BASE</strong> = 2.345<br>
+<strong>WHEEL_COLOR</strong> = (0, 0, 0)<br>
+<strong>WHEEL_LENGTH</strong> = 0.3<br>
+<strong>WHEEL_SPACING</strong> = 1.48<br>
+<strong>WHEEL_WIDTH</strong> = 0.195<br>
+<strong>WINDOW_COLOR</strong> = (0.5, 0.5, 0.8)<br>
+<strong>WINDOW_H</strong> = 800<br>
+<strong>WINDOW_W</strong> = 800<br>
+<strong>ZOOM</strong> = 50<br>
+<strong>close</strong> = False<br>
+<strong>env</strong> = None<br>
+<strong>shapes</strong> = &lt;pyglet._ModuleProxy object&gt;</td></tr></table>
+</body></html>
