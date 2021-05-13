@@ -377,6 +377,9 @@ def analyze_laps(traces, reference_lap, laps):
         'lapData': []
     }
 
+    first_lat = degrees2kilometers(reference_lap['LAT'].iloc[0]) * 1000
+    first_lon = degrees2kilometers(reference_lap['LON'].iloc[0]) * 1000
+
     for i in range(len(laps) - 1):
         lap_data = traces.iloc[laps[i]: laps[i + 1]]
 
@@ -390,8 +393,8 @@ def analyze_laps(traces, reference_lap, laps):
         data_dict['averagePerpendicularDistance'].append(average_dist)
         lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
         lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
-        lap_data.LAT -= firstx
-        lap_data.LON -= firsty
+        lap_data.LAT -= first_lat
+        lap_data.LON -= first_lon
         data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     # tha last circuit (lap) was not saved yet so save that one
@@ -407,8 +410,8 @@ def analyze_laps(traces, reference_lap, laps):
     data_dict['averagePerpendicularDistance'].append(average_dist)
     lap_data.LAT = lap_data.LAT.apply(lambda deg: degrees2kilometers(deg) * 1000)
     lap_data.LON = lap_data.LON.apply(lambda deg: degrees2kilometers(deg) * 1000)
-    lap_data.LAT -= firstx
-    lap_data.LON -= firsty
+    lap_data.LAT -= first_lat
+    lap_data.LON -= first_lon
     data_dict['lapData'].append(json.loads(lap_data.to_json(orient="records")))
 
     data_frame = pd.DataFrame(data=data_dict)

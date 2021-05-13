@@ -439,15 +439,15 @@ function loadTrackAnalysis() {
     eel.get_laps_data_cloud(referenceFileName, tracesFileName)().then((r) => {
         trackdata = JSON.parse(r);
         document.getElementById('loading').style.display = "none";
-        // document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+        document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
     });
 
-
-    eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
-        trackdata2 = JSON.parse(r);
-        // document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
-        document.getElementById('loading').style.display = "none";
-    });
+    //
+    // eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
+    //     trackdata = JSON.parse(r);
+    //     document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+    //     document.getElementById('loading').style.display = "none";
+    // });
 }
 
 function trackAdd(id) {

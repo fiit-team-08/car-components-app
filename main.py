@@ -31,16 +31,17 @@ car_dimensions = []
 def get_laps_data_cloud(reference_file_name, traces_file_name):
     files = {'reference': open(reference_file_name, "rb"),
              'traces': open(traces_file_name, "rb")}
-    response = requests.post('http://52.137.35.82:5000/uploader', files=files)
+    response = requests.post('http://40.118.5.128:5000/uploader', files=files, timeout=5*60)
     global analyzed_laps
     global laps
     analyzed_laps = pd.read_json(response.json()["analyzed"])
     exported_laps = response.json()["exported"]
+    # print(analyzed_laps)
     traces_df = log_to_dataFrame(traces_file_name)
     normalize_logs(traces_df)
     laps = get_data_for_export(traces_df, exported_laps)
     json = put_laps_to_json(analyzed_laps)
-    print("Received response from cloud: " + str(response.status_code))
+    # print("Received response from cloud: " + str(response.status_code))
     return json
     # response = requests.post('http://127.0.0.1:5000/uploader', files=files)
 
