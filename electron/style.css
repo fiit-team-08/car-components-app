@@ -135,6 +135,14 @@ main {
     width: 900px !important;
 }
 
+.select {
+    overflow: hidden;
+    margin-top: 0 !important;
+    width: 450px !important;
+    transition: height 0.25s ease-in-out;
+    height: 80px;
+}
+
 .parameters input {
     background-color: #f5f5f5;
     border-bottom: 1px #333 solid;
@@ -193,6 +201,8 @@ main {
 .run {
     opacity: 0.5;
     pointer-events: none;
+    width: 100% !important;
+    margin-top: 25px !important;
 }
 
 .center {

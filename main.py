@@ -21,7 +21,8 @@ laps = None
 analyzed_laps = None
 mpc_data = None
 scp_data = None
-VERBOSE = True
+# Set to true for logging
+VERBOSE = False
 
 coords = None
 car_dimensions = []
