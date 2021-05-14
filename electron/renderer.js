@@ -435,19 +435,35 @@ function runlocal() {
     }
 }
 
-function loadTrackAnalysis() {
+function tracklocal() {
+    document.getElementById('loading').style.display = "flex";
+    document.getElementsByClassName('select')[0].style.height = "0px";
+    eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
+         trackdata = JSON.parse(r);
+         document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+         document.getElementById('loading').style.display = "none";
+         disableTrackAnalysisButtons()
+    });
+}
+
+function trackcloud() {
+    document.getElementById('loading').style.display = "flex";
+    document.getElementsByClassName('select')[0].style.height = 0;
+    document.getElementsByClassName('select')[0].style.padding = 0;
     eel.get_laps_data_cloud(referenceFileName, tracesFileName)().then((r) => {
         trackdata = JSON.parse(r);
         document.getElementById('loading').style.display = "none";
         document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
+         disableTrackAnalysisButtons()
     });
+}
 
-    //
-    // eel.get_laps_data(referenceFileName, tracesFileName)().then((r) => {
-    //     trackdata = JSON.parse(r);
-    //     document.getElementById('trasy').appendChild(makeUL(JSON.parse(r)));
-    //     document.getElementById('loading').style.display = "none";
-    // });
+function disableTrackAnalysisButtons() {
+    document.getElementById('track-local').style.opacity = "0.5";
+    document.getElementById('track-local').style.pointerEvents = "none";
+
+    document.getElementById('track-cloud').style.opacity = "0.5";
+    document.getElementById('track-cloud').style.pointerEvents = "none";
 }
 
 function trackAdd(id) {
@@ -554,7 +570,8 @@ function makeUL(array) {
 }
 
 function cp() {
-    document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Simple Command Prediction:";
+    document.getElementById('parameters-text').innerHTML = "Vytvoriť model pomocou Monte Carlo Method:";
+    document.getElementById('run').innerHTML = "Spustiť animáciu Monte Carlo Method";
     selector = 1;
     if (document.getElementsByClassName('selector-buttons')[0].style.backgroundColor === 'rgb(20, 46, 59)') {
         document.getElementsByClassName('selector-buttons')[0].style.backgroundColor = '#254053';
@@ -570,7 +587,8 @@ function cp() {
 }
 
 function mpc() {
-    document.getElementById('parameters-text').innerHTML = "Vyberte spôsob vytvorenia modelu pomocou Model Predictive Control:";
+    document.getElementById('parameters-text').innerHTML = "Vytvoriť model pomocou Model Predictive Control:";
+    document.getElementById('run').innerHTML = "Spustiť animáciu Model Predictive Control";
     selector = 2;
     if (document.getElementsByClassName('selector-buttons')[1].style.backgroundColor === 'rgb(20, 46, 59)') {
         document.getElementsByClassName('selector-buttons')[1].style.backgroundColor = '#254053';
@@ -729,11 +747,6 @@ document.getElementById('track').addEventListener("click", event => {
     document.getElementById('ww1').style.display = "block";
     document.getElementById('ww2').style.display = "none";
     document.getElementById('description').value = drahadesc;
-    if (referenceFileName !== undefined && car === 0) {
-        document.getElementById('loading').style.display = "flex";
-        loadTrackAnalysis()
-        car = 1;
-    }
 });
 
 document.getElementById('car').addEventListener("click", event => {
