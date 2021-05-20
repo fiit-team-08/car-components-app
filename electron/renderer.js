@@ -81,6 +81,10 @@ let lines1 = new Chart(document.getElementById("chart1"), {
     }
 });
 
+function setIp(){
+    eel.set_ip(document.getElementById('ip').value)()
+}
+
 let lines2 = new Chart(document.getElementById("chart2"), {
     type: 'scatter',
     data: {

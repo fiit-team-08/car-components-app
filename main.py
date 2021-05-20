@@ -22,10 +22,12 @@ analyzed_laps = None
 mpc_data = None
 scp_data = None
 # Set to true for logging
-VERBOSE = False
+VERBOSE = True
 
 coords = None
 car_dimensions = []
+
+server_address = 'http://40.118.5.128:5000'
 
 
 @eel.expose
@@ -33,7 +35,7 @@ def get_laps_data_cloud(reference_file_name, traces_file_name):
     try:
         files = {'reference': open(reference_file_name, "rb"),
                  'traces': open(traces_file_name, "rb")}
-        response = requests.post('http://40.118.5.128:5000/uploader', files=files, timeout=5*60)
+        response = requests.post(server_address + '/uploader', files=files, timeout=5*60)
         global analyzed_laps
         global laps
         analyzed_laps = pd.read_json(response.json()["analyzed"])
@@ -186,6 +188,14 @@ def can_run_animation(model):
         return mpc_data is not None
     else:
         return False
+
+
+@eel.expose
+def set_ip(address):
+    print("Setting ip to: " + address)
+
+    global server_address
+    server_address = address
 
 
 data = [69, 59, 80, 81, 56, 55, 40]
