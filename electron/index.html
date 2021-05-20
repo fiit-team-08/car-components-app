@@ -79,6 +79,14 @@
             </div>
         </div>
         <div id="ww1" class="flex-row">
+            <div class="selector select flex-row">
+                <div id="track-local" onClick="tracklocal()" class="button button-small button-smaller" style=" margin-top: 40px; ">
+                    <p>Spustiť na lokálne</p>
+                </div>
+                <div id="track-cloud" onClick="trackcloud()" class="button button-small button-smaller" style=" margin-top: 40px; ">
+                    <p>Spustiť na cloude</p>
+                </div>
+            </div>
             <div class="left">
                 <div class="charts">
                     <canvas id="chart1"></canvas>
@@ -110,7 +118,7 @@
         <div id="ww2">
             <div class="selector flex-row">
                 <div onClick="cp()" class="button button-small selector-buttons">
-                    <p>Simple Command Prediction</p>
+                    <p>Monte Carlo Method</p>
                 </div>
                 <div onClick="mpc()" class="button button-small selector-buttons">
                     <p>Model Predictive Control</p>
@@ -180,11 +188,8 @@
                             <div onclick="runlocal()" class="button button-small button-smaller disable">
                                 <p>Spustiť lokálne</p>
                             </div>
-                            <div onclick="runcloud()" class="button button-small button-smaller disable">
+                            <div onclick="runcloud()" class="button button-small button-smaller disable" style="display: none">
                                 <p>Spustiť na cloude</p>
-                            </div>
-                            <div onclick="animate_car_movement()" class="button button-small button-smaller run">
-                                <p>Spustiť animáciu</p>
                             </div>
                         </div>
                     </div>
@@ -203,6 +208,9 @@
                         <div id="trasyxy">
                             <input type="checkbox" id="refxy" checked="true" onclick="lines2ref()"/><label class="refxy" for="refxy">Referenčná</label>
                         </div>
+                    </div>
+                    <div onclick="animate_car_movement()" class="button button-small button-smaller run">
+                        <p id="run">Spustiť animáciu</p>
                     </div>
                 </div>
             </div>
